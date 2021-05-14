@@ -29,6 +29,22 @@ const init = async function () {
     else bot.logger.log('Firebase succesfully initialized'); 
 
     //import commands - general import syntax adapted from github user @mcao
+    klaw("./commands")
+        .on("data", item => {
+            const cmdFile = path.parse(item.path);
+            if (!cmdFile.ext || cmdFile.ext !== ".js") return;
+            const cmdName = cmdFile.name.split(".")[0];
+            try {
+                const cmd = new (require(`${cmdFile.dir}${path.sep}${cmdFile.name}${cmdFile.ext}`))(bot);
+                bot.commands.set(cmdName, cmd);
+                
+                delete require.cache[require.resolve(`${cmdFile.dir}${path.sep}${cmdFile.name}${cmdFile.ext}`)];
+            } catch(error) {
+                bot.logger.error(`Error loading command ${cmdFile.name}: ${error}`);
+            }
+        })
+        .on("end", () => bot.logger.log(`Loaded ${bot.commands.size} commands.`))
+        .on("error", error => bot.logger.error(error));
     //import events
     klaw('./events')
         .on('data', item => {
@@ -38,17 +54,17 @@ const init = async function () {
             try {
                 const event = new (require(`${eventFile.dir}${path.sep}${eventFile.name}${eventFile.ext}`))(bot);
                 bot.events.set(eventName, event);
-                bot.on(eventName, (...args) => event.run(bot, ...args));
+                bot.on(eventName, (...args) => event.run(...args));
                 
                 delete require.cache[require.resolve(`${eventFile.dir}${path.sep}${eventFile.name}${eventFile.ext}`)];
-            } catch (error) {
-                 bot.logger.error(`Error loading event ${eventFile.name}: ${error}`);
+            } catch(error) {
+                bot.logger.error(`Error loading event ${eventFile.name}: ${error}`);
             }
         })
         .on('end', () => bot.logger.log(`Loaded ${bot.events.size} events`))
         .on('error', bot.logger.error);
 
-    console.log(await (new (require('./commands/user/profile'))(bot)).run({author:{id:'110697012205715456'}}, []));
+    //console.log(await (new (require('./commands/user/profile'))(bot)).run({author:{id:'110697012205715456'}}, []));
     bot.logger.log('Connecting...');
     bot.login(process.env.BOT_TOKEN).then(() => bot.logger.debug('Bot succesfully initialized'));
 };
