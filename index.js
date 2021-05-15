@@ -1,3 +1,6 @@
+if (process.version.slice(1).split(".")[0] < 14)
+  throw new Error("Node 14.0.0 or higher is required.");
+
 const { Client, Collection } = require('discord.js');
 const admin = require('firebase-admin');
 const klaw = require('klaw');
