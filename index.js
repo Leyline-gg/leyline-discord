@@ -32,11 +32,11 @@ const init = async function () {
     else bot.logger.log('Firebase succesfully initialized'); 
 
     //import commands - general import syntax adapted from github user @mcao
-    klaw("./commands")
-        .on("data", item => {
+    klaw('./commands')
+        .on('data', item => {
             const cmdFile = path.parse(item.path);
-            if (!cmdFile.ext || cmdFile.ext !== ".js") return;
-            const cmdName = cmdFile.name.split(".")[0];
+            if (!cmdFile.ext || cmdFile.ext !== '.js') return;
+            const cmdName = cmdFile.name.split('.')[0];
             try {
                 const cmd = new (require(`${cmdFile.dir}${path.sep}${cmdFile.name}${cmdFile.ext}`))(bot);
                 bot.commands.set(cmdName, cmd);
@@ -46,14 +46,14 @@ const init = async function () {
                 bot.logger.error(`Error loading command ${cmdFile.name}: ${error}`);
             }
         })
-        .on("end", () => bot.logger.log(`Loaded ${bot.commands.size} commands.`))
-        .on("error", error => bot.logger.error(error));
+        .on('end', () => bot.logger.log(`Loaded ${bot.commands.size} commands.`))
+        .on('error', error => bot.logger.error(error));
     //import events
     klaw('./events')
         .on('data', item => {
             const eventFile = path.parse(item.path);
-            if (!eventFile.ext || eventFile.ext !== ".js") return;
-            const eventName = eventFile.name.split(".")[0];
+            if (!eventFile.ext || eventFile.ext !== '.js') return;
+            const eventName = eventFile.name.split('s.')[0];
             try {
                 const event = new (require(`${eventFile.dir}${path.sep}${eventFile.name}${eventFile.ext}`))(bot);
                 bot.events.set(eventName, event);
