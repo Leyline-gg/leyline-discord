@@ -13,6 +13,7 @@ class profile extends Command {
     }
 
     async run(msg, args) {
+        // Functions
         const getLeylineInfo = function (discord_uid) {
             const getLeylineAvatarUrl = async function (uid) {
                 let url = 'https://i.ibb.co/qBBpDdh/avatar-default.png';  //default avatar
@@ -47,10 +48,37 @@ class profile extends Command {
             });
         };
 
+        // Command logic
         try {
-            const ll_info = await getLeylineInfo(msg.author.id);
+            //break down args, look for a single user
+            let target_user = msg.author;   //assume user is checking their own profile
+            if(args.length > 1) return msg.channel.send('❌ Too many arguments');
+            if(!!args[0]) target_user = msg.mentions.members.first();
+            if(!target_user?.id) return msg.channel.send('❌ Argument must be a Discord user');
+
+            //easter egg if user tries to check the profile of the bot
+            if(target_user.id === this.bot.user.id) return msg.channel.send('My Leyline profile is beyond your capacity of comprehension');
+
+            const ll_info = await getLeylineInfo(target_user.id);
+            const embed = {
+                title: ll_info.username,
+                thumbnail: {
+                    url: ll_info.avatarUrl
+                },
+                fields: [
+                    {
+                        name: 'LLP Balance',
+                        value: ll_info.llp
+                    }
+                ],
+                timestamp: new Date(),
+                footer: {
+                    text: 'LeylineBot'  //TODO: add bot version
+                }
+            };
+            msg.channel.send({embed: embed});
         } catch(err) {
-            if(err.code === 2) console.log(`${args.length > 0 ? 'That user has' : 'You have'} not connected ${args.length > 0 ? 'their' : 'your'} Leyline and Discord accounts`);
+            if(err.code === 2) msg.channel.send(`❌ ${!!args[0] ? 'That user has' : 'You have'} not connected ${!!args[0] ? 'their' : 'your'} Leyline and Discord accounts`);
             this.bot.logger.error(JSON.stringify(err));
             //msg.channel.send('Error while trying to run that command');
         }
