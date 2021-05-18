@@ -2,6 +2,7 @@ if (process.version.slice(1).split(".")[0] < 14)
   throw new Error("Node 14.0.0 or higher is required.");
 
 const { Client, Collection } = require('discord.js');
+const FirebaseEvent = require('./classes/FirebaseEvent');
 const admin = require('firebase-admin');
 const klaw = require('klaw');
 const path = require('path');
@@ -9,6 +10,8 @@ if (process.env.NODE_ENV !== 'production')
     require('dotenv').config();
 
 class LeylineBot extends Client {
+    discord_log_channel = '843892751276048394'; //for logging actions performed
+
     constructor(options) {
         super(options);
 
@@ -17,6 +20,19 @@ class LeylineBot extends Client {
         this.config     = require('./config')[process.env.NODE_ENV || 'development'];
         this.commands   = new Collection();
         this.events     = new Collection();
+        this.firebase_events = new Collection();
+    }
+
+    get leyline_guild() {
+        return this.guilds.resolve('751913089271726160');
+    }
+
+    /**
+     * Sends a discord message on the bot's behalf to a log channel
+     * @param {String} text 
+     */
+    logDiscord(text) {
+        bot.channels.cache.find(ch => ch.id === this.discord_log_channel).send(text);
     }
 }
 
@@ -48,12 +64,12 @@ const init = async function () {
         })
         .on('end', () => bot.logger.log(`Loaded ${bot.commands.size} commands.`))
         .on('error', error => bot.logger.error(error));
-    //import events
+    //import discord events
     klaw('./events')
         .on('data', item => {
             const eventFile = path.parse(item.path);
             if (!eventFile.ext || eventFile.ext !== '.js') return;
-            const eventName = eventFile.name.split('s.')[0];
+            const eventName = eventFile.name.split('.')[0];
             try {
                 const event = new (require(`${eventFile.dir}${path.sep}${eventFile.name}${eventFile.ext}`))(bot);
                 bot.events.set(eventName, event);
@@ -66,8 +82,40 @@ const init = async function () {
         })
         .on('end', () => bot.logger.log(`Loaded ${bot.events.size} events`))
         .on('error', bot.logger.error);
+    //import firebase events
+    klaw('./events_firebase')
+        .on('data', item => {
+            const eventFile = path.parse(item.path);
+            if (!eventFile.ext || eventFile.ext !== '.js') return;
+            try {
+                const firebase_event = new (require(`${eventFile.dir}${path.sep}${eventFile.name}${eventFile.ext}`))(bot);
+                admin.firestore().collection(firebase_event.collection).onSnapshot((snapshot) => {
+                    if(!bot.readyAt) return;    //ensure bot is initialized before event is fired
+                    if(snapshot.empty) return;
+                    for(const docChange of snapshot.docChanges()) 
+                        switch(docChange.type) {
+                            case 'added':
+                                firebase_event.onAdd(docChange.doc);
+                                break;
+                            case 'modified':
+                                firebase_event.onModify(docChange.doc);
+                                break;
+                            case 'removed':
+                                firebase_event.onRemove(docChange.doc);
+                                break;
+                        }
+                        //doc.createTime.toDate() > bot.readyAt && firebase_event.handler(doc);
+                }, (err) => bot.logger.error(`FirebaseEvent error with ${firebase_event.name}: ${err}`));
+                bot.firebase_events.set(firebase_event.name, firebase_event);
 
-    //console.log(await (new (require('./commands/user/profile'))(bot)).run({author:{id:'110697012205715456'}}, []));
+                delete require.cache[require.resolve(`${eventFile.dir}${path.sep}${eventFile.name}${eventFile.ext}`)];
+            } catch(error) {
+                bot.logger.error(`Error loading Firebase event ${eventFile.name}: ${error}`);
+            }
+        })
+        .on('end', () => bot.logger.log(`Loaded ${bot.firebase_events.size} Firebase events`))
+        .on('error', bot.logger.error);
+
     bot.logger.log('Connecting...');
     bot.login(process.env.BOT_TOKEN).then(() => bot.logger.debug('Bot succesfully initialized'));
 };
