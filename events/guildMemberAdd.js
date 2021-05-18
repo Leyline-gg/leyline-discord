@@ -11,4 +11,14 @@ module.exports = class {
         const bot = this.bot;
         bot.logger.log(`${member.nickname} joined the server`);
     }
+
+    // Determine which invite the member joined from
+    inviteHandler() {
+
+    }
+
+    // Award the member appropriate roles
+    roleHandler() {
+
+    }
 };
