@@ -41,7 +41,7 @@ const bot = new LeylineBot({ restTimeOffset: 0 /*allegedly this helps with API d
 const init = async function () {
     //initialize firebase
     admin.initializeApp({
-        credential: admin.credential.cert(require('./leyline-web-app-dev-firebase-adminsdk-beh3s-8c4a396733.json')),
+        credential: admin.credential.cert(require(`./${process.env.FIREBASE_CREDENTIAL}`)),
         databaseURL: "https://leyline-web-app-dev.firebaseio.com"
     });
     if(admin.apps.length == 0) bot.logger.error('Error initializing firebase app');
