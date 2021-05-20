@@ -6,6 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "engines": {
+    "node": ">=14.0.0"
+  },
   "author": "Leyline",
   "license": "ISC",
   "dependencies": {
@@ -15,5 +18,6 @@
     "firebase-admin": "^9.8.0",
     "klaw": "^3.0.0",
     "moment": "^2.29.1"
-  }
+  },
+  "devDependencies": {}
 }
