@@ -26,6 +26,8 @@ class DiscordAcctLink extends FirebaseEvent {
             return this.bot.logDiscord(`<@!${member.id}> just connected their Leyline & Discord accounts, but they already had the \`Alpha Tester\` role so I didn't award it`);
         member.roles.add(this.alpha_role, 'Linked Leyline & Discord accounts');
         this.bot.logDiscord(`<@!${member.id}> just connected their Leyline & Discord accounts, and I awarded them the \`Alpha Tester\` role`);
+        member.send('You just linked your Leyline & Discord accounts and received the `Alpha Tester` role!')
+            .catch((err) => this.bot.logger.debug(`Tried to DM ${member.user.tag} (${member.id}), but I encountered an error: ${err}`));   //send DM to user
     }
 
     /**
