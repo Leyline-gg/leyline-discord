@@ -104,4 +104,4 @@ dist
 .tern-port
 
 # Firebase admin key
-leyline-web-app-dev-firebase-adminsdk-*.json
+*adminsdk*.json
