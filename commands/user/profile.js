@@ -1,5 +1,6 @@
 const Command = require('../../classes/Command');
-const admin = require('firebase-admin');
+const Firebase = require('../../classes/FirebaseAPI');
+const LeylineUser = require('../../classes/LeylineUser');
 
 class profile extends Command {
     constructor(bot) {
@@ -14,37 +15,16 @@ class profile extends Command {
 
     async run(msg, args) {
         // Functions
+        /**
+         * @returns {Promise<LeylineUser>}
+         */
         const getLeylineInfo = function (discord_uid) {
-            const getLeylineAvatarUrl = async function (uid) {
-                let url = 'https://i.ibb.co/qBBpDdh/avatar-default.png';  //default avatar
-                const inv = await admin.firestore().collection(`users/${uid}/inventory`).get();
-                if(inv.empty) return url;
-                
-                for(const item of inv.docs) 
-                    //is item an avatar and is it equipped?
-                    if(item.data()?.isEquipped && item.data()?.equipSlot === 'SKIN') {
-                        //get the item's avatar url
-                        const item_doc = await admin.firestore().doc(`items/${item.data()?.id}`).get();
-
-                        url = item_doc.data()?.avatarUrl || url;
-                        break;
-                    }
-                return url;
-            };
-
             return new Promise(async (resolve, reject) => {
-                const discord_doc = await admin.firestore().doc(`discord/bot/users/${discord_uid}`).get();
-                if(!discord_doc.exists) return reject({code:2});
-                if(!discord_doc.data()?.leylineUID) return reject({code:2});
-                //this rejects are not stopping the code from continuing to run
-                
-                const leyline_doc = await admin.firestore().doc(`users/${discord_doc.data().leylineUID}`).get();
-                resolve({
-                    leylineUID: discord_doc.data().leylineUID,
-                    llp: leyline_doc.data().balance_snapshot.snapshot_value,
-                    username: leyline_doc.data().username || 'No username set',
-                    avatarUrl: await getLeylineAvatarUrl(discord_doc.data().leylineUID)
-                });
+                if(!(await Firebase.isUserConnectedToLeyline(discord_uid)))
+                    return reject({code:2});
+
+                const user = await new LeylineUser(await Firebase.getLeylineUID(discord_uid));
+                resolve(user);
             });
         };
 
@@ -59,21 +39,72 @@ class profile extends Command {
             //easter egg if user tries to check the profile of the bot
             if(target_user.id === this.bot.user.id) return msg.channel.send('My Leyline profile is beyond your capacity of comprehension');
 
-            const ll_info = await getLeylineInfo(target_user.id);
+            const user = await getLeylineInfo(target_user.id);
             const embed = {
-                title: ll_info.username,
-                thumbnail: {
-                    url: ll_info.avatarUrl
+                //title: '\u200b',
+                author: {
+                    name: user.username,
+                    icon_url: user.avatarUrl
                 },
+                color: 0x2EA2E0,
                 fields: [
                     {
-                        name: 'LLP Balance',
-                        value: ll_info.llp
-                    }
+                        name: '<:LeylineLogo:846152082226282506>  LLP Balance',
+                        value: `**${user.llp}** Leyline Points\n\u200b`, /*newline for spacing*/
+                        inline: true
+                    },
+                    {
+                        name: '🎒 Inventory Size',
+                        value: `**${user.inventory.length}** items collected`,
+                        inline: true,
+                    },
+                    //{ name: '\u200b', value: '\u200b', inline: false },
+                    {
+                        name: '🩸 Blood Donated',
+                        value: `**${user.stats.bloodDonationScore * 3 || 0} lives saved** - \
+                                ${
+                                    !!user.stats.bloodDonationRanking ? 
+                                    `#${user.stats.bloodDonationRanking}/${user.stats.bloodDonationTotalUsers}` :
+                                    'N/A'
+                                }`,
+                        inline: true,
+                    },
+                    {
+                        name: '🖥️  Computing Donated',
+                        value: `**${Math.round(user.stats.donatedHoursScore * 10) / 10 || 0} hours** - \
+                                ${
+                                    !!user.stats.donatedHoursRanking ? 
+                                    `#${user.stats.donatedHoursRanking}/${user.stats.donatedHoursTotalUsers}` :
+                                    'N/A'
+                                }`,
+                        inline: true,
+                    },
+                    //{ name: '\u200b', value: '\u200b', inline: false },
+                    {
+                        name: '🏃 Exercise Logged',
+                        value: `**${user.stats.dailyExerciseScore || 0} days** - \
+                                ${
+                                    !!user.stats.dailyExerciseRanking ? 
+                                    `#${user.stats.dailyExerciseRanking}/${user.stats.dailyExerciseTotalUsers}` :
+                                    'N/A'
+                                }`,
+                        inline: true,
+                    },
+                    {
+                        name: '🌙  Sleep Logged',
+                        value: `**${user.stats.sleepScore || 0} nights** - \
+                                ${
+                                    !!user.stats.sleepRanking ? 
+                                    `#${user.stats.sleepRanking}/${user.stats.sleepTotalUsers}` :
+                                    'N/A'
+                                }`,
+                        inline: true,
+                    },
                 ],
                 timestamp: new Date(),
                 footer: {
-                    text: 'LeylineBot'  //TODO: add bot version
+                    text: 'LeylineBot', //TODO: add bot version
+                    icon_url: this.bot.user.avatarURL()
                 }
             };
             msg.channel.send({embed: embed});
