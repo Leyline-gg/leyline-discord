@@ -55,7 +55,7 @@ class profile extends Command {
                     },
                     {
                         name: '🎒 Inventory Size',
-                        value: `**${user.inventory.length}** items collected`,
+                        value: `**${user.inventory.length}** items collected\n\u200b`,
                         inline: true,
                     },
                     //{ name: '\u200b', value: '\u200b', inline: false },
@@ -66,7 +66,7 @@ class profile extends Command {
                                     !!user.stats.bloodDonationRanking ? 
                                     `#${user.stats.bloodDonationRanking}/${user.stats.bloodDonationTotalUsers}` :
                                     'N/A'
-                                }`,
+                                }\n\u200b`,
                         inline: true,
                     },
                     {
@@ -76,7 +76,7 @@ class profile extends Command {
                                     !!user.stats.donatedHoursRanking ? 
                                     `#${user.stats.donatedHoursRanking}/${user.stats.donatedHoursTotalUsers}` :
                                     'N/A'
-                                }`,
+                                }\n\u200b`,
                         inline: true,
                     },
                     //{ name: '\u200b', value: '\u200b', inline: false },
@@ -87,7 +87,7 @@ class profile extends Command {
                                     !!user.stats.dailyExerciseRanking ? 
                                     `#${user.stats.dailyExerciseRanking}/${user.stats.dailyExerciseTotalUsers}` :
                                     'N/A'
-                                }`,
+                                }\n\u200b`,
                         inline: true,
                     },
                     {
@@ -97,7 +97,7 @@ class profile extends Command {
                                     !!user.stats.sleepRanking ? 
                                     `#${user.stats.sleepRanking}/${user.stats.sleepTotalUsers}` :
                                     'N/A'
-                                }`,
+                                }\n\u200b`,
                         inline: true,
                     },
                 ],
