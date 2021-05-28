@@ -115,7 +115,7 @@ const init = async function () {
         .on('error', bot.logger.error);
 
     bot.logger.log('Connecting to Discord...');
-    bot.login(process.env.BOT_TOKEN).then(() => bot.logger.debug('Bot succesfully initialized'));
+    bot.login(process.env.BOT_TOKEN).then(() => bot.logger.debug('Bot succesfully initialized')).catch((err) => console.log(err));
 };
 
 init();
@@ -125,6 +125,11 @@ bot.on("disconnect", () => bot.logger.warn("Bot is disconnecting..."))
     .on("reconnect", () => bot.logger.log("Bot reconnecting..."))
     .on("error", e => bot.logger.error(e))
     .on("warn", info => bot.logger.warn(info));
+
+app.get('/', (req, res) => {
+    console.log('req received');
+    res.send('Hello World!');
+})
 
 const port = process.env.PORT || 8080; 
 app.listen(port, () => console.log(`Server listening on port ${port}`));
