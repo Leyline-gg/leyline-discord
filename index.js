@@ -9,10 +9,6 @@ const path = require('path');
 console.log(process.env);
 if (process.env.NODE_ENV !== 'production')
     require('dotenv').config();
-else {  //this is necessary for Google Cloud Run
-    const port = process.env.PORT || 8080; 
-    app.listen(port, () => console.log(`Server listening on port ${port}`));
-}
 
 class LeylineBot extends Client {
     discord_log_channel = '843892751276048394'; //for logging actions performed
@@ -45,7 +41,7 @@ const bot = new LeylineBot({ restTimeOffset: 0 /*allegedly this helps with API d
 
 const init = async function () {
     //initialize firebase
-    //admin.initializeApp({});
+    admin.initializeApp({});
     if(admin.apps.length == 0) bot.logger.error('Error initializing firebase app');
     else bot.logger.log('Firebase succesfully initialized'); 
 
@@ -129,6 +125,9 @@ bot.on("disconnect", () => bot.logger.warn("Bot is disconnecting..."))
     .on("reconnect", () => bot.logger.log("Bot reconnecting..."))
     .on("error", e => bot.logger.error(e))
     .on("warn", info => bot.logger.warn(info));
+
+const port = process.env.PORT || 8080; 
+app.listen(port, () => console.log(`Server listening on port ${port}`));
 
 // Prevent the bot from crashing on unhandled rejections
 process.on("unhandledRejection", function (err, promise) {
