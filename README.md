@@ -12,6 +12,7 @@ Prerequisites: You will need access to Web-App-Dev firestore
    - **Alternative**: Request access to the Leyline Team under the Discord Developer portal by DMing `ollog10#2051` on discord. Once you have access to this team, you should be able to click on [this](https://discord.com/developers/applications/841458162425921537/bot) link and click the "Copy" button under the "Token" section. Paste this as the value for the `BOT_TOKEN` env variable.
 5. Generate a new private service account key from [this](https://console.firebase.google.com/u/1/project/leyline-web-app-dev/settings/serviceaccounts/adminsdk) link.
     - Place the `.json` file in the repository home directory
-    - Copy the name of the file, including the extension, and paste it as the value of the `FIREBASE_CREDENTIAL` env variable
+    - Copy the name of the file, including the extension, and paste it as the value of the `GOOGLE_APPLICATION_CREDENTIALS` env variable (after the `./`)
+    - The resulting variable should look like this: `GOOGLE_APPLICATION_CREDENTIALS=./<FILENAME>.json`
     - **IMPORTANT:** Make sure you never push this file to the repository or share it with anyone outside of Leyline. It should be automatically included in the `.gitignore` file.
 6. At this point, the application should be ready to run. Type the command `npm start` to bring the bot online

@@ -10,7 +10,7 @@ module.exports = class {
     async run(msg) {
         const bot = this.bot;
         // Ignore messages sent by other bots or sent in DM
-        //if (msg.author.bot || !msg.guild) return;
+        if (msg.author.bot || !msg.guild) return;
 
         // User types "@Bot help", display help message
         if (msg.content.match(new RegExp(`^<@!?${bot.user.id}> help`)))
