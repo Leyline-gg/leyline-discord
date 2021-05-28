@@ -3,10 +3,15 @@ if (process.version.slice(1).split(".")[0] < 14)
 
 const { Client, Collection } = require('discord.js');
 const admin = require('firebase-admin');
+const app = require('express')();
 const klaw = require('klaw');
 const path = require('path');
 if (process.env.NODE_ENV !== 'production')
     require('dotenv').config();
+else {  //this is necessary for Google Cloud Run
+    const port = process.env.PORT || 8080; 
+    app.listen(port, () => console.log(`Server listening on port ${port}`));
+}
 
 class LeylineBot extends Client {
     discord_log_channel = '843892751276048394'; //for logging actions performed
