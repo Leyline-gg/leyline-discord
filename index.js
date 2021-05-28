@@ -6,6 +6,7 @@ const admin = require('firebase-admin');
 const app = require('express')();
 const klaw = require('klaw');
 const path = require('path');
+console.log(process.env);
 if (process.env.NODE_ENV !== 'production')
     require('dotenv').config();
 else {  //this is necessary for Google Cloud Run
@@ -117,7 +118,7 @@ const init = async function () {
         .on('end', () => bot.logger.log(`Loaded ${bot.firebase_events.size} Firebase events`))
         .on('error', bot.logger.error);
 
-    bot.logger.log('Connecting...');
+    bot.logger.log('Connecting to Discord...');
     bot.login(process.env.BOT_TOKEN).then(() => bot.logger.debug('Bot succesfully initialized'));
 };
 
