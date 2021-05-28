@@ -45,7 +45,7 @@ const bot = new LeylineBot({ restTimeOffset: 0 /*allegedly this helps with API d
 
 const init = async function () {
     //initialize firebase
-    admin.initializeApp({});
+    //admin.initializeApp({});
     if(admin.apps.length == 0) bot.logger.error('Error initializing firebase app');
     else bot.logger.log('Firebase succesfully initialized'); 
 
