@@ -23,9 +23,9 @@ class DiscordAcctLink extends FirebaseEvent {
         const member = await this.bot.leyline_guild.members.fetch(doc.data().discordUID);
         if(!member) return console.log(`Discord user <@${doc.data().discordUID}> just linked their accounts, but I could not find them in the server`);
         if(member.roles.cache.has(this.alpha_role))
-            return this.bot.logDiscord(`<@!${member.id}> just connected their Leyline & Discord accounts, but they already had the \`Alpha Tester\` role so I didn't award it`);
+            return this.bot.logDiscord(`<${member.id}> just connected their Leyline & Discord accounts, but they already had the \`Alpha Tester\` role so I didn't award it`);
         member.roles.add(this.alpha_role, 'Linked Leyline & Discord accounts');
-        this.bot.logDiscord(`<@!${member.id}> just connected their Leyline & Discord accounts, and I awarded them the \`Alpha Tester\` role`);
+        this.bot.logDiscord(`<${member.id}> just connected their Leyline & Discord accounts, and I awarded them the \`Alpha Tester\` role`);
         member.send('You just linked your Leyline & Discord accounts and received the `Alpha Tester` role!')
             .catch((err) => this.bot.logger.debug(`Tried to DM ${member.user.tag} (${member.id}), but I encountered an error: ${err}`));   //send DM to user
     }

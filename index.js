@@ -3,17 +3,23 @@ if (process.version.slice(1).split(".")[0] < 14)
 
 const { Client, Collection } = require('discord.js');
 const admin = require('firebase-admin');
-const app = require('express')();
+const http = require('http');
 const klaw = require('klaw');
 const path = require('path');
 if (process.env.NODE_ENV !== 'production')
     require('dotenv').config();
+ 
+const server = http.createServer((req, res) => {
+    // Set the response HTTP header with HTTP status and Content type
+    res.writeHead(200, {'Content-Type': 'text/plain'});
+    // Send the response body "Hello World"
+    res.end('Just for testing purposes\n');
+});
 
-    
-app.get('/', (req, res) => {
-    console.log('req received');
-    res.send('Hello World!');
-})
+const port = process.env.PORT || 8080; 
+server.listen(port, () => {
+    console.log('HTTP server listening on port', port);
+});
 
 class LeylineBot extends Client {
     discord_log_channel = '843892751276048394'; //for logging actions performed
@@ -95,7 +101,8 @@ const init = async function () {
                 admin.firestore().collection(firebase_event.collection).onSnapshot((snapshot) => {
                     if(!bot.readyAt) return;    //ensure bot is initialized before event is fired
                     if(snapshot.empty) return;
-                    for(const docChange of snapshot.docChanges()) 
+                    for(const docChange of snapshot.docChanges())  {
+                        if(docChange.doc.createTime.toDate() < bot.readyAt) continue;   //disregard docs that were created before the bot came online
                         switch(docChange.type) {
                             case 'added':
                                 firebase_event.onAdd(docChange.doc);
@@ -107,7 +114,7 @@ const init = async function () {
                                 firebase_event.onRemove(docChange.doc);
                                 break;
                         }
-                        //doc.createTime.toDate() > bot.readyAt && firebase_event.handler(doc);
+                    }
                 }, (err) => bot.logger.error(`FirebaseEvent error with ${firebase_event.name}: ${err}`));
                 bot.firebase_events.set(firebase_event.name, firebase_event);
 
@@ -120,11 +127,7 @@ const init = async function () {
         .on('error', bot.logger.error);
 
     bot.logger.log('Connecting to Discord...');
-    bot.login(process.env.BOT_TOKEN).then(() => {
-        bot.logger.debug('Bot succesfully initialized');
-        const port = process.env.PORT || 8080; 
-        app.listen(port, () => console.log(`Server listening on port ${port}`));
-    }).catch((err) => console.error(err));
+    bot.login(process.env.BOT_TOKEN).then(() => bot.logger.debug('Bot succesfully initialized')).catch((err) => console.error(err));
 };
 
 init();
