@@ -10,7 +10,7 @@ class profile extends Command {
             usage: 'profile [@discord-user]',
             aliases: [],
             category: 'user'
-        })
+        });
     }
 
     async run(msg, args) {
@@ -21,7 +21,7 @@ class profile extends Command {
         const getLeylineInfo = function (discord_uid) {
             return new Promise(async (resolve, reject) => {
                 if(!(await Firebase.isUserConnectedToLeyline(discord_uid)))
-                    return reject({code:2});
+                    return reject({code:msg.author.id === discord_uid ? 2 : 3});
 
                 const user = await new LeylineUser(await Firebase.getLeylineUID(discord_uid));
                 resolve(user);
@@ -109,7 +109,19 @@ class profile extends Command {
             };
             msg.channel.send({embed: embed});
         } catch(err) {
-            if(err.code === 2) msg.channel.send(`❌ ${!!args[0] ? 'That user has' : 'You have'} not connected ${!!args[0] ? 'their' : 'your'} Leyline and Discord accounts`);
+            if(!!err.code) 
+                switch(err.code) {
+                    case 2: //user tried to view their own LL profile; it was not found
+                        msg.channel.send('You have not connected your Leyline & Discord accounts!\nView the tutorial on how to do so at <https://www.notion.so/leyline/How-to-Connect-Your-Discord-Leyline-Accounts-917dd19be57c4242878b73108e0cc2d1>');
+                        break;
+                    case 3:
+                        msg.channel.send('That user has not connected their Leyline & Discord accounts');
+                        break;
+                        
+                    default:
+                        msg.channel.send('Error while trying to run that command');
+                        break;
+                }
             this.bot.logger.error(JSON.stringify(err));
             //msg.channel.send('Error while trying to run that command');
         }
