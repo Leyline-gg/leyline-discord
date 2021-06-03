@@ -24,7 +24,7 @@ jobs:
             cd leyline-discord/
             npm install
             pm2 delete all
-            pm2 start index.js --name leyline-discord
+            npm deploy
           host: ${{ secrets.SSH_HOST }}
           user: elijaho
           key: ${{ secrets.SSH_PRIVATE_KEY}}
