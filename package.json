@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node ."
+    "start": "node .",
+    "deploy": "pm2 start index.js --name leyline-discord"
   },
   "engines": {
     "node": ">=14.0.0"
