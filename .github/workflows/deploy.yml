@@ -1,12 +1,12 @@
 # This is a basic workflow to help you get started with Actions
 
-name: Test deployment via SSH
+name: Deployment via SSH
 
 # Controls when the action will run. 
 on:
   # Triggers the workflow on push or pull request events but only for the dev branch
   push:
-    branches: [  ]
+    branches: [ production ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -19,7 +19,12 @@ jobs:
         uses: fifsky/ssh-action@master
         with:
           command: |
-            git pull origin
+            rm -rf leyline-discord/
+            git clone -b production --single-branch git@github.com:Leyline-gg/leyline-discord.git
+            cd leyline-discord/
+            npm install
+            pm2 delete all
+            pm2 start index.js --name leyline-discord
           host: ${{ secrets.SSH_HOST }}
           user: elijaho
           key: ${{ secrets.SSH_PRIVATE_KEY}}
