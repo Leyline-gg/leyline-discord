@@ -26,6 +26,6 @@ jobs:
             pm2 delete all
             npm run deploy
           host: ${{ secrets.SSH_HOST }}
-          user: elijaho
+          user: github-actions
           key: ${{ secrets.SSH_PRIVATE_KEY}}
           args: "-vvv"
