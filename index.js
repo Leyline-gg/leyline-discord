@@ -5,7 +5,7 @@ const { Client, Collection } = require('discord.js');
 const admin = require('firebase-admin');
 const klaw = require('klaw');
 const path = require('path');
-if (process.env.NODE_ENV !== 'production')
+//if (process.env.NODE_ENV !== 'production')    //we use dotenv on prod now
     require('dotenv').config();
 
 class LeylineBot extends Client {
