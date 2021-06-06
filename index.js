@@ -14,6 +14,7 @@ class LeylineBot extends Client {
         super(options);
 
         // Custom properties for our bot
+        this.CURRENT_VERSION    = '0.9.0';
         this.logger     = require('./classes/Logger');
         this.config     = require('./config')[process.env.NODE_ENV || 'development'];
         this.commands   = new Collection();
