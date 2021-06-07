@@ -6,7 +6,7 @@ module.exports = class {
     constructor(bot) {
         this.bot = bot;
     }
-
+    
     async run(msg) {
         const bot = this.bot;
         // Ignore messages sent by other bots or sent in DM
@@ -14,7 +14,7 @@ module.exports = class {
 
         // User types "@Bot help", display help message
         if (msg.content.match(new RegExp(`^<@!?${bot.user.id}> help`)))
-            return; // TODO: RUN HELP COMMAND
+            return bot.commands.get('help').run(msg, []);
 
         // Check for prefix
         if (msg.content.toLowerCase().indexOf(bot.config.prefix) !== 0) return;
@@ -25,6 +25,8 @@ module.exports = class {
         const cmd = bot.commands.get(commandName) || bot.commands.find((command) => command.aliases?.includes(commandName));  //search the aliases of each cmd
 
         if(!cmd) return;
+        if(cmd?.category === 'admin' && !msg.member.hasPermission('ADMINISTRATOR'))
+            return msg.channel.send('You do not have sufficient permission to run that command');
 
         // Log command
         bot.logger.cmd(`${msg.author.tag} (${msg.author.id}) ran command ${commandName} with args [${args.toString()}]`);
