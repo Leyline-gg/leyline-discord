@@ -5,5 +5,8 @@ module.exports = {
     },
     development: {
         prefix: '!!'
-    }
+    },
+    staging: {
+        prefix: '$'
+    },
 }

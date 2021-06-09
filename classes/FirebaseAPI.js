@@ -36,6 +36,15 @@ class FirebaseAPI {
 		return include_metadata ? res : res.data();
 	}
 
+	/**
+	 * Creates a discord user under discord/bot/users
+	 * @param {String} discord_uid UID of the discord user to create
+	 * @returns {Promise<boolean>} `true` if succesfully created, `false` if not
+	 */
+	static async createDiscordUser(discord_uid) {
+		return admin.firestore().collection('discord/bot/users').doc(discord_uid).create().then(() => true).catch(() => false);
+	}
+
     /**
 	 * Retrieves the `DocumentSnapshot.data()` for a given Leyline user (under the collection `users`)
 	 * @param {String} leyline_uid Leyline UID of the user to retrieve the doc for

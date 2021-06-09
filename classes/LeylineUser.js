@@ -12,6 +12,7 @@ class LeylineUser {
             this.llp = doc?.balance_snapshot?.snapshot_value || 0;
             this.stats = await Firebase.getUserRankings(uid);
             this.inventory = await Firebase.getInventoryItems(uid);
+            this.profile_id = doc?.profile_id;
 
             return this;
         })();

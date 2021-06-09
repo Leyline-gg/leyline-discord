@@ -44,8 +44,11 @@ class profile extends Command {
                 //title: '\u200b',
                 author: {
                     name: user.username,
-                    icon_url: user.avatarUrl
+                    icon_url: user.avatarUrl,
+                    url: `https://leyline.gg/profile/${user.profile_id}`
                 },
+                url: `https://leyline.gg/profile/${user.profile_id}`,
+                title: 'Leyline Profile',
                 color: 0x2EA2E0,
                 fields: [
                     {

@@ -5,7 +5,7 @@ const { Client, Collection } = require('discord.js');
 const admin = require('firebase-admin');
 const klaw = require('klaw');
 const path = require('path');
-require('dotenv').config({path: process.env.NODE_ENV === 'production' ? '../.env' : './.env'});
+require('dotenv').config({path: process.env.NODE_ENV === 'development' ? './.env' : '../.env'});
 
 class LeylineBot extends Client {
     discord_log_channel = '843892751276048394'; //for logging actions performed
@@ -14,6 +14,7 @@ class LeylineBot extends Client {
         super(options);
 
         // Custom properties for our bot
+        this.CURRENT_VERSION    = '0.9.0';
         this.logger     = require('./classes/Logger');
         this.config     = require('./config')[process.env.NODE_ENV || 'development'];
         this.commands   = new Collection();
@@ -112,7 +113,12 @@ const init = async function () {
         .on('error', bot.logger.error);
 
     bot.logger.log('Connecting...');
-    bot.login(process.env.BOT_TOKEN).then(() => bot.logger.debug('Bot succesfully initialized'));
+    bot.login(process.env.BOT_TOKEN).then(() => {
+        bot.logger.debug(`Bot succesfully initialized, running version ${bot.CURRENT_VERSION}`);
+        process.env.NODE_ENV === 'staging' &&   //for QA team: send message in specific chat when staging bot is online
+            bot.channels.cache.find(ch => ch.id === '810237567168806922')
+                .send(`Staging Environment online, running version ${bot.CURRENT_VERSION}`);
+    });
 };
 
 init();
