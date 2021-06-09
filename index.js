@@ -5,7 +5,7 @@ const { Client, Collection } = require('discord.js');
 const admin = require('firebase-admin');
 const klaw = require('klaw');
 const path = require('path');
-require('dotenv').config({path: process.env.NODE_ENV === 'production' ? '../.env' : './.env'});
+require('dotenv').config({path: process.env.NODE_ENV === 'development' ? './.env' : '../.env'});
 
 class LeylineBot extends Client {
     discord_log_channel = '843892751276048394'; //for logging actions performed
