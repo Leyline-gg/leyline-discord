@@ -1,3 +1,4 @@
+const Command = require('../../classes/Command');
 const { exec } = require('child_process');
 
 class staging extends Command {
