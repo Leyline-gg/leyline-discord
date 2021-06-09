@@ -24,7 +24,7 @@ class staging extends Command {
             case 'start':
                 if(staging.presence.status === 'online') return msg.channel.send('The staging bot is already online');
                 msg.channel.send('Starting staging bot...');
-                exec('./staging-start.sh', (err, stdout, stderr) => {
+                exec('sh ./staging-start.sh', (err, stdout, stderr) => {
                     if(!!err) {
                         console.error(err);
                         return msg.channel.send('Error encountered; check logs');
@@ -38,7 +38,7 @@ class staging extends Command {
             case 'stop':
                 if(staging.presence.status === 'offline') return msg.channel.send('The staging bot is already offline');
                 msg.channel.send('Shutting down staging bot...');
-                exec('./staging-start.sh', (err, stdout, stderr) => {
+                exec('sh ./staging-start.sh', (err, stdout, stderr) => {
                     if(!!err) {
                         console.error(err);
                         return msg.channel.send('Error encountered; check logs');
