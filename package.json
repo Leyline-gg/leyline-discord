@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node .",
     "deploy": "pm2 start index.js --name leyline-discord",
-    "staging": "pm2 start index.js --name staging"
+    "staging": "NODE_ENV=staging pm2 start index.js --name staging"
   },
   "engines": {
     "node": ">=14.0.0"

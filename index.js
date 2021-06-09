@@ -5,6 +5,7 @@ const { Client, Collection } = require('discord.js');
 const admin = require('firebase-admin');
 const klaw = require('klaw');
 const path = require('path');
+//formally, dotenv shouldn't be used in prod, but because staging and prod share a VM, it's an option I elected to go with for convenience
 require('dotenv').config({path: process.env.NODE_ENV === 'development' ? './.env' : '../.env'});
 
 class LeylineBot extends Client {
