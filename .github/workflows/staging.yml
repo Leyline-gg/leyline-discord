@@ -1,8 +1,8 @@
-name: Production deployment via SSH
+name: Staging deployment via SSH
 
 on:
     push:
-        branches: [production]
+        branches: [staging]
 
     workflow_dispatch:
 
@@ -15,12 +15,12 @@ jobs:
               with:
                   command: |
                       rm -rf leyline-discord/
-                      git clone -b production --single-branch git@github.com:Leyline-gg/leyline-discord.git
+                      git clone -b staging --single-branch git@github.com:Leyline-gg/leyline-discord.git
                       cd leyline-discord/
                       npm install
                       pm2 delete all
-                      npm run deploy
-                  host: ${{ secrets.SSH_HOST }}
+                      npm run staging
+                  host: ${{ secrets.SSH_HOST_STAGING }}
                   user: github-actions
-                  key: ${{ secrets.SSH_PRIVATE_KEY}}
+                  key: ${{ secrets.SSH_PRIVATE_KEY_STAGING}}
                   args: '-vvv'

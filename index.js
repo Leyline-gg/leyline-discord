@@ -6,7 +6,7 @@ const admin = require('firebase-admin');
 const klaw = require('klaw');
 const path = require('path');
 //formally, dotenv shouldn't be used in prod, but because staging and prod share a VM, it's an option I elected to go with for convenience
-require('dotenv').config({path: process.env.NODE_ENV === 'development' ? './.env' : '../.env'});
+require('dotenv').config();
 
 class LeylineBot extends Client {
     discord_log_channel = '843892751276048394'; //for logging actions performed
@@ -115,7 +115,7 @@ const init = async function () {
 
     bot.logger.log('Connecting...');
     bot.login(process.env.BOT_TOKEN).then(() => {
-        bot.logger.debug(`Bot succesfully initialized, running version ${bot.CURRENT_VERSION}`);
+        bot.logger.debug(`Bot succesfully initialized, running version ${process.env.NODE_ENV}-${bot.CURRENT_VERSION}`);
         process.env.NODE_ENV !== 'development' &&   //send message in log channel when staging bot is online
             bot.logDiscord(`\`${process.env.NODE_ENV}\` environment online, running version ${bot.CURRENT_VERSION}`);
     });
