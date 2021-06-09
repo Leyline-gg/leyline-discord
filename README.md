@@ -1,5 +1,5 @@
 # leyline-discord
-This repository houses the source code for the bot inside the Leyline.gg discord server. [`discord.js`](https://discord.js.org/#/) is the library used to communicate with the Discord API. A connection to Firebase is formed using a service account; there is no Google CLI or functions emulator. Google Cloud Run provides CI for the repository and keeps the production bot online. Two bots exist; one for development and one for production.
+This repository houses the source code for the bot inside the Leyline.gg discord server. [`discord.js`](https://discord.js.org/#/) is the library used to communicate with the Discord API. A connection to Firebase is formed using a service account; there is no Google CLI or functions emulator. Google Cloud Compute Engine hosts the source code for the bots and is set up to continuously integrate with the `staging` and `production` brances. Three bots exist; one for development, staging, and production.
 
 # Setup Project
 Prerequisites: You will need access to Web-App-Dev firestore
