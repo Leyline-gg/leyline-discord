@@ -18,7 +18,7 @@ class staging extends Command {
 
         if(args.length !== 1) return msg.channel.send(`Invalid arguments. Proper command usage: \`${this.usage}\``);
         const arg = args[0];
-        const staging = await bot.users.fetch(this.staging_bot_id);
+        const staging = await bot.users.fetch(this.staging_bot_id, true, true); //force api check to bypass cache
 
         switch(arg) {
             case 'start':
