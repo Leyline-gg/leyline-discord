@@ -30,8 +30,8 @@ class LeylineBot extends Client {
      * Sends a discord message on the bot's behalf to a log channel
      * @param {String} text 
      */
-    logDiscord(text) {
-        bot.channels.cache.find(ch => ch.id === this.discord_log_channel).send(text);
+    async logDiscord(text) {
+        (await bot.channels.fetch(this.discord_log_channel)).send(text);
     }
 }
 
