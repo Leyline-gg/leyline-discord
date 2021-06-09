@@ -31,7 +31,7 @@ class staging extends Command {
                     }
                     if(!!stderr) {
                         console.error(stderr);
-                        return msg.channel.send('Error encountered; check logs');
+                        msg.channel.send('Stderr encountered; continuing with startup');
                     }
                 });
                 break;
@@ -45,7 +45,7 @@ class staging extends Command {
                     }
                     if(!!stderr) {
                         console.error(stderr);
-                        return msg.channel.send('Error encountered; check logs');
+                        msg.channel.send('Stderr encountered; continuing with shutdown');
                     }
                     msg.channel.send('Staging bot now offline');
                 });
