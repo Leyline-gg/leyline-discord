@@ -15,7 +15,7 @@ class LeylineBot extends Client {
         super(options);
 
         // Custom properties for our bot
-        this.CURRENT_VERSION    = '0.9.0';
+        this.CURRENT_VERSION    = process.env.npm_package_version;
         this.logger     = require('./classes/Logger');
         this.config     = require('./config')[process.env.NODE_ENV || 'development'];
         this.commands   = new Collection();
@@ -115,8 +115,8 @@ const init = async function () {
 
     bot.logger.log('Connecting...');
     bot.login(process.env.BOT_TOKEN).then(() => {
-        bot.logger.debug(`Bot succesfully initialized, running version ${process.env.NODE_ENV}-${bot.CURRENT_VERSION}`);
-        process.env.NODE_ENV !== 'development' &&   //send message in log channel when staging bot is online
+        bot.logger.debug(`Bot succesfully initialized. Environment: ${process.env.NODE_ENV}. Version: ${bot.CURRENT_VERSION}`);
+        process.env.NODE_ENV !== 'development' &&   //send message in log channel when staging/prod bot is online
             bot.logDiscord(`\`${process.env.NODE_ENV}\` environment online, running version ${bot.CURRENT_VERSION}`);
     });
 };
