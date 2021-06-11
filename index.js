@@ -5,7 +5,8 @@ const { Client, Collection } = require('discord.js');
 const admin = require('firebase-admin');
 const klaw = require('klaw');
 const path = require('path');
-require('dotenv').config({path: process.env.NODE_ENV === 'development' ? './.env' : '../.env'});
+//formally, dotenv shouldn't be used in prod, but because staging and prod share a VM, it's an option I elected to go with for convenience
+require('dotenv').config();
 
 class LeylineBot extends Client {
     discord_log_channel = '843892751276048394'; //for logging actions performed
@@ -14,7 +15,7 @@ class LeylineBot extends Client {
         super(options);
 
         // Custom properties for our bot
-        this.CURRENT_VERSION    = '0.9.0';
+        this.CURRENT_VERSION    = process.env.npm_package_version;
         this.logger     = require('./classes/Logger');
         this.config     = require('./config')[process.env.NODE_ENV || 'development'];
         this.commands   = new Collection();
@@ -30,8 +31,8 @@ class LeylineBot extends Client {
      * Sends a discord message on the bot's behalf to a log channel
      * @param {String} text 
      */
-    logDiscord(text) {
-        bot.channels.cache.find(ch => ch.id === this.discord_log_channel).send(text);
+    async logDiscord(text) {
+        (await bot.channels.fetch(this.discord_log_channel)).send(text);
     }
 }
 
@@ -114,10 +115,9 @@ const init = async function () {
 
     bot.logger.log('Connecting...');
     bot.login(process.env.BOT_TOKEN).then(() => {
-        bot.logger.debug(`Bot succesfully initialized, running version ${bot.CURRENT_VERSION}`);
-        process.env.NODE_ENV === 'staging' &&   //for QA team: send message in specific chat when staging bot is online
-            bot.channels.cache.find(ch => ch.id === '810237567168806922')
-                .send(`Staging Environment online, running version ${bot.CURRENT_VERSION}`);
+        bot.logger.debug(`Bot succesfully initialized. Environment: ${process.env.NODE_ENV}. Version: ${bot.CURRENT_VERSION}`);
+        process.env.NODE_ENV !== 'development' &&   //send message in log channel when staging/prod bot is online
+            bot.logDiscord(`\`${process.env.NODE_ENV}\` environment online, running version ${bot.CURRENT_VERSION}`);
     });
 };
 

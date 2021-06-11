@@ -1,12 +1,12 @@
 // Bot configuration settings
 module.exports = {
     production: {
-        prefix: '!'
+        prefix: '!',
     },
     development: {
-        prefix: '!!'
+        prefix: '!!',
     },
     staging: {
-        prefix: '$'
+        prefix: '$',
     },
 }
