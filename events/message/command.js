@@ -1,10 +1,12 @@
-/*
-    Description: This event is fired whenever the bot detects a new message
-*/
+const DiscordEvent = require("../../classes/DiscordEvent");
 
-module.exports = class {
+module.exports = class extends DiscordEvent {
     constructor(bot) {
-        this.bot = bot;
+        super(bot, {
+            name: 'command',
+            description: 'Filter messages for commands and run the commands',
+            event_type: 'message',
+        });
     }
     
     async run(msg) {
@@ -25,12 +27,13 @@ module.exports = class {
         const cmd = bot.commands.get(commandName) || bot.commands.find((command) => command.aliases?.includes(commandName));  //search the aliases of each cmd
 
         if(!cmd) return;
+        // Filter admin commands
         if(cmd?.category === 'admin' && !msg.member.hasPermission('ADMINISTRATOR'))
             return msg.channel.send('You do not have sufficient permission to run that command');
 
         // Log command
         bot.logger.cmd(`${msg.author.tag} (${msg.author.id}) ran command ${commandName} with args [${args.toString()}]`);
 
-        cmd.run(msg, args);  //TODO: modify this
+        cmd.run(msg, args);  //TODO: modify this?
     }
 };

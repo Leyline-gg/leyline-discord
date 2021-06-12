@@ -70,7 +70,7 @@ const init = async function () {
             try {
                 const event = new (require(`${eventFile.dir}${path.sep}${eventFile.name}${eventFile.ext}`))(bot);
                 bot.events.set(eventName, event);
-                bot.on(eventName, (...args) => event.run(...args));
+                bot.on(event.event_type, (...args) => event.run(...args));
                 
                 delete require.cache[require.resolve(`${eventFile.dir}${path.sep}${eventFile.name}${eventFile.ext}`)];
             } catch(error) {
