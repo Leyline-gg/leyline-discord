@@ -15,12 +15,12 @@ class LeylineBot extends Client {
         super(options);
 
         // Custom properties for our bot
-        this.CURRENT_VERSION    = process.env.npm_package_version;
-        this.logger     = require('./classes/Logger');
-        this.config     = require('./config')[process.env.NODE_ENV || 'development'];
-        this.commands   = new Collection();
-        this.events     = new Collection();
-        this.firebase_events = new Collection();
+        this.CURRENT_VERSION    = process.env.npm_package_version || require('./package.json').version;
+        this.logger             = require('./classes/Logger');
+        this.config             = require('./config')[process.env.NODE_ENV || 'development'];
+        this.commands           = new Collection();
+        this.events             = new Collection();
+        this.firebase_events    = new Collection();
     }
 
     get leyline_guild() {
