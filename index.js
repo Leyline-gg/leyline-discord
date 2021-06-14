@@ -9,7 +9,9 @@ const path = require('path');
 require('dotenv').config();
 
 class LeylineBot extends Client {
+    leyline_guild_id    = '751913089271726160'; //id of Leyline guild
     discord_log_channel = '843892751276048394'; //for logging actions performed
+    connection_tutorial = 'https://www.notion.so/leyline/How-to-Connect-Your-Discord-Leyline-Accounts-917dd19be57c4242878b73108e0cc2d1';
 
     constructor(options) {
         super(options);
@@ -24,7 +26,7 @@ class LeylineBot extends Client {
     }
 
     get leyline_guild() {
-        return this.guilds.resolve('751913089271726160');
+        return this.guilds.resolve(this.leyline_guild_id);
     }
 
     /**
@@ -33,6 +35,17 @@ class LeylineBot extends Client {
      */
     async logDiscord(text) {
         (await bot.channels.fetch(this.discord_log_channel)).send(text);
+    }
+
+    /**
+     * Checks if a user has mod permissions on the Leyline server.
+     * Current mod roles: `Admin`, `Moderator`
+     * @param {String} uid Discord UID of the user to check
+     * @returns `true` if user has mod perms, `false` otherwise
+     */
+    checkMod(uid) {
+        const mod_roles = ['784875278593818694'/*Admin*/, '752363863441145866'/*Mod*/, '751919243062411385'/*Staff*/];
+        return bot.leyline_guild.member(uid).roles.cache.some(r => mod_roles.includes(r.id));
     }
 }
 
@@ -89,7 +102,9 @@ const init = async function () {
                 admin.firestore().collection(firebase_event.collection).onSnapshot((snapshot) => {
                     if(!bot.readyAt) return;    //ensure bot is initialized before event is fired
                     if(snapshot.empty) return;
-                    for(const docChange of snapshot.docChanges()) 
+                    for(const docChange of snapshot.docChanges()) {
+                        //if doc was created before bot came online, ignore it
+                        if(docChange.doc.createTime.toDate() < bot.readyAt) continue;
                         switch(docChange.type) {
                             case 'added':
                                 firebase_event.onAdd(docChange.doc);
@@ -101,7 +116,7 @@ const init = async function () {
                                 firebase_event.onRemove(docChange.doc);
                                 break;
                         }
-                        //doc.createTime.toDate() > bot.readyAt && firebase_event.handler(doc);
+                    }
                 }, (err) => bot.logger.error(`FirebaseEvent error with ${firebase_event.name}: ${err}`));
                 bot.firebase_events.set(firebase_event.name, firebase_event);
 
