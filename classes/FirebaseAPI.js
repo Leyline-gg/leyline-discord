@@ -185,7 +185,29 @@ class FirebaseAPI {
               isKlaytn: userIsOnKlaytn,
             }
           });
-      };
+      }
+
+	  /**
+	   * 
+	   * @param {String} uid Leyline UID 
+	   * @param {Number} amount Amount of LLP to award
+	   * @param {Object} [metadata] Metadata for transaction. Should contain a `category` property
+	   */
+	  static async awardLLP(uid, amount, metadata = {}) {
+			return await admin.firestore().runTransaction(async (t) => {
+				await t.create(admin.firestore().collection("leyline_points").doc(), {
+					uid: uid,
+					leyline_points: amount,
+					created: Date.now(),
+					metadata: { 
+						category: 'Discord Participation',
+						...metadata,
+						fromDiscord: true,
+					 },
+				});
+				return true;
+			});			
+	  }
 }
 
 module.exports = FirebaseAPI;
