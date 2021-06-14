@@ -115,7 +115,7 @@ class profile extends Command {
             if(!!err.code) 
                 switch(err.code) {
                     case 2: //user tried to view their own LL profile; it was not found
-                        msg.channel.send('You have not connected your Leyline & Discord accounts!\nView the tutorial on how to do so at <https://www.notion.so/leyline/How-to-Connect-Your-Discord-Leyline-Accounts-917dd19be57c4242878b73108e0cc2d1>');
+                        msg.channel.send(`You have not connected your Leyline & Discord accounts!\nView the tutorial on how to do so at <${this.bot.connection_tutorial}>`);
                         break;
                     case 3:
                         msg.channel.send('That user has not connected their Leyline & Discord accounts');
