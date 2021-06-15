@@ -97,10 +97,10 @@ const init = async function () {
                 
                 delete require.cache[require.resolve(`${eventFile.dir}${path.sep}${eventFile.name}${eventFile.ext}`)];
             } catch(error) {
-                bot.logger.error(`Error loading event ${eventFile.name}: ${error}`);
+                bot.logger.error(`Error loading Discord event ${eventFile.name}: ${error}`);
             }
         })
-        .on('end', () => bot.logger.log(`Loaded ${bot.events.size} events`))
+        .on('end', () => bot.logger.log(`Loaded ${bot.events.size} Discord events`))
         .on('error', bot.logger.error);
     //import firebase events
     klaw('./events_firebase')
