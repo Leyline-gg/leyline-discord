@@ -28,7 +28,7 @@ module.exports = class extends DiscordEvent {
 
         if(!cmd) return;
         // Filter admin commands
-        if(cmd?.category === 'admin' && !msg.member.hasPermission('ADMINISTRATOR'))
+        if(cmd?.category === 'admin' && !bot.checkAdmin(msg.author.id))
             return msg.channel.send('You do not have sufficient permission to run that command');
 
         // Log command

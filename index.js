@@ -47,6 +47,16 @@ class LeylineBot extends Client {
         const mod_roles = ['784875278593818694'/*Admin*/, '752363863441145866'/*Mod*/, '751919243062411385'/*Staff*/];
         return bot.leyline_guild.member(uid).roles.cache.some(r => mod_roles.includes(r.id));
     }
+
+    /**
+     * Checks if a user has admin permissions on the Leyline server.
+     * Current admin permission: Anyone with the ADMINISTRATOR permission
+     * @param {String} uid Discord UID of the user to check
+     * @returns `true` if user has admin perms, `false` otherwise
+     */
+     checkAdmin(uid) {
+        return bot.leyline_guild.member(uid).hasPermission('ADMINISTRATOR');
+    }
 }
 
 const bot = new LeylineBot({ restTimeOffset: 0 /*allegedly this helps with API delays*/ });
