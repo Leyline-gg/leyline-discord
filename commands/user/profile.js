@@ -7,7 +7,7 @@ class profile extends Command {
         super(bot, {
             name: 'profile',
             description: 'View your Leyline profile or the profile of another user',
-            usage: 'profile [@discord-user]',
+            usage: '[@discord-user]',
             aliases: [],
             category: 'user'
         });

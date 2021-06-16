@@ -6,7 +6,7 @@ class help extends Command {
         super(bot, {
             name: 'help',
             description: 'View the list of commands available to run',
-            usage: 'help',
+            usage: '[command_name]',
             aliases: [],
             category: 'general'
         });
@@ -30,6 +30,7 @@ class help extends Command {
     //an embed for a single command
     #generateCommandEmbed = function (command) {
         return new EmbedBase(this.bot, {
+            description: 'Fields surrounded by `<>` are required, and fields surrounded by `[]` are optional',
             fields: [
                 {
                     name: 'Name',
@@ -45,7 +46,7 @@ class help extends Command {
                 },
                 {
                     name: 'Usage',
-                    value: `\`${this.bot.config.prefix}${!!command.usage ? `${command.usage}` : `${command.name}`}\``
+                    value: `\`${this.bot.config.prefix}${command.name} ${command.usage}\``
                 }
             ],
         });

@@ -5,7 +5,7 @@ class ping extends Command {
         super(bot, {
             name: 'ping',
             description: 'Get the latentcy of the bot and its connected APIs',
-            usage: 'ping',
+            usage: '',
             aliases: [],
             category: 'general'
         })
