@@ -2,6 +2,7 @@ const { Message } = require("discord.js");
 const DiscordEvent = require("../../classes/DiscordEvent");
 const EmbedBase = require('../../classes/EmbedBase');
 const Firebase	= require('../../classes/FirebaseAPI');
+const admin = require('firebase-admin');
 
 const target_channel 	= '810237567168806922';	//channel to watch for events
 const cta_role 			= '853414453206188063'; //role to ping when photo is approved
@@ -18,11 +19,12 @@ class GoodActsHandler {
 	constructor(bot, msg) {
 		this.bot = bot;
 		this.msg = msg;
+		msg._cache = { reacted_users: [] }; 
 		this.processAttachment(msg.attachments.first()?.url);
 
 		//begin event logic
 		msg.react('✅');
-		this.collector = msg	//intentionally decreasing indentation here for readability
+		this.collector = msg	//intentionally decreasing indentation on the following chains for readability
 		.createReactionCollector(
 			(reaction, user) =>
 				reaction.emoji.name === '✅' && bot.checkMod(user.id)
@@ -205,19 +207,29 @@ class GoodActsHandler {
 		msg.createReactionCollector(async (reaction, user) => {
 			//allow any reactions, but only allow users who have not previously reacted
 			return await (async () => {
-				for (const r of [...msg.reactions.cache.values()]) {
+				//check the Discord.js message reaction cache first
+				for(const r of [...msg.reactions.cache.values()]) {
 					//ignore the reaction that was just added
 					if (r.emoji.identifier === reaction.emoji.identifier) continue;
+					//check if any of the other reactions have been added by target user
 					if ((await r.users.fetch()).has(user.id)) return false;
 				}
+				console.log(`custom cache: ${msg._cache.reacted_users}`);
+				//now check our custom reaction cache
+				for(const uid of msg._cache.reacted_users)
+					//ignore users that appear in custom cache
+					if(uid === user.id) return false;
+				//passed all the checks
 				return true;
 			})();	//this IIFE was inspired by https://stackoverflow.com/a/67527585/8396479
-		}
-		).on('collect', async (r, u) => {
+			//IIFE is necessary because we can't map an array and return promises
+		})
+		.on('collect', async (r, u) => {
 			try {
+				console.log('Calling storeUserReaction...');
 				//cache the reaction right away to prevent reaction spam
-				
-
+				await this.storeUserReaction(u);
+				console.log('storeUserReaction promise returned...');
 				//ensure user is connected to LL
 				if(!(await Firebase.isUserConnectedToLeyline(u.id))) 
 					this.handleUnconnectedAccount(u, {
@@ -231,6 +243,24 @@ class GoodActsHandler {
 				return;
 			} catch(err) { return bot.logger.error(err); }
 		});
+	}
+
+	async storeUserReaction(user) {
+		const msg = this.msg;
+		console.log(`received user id: ${user.id}`);
+		if(msg._cache.reacted_users.includes(user.id)) return;
+		msg._cache.reacted_users.push(user.id);	//store reaction locally
+		//update information in cloud
+		await admin.firestore()
+			.collection(`discord/bot/reaction_collectors/`)
+			.doc(msg.id)
+			.collection('reacted_users')
+			.doc(user.id)
+			.set({
+				reacted: true,
+				timestamp: Date.now(),
+			}, { merge: true });
+		return;
 	}
 };
 
