@@ -1,4 +1,4 @@
-const DiscordEvent = require("../../classes/DiscordEvent");
+const DiscordEvent = require("../../../classes/DiscordEvent");
 
 module.exports = class extends DiscordEvent {
     constructor(bot) {

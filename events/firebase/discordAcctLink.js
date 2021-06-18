@@ -1,4 +1,4 @@
-const FirebaseEvent = require('../classes/FirebaseEvent');
+const FirebaseEvent = require('../../classes/FirebaseEvent');
 
 class DiscordAcctLink extends FirebaseEvent {
     alpha_role = '751919744528941126';

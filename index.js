@@ -61,7 +61,7 @@ class LeylineBot extends Client {
 
 const bot = new LeylineBot({ restTimeOffset: 0 /*allegedly this helps with API delays*/ });
 
-const init = async function () {
+const init = function () {
     //initialize firebase
     admin.initializeApp({});
     if(admin.apps.length == 0) bot.logger.error('Error initializing firebase app');
@@ -85,7 +85,7 @@ const init = async function () {
         .on('end', () => bot.logger.log(`Loaded ${bot.commands.size} commands.`))
         .on('error', error => bot.logger.error(error));
     //import discord events
-    klaw('./events')
+    klaw('./events/discord')
         .on('data', item => {
             const eventFile = path.parse(item.path);
             if (!eventFile.ext || eventFile.ext !== '.js') return;
@@ -103,7 +103,7 @@ const init = async function () {
         .on('end', () => bot.logger.log(`Loaded ${bot.events.size} Discord events`))
         .on('error', bot.logger.error);
     //import firebase events
-    klaw('./events_firebase')
+    klaw('./events/firebase')
         .on('data', item => {
             const eventFile = path.parse(item.path);
             if (!eventFile.ext || eventFile.ext !== '.js') return;
@@ -138,12 +138,17 @@ const init = async function () {
         .on('end', () => bot.logger.log(`Loaded ${bot.firebase_events.size} Firebase events`))
         .on('error', bot.logger.error);
 
-    bot.logger.log('Connecting...');
+    bot.logger.log('Connecting to Discord...');
     bot.login(process.env.BOT_TOKEN).then(() => {
         bot.logger.debug(`Bot succesfully initialized. Environment: ${process.env.NODE_ENV}. Version: ${bot.CURRENT_VERSION}`);
         process.env.NODE_ENV !== 'development' &&   //send message in log channel when staging/prod bot is online
             bot.logDiscord(`\`${process.env.NODE_ENV}\` environment online, running version ${bot.CURRENT_VERSION}`);
     });
+};
+
+// post-init, when Discord API is accessible
+const postInit = function () {
+
 };
 
 init();

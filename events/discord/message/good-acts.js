@@ -1,7 +1,7 @@
 const { Message } = require("discord.js");
-const DiscordEvent = require("../../classes/DiscordEvent");
-const EmbedBase = require('../../classes/EmbedBase');
-const Firebase	= require('../../classes/FirebaseAPI');
+const DiscordEvent = require("../../../classes/DiscordEvent");
+const EmbedBase = require('../../../classes/EmbedBase');
+const Firebase	= require('../../../classes/FirebaseAPI');
 const admin = require('firebase-admin');
 
 const target_channel 	= '810237567168806922';	//channel to watch for events
