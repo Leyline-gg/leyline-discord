@@ -196,7 +196,7 @@ class FirebaseAPI {
 		// get balance last snapshot
 		const snapshotValue = userData?.balance_snapshot?.snapshot_value || 0;
 		const snapshotTime = userData?.balance_snapshot?.snapshot_time?.toMillis() || 0;
-		
+
 		// get points since last snapshot
 		const pointsDoc = await admin
 			.firestore()
@@ -218,18 +218,15 @@ class FirebaseAPI {
 	 * @param {Object} [metadata] Metadata for transaction. Should contain a `category` property
 	 */
 	static async awardLLP(uid, amount, metadata = {}) {
-		return await admin.firestore().runTransaction(async (t) => {
-			await t.create(admin.firestore().collection('leyline_points').doc(), {
-				uid: uid,
-				leyline_points: amount,
-				created: Date.now(),
-				metadata: {
-					category: 'Discord Participation',
-					...metadata,
-					fromDiscord: true,
-				},
-			});
-			return true;
+		return await admin.firestore().collection('leyline_points').add({
+			uid: uid,
+			leyline_points: amount,
+			created: Date.now(),
+			metadata: {
+				category: 'Discord Participation',
+				...metadata,
+				fromDiscord: true,
+			},
 		});
 	}
 }
