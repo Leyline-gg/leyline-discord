@@ -98,6 +98,10 @@ class GoodActsReactionCollector {
             for (const old_reaction of [...msg.reactions.cache.values()]) {
                 for(const old_user of [...(await old_reaction.users.fetch()).values()]) {
                     if(!(await this.hasUserPreviouslyReacted(old_reaction, old_user))) {
+                        //store user's reaction right away, because we do the same in the approved collector
+                        await this.storeUserReaction(old_user);
+
+                        //exit if user is not connected to Leyline
                         if(!(await Firebase.isUserConnectedToLeyline(old_user.id))) {
                             this.handleUnconnectedAccount(old_user, {
                                 dm: `You reacted to the [${this.media_type}](${msg.url} 'click to view message') posted by <@!${msg.author.id}> in <#${msg.channel.id}>, but because you have not connected your Discord & Leyline accounts, I couldn't award you any LLP!
@@ -106,8 +110,9 @@ class GoodActsReactionCollector {
                             });
                             continue;
                         }
+
+                        //award LLP!
                         await this.awardReactionLLP(msg, old_user);
-                        await this.storeUserReaction(old_user);  //store user's reaction locally
                     }
                 }
             }
