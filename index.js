@@ -143,12 +143,39 @@ const init = function () {
         bot.logger.debug(`Bot succesfully initialized. Environment: ${process.env.NODE_ENV}. Version: ${bot.CURRENT_VERSION}`);
         process.env.NODE_ENV !== 'development' &&   //send message in log channel when staging/prod bot is online
             bot.logDiscord(`\`${process.env.NODE_ENV}\` environment online, running version ${bot.CURRENT_VERSION}`);
+        postInit();
     });
 };
 
-// post-init, when Discord API is accessible
-const postInit = function () {
+// post-initialization, when Discord API is accessible
+const postInit = async function () {
+    //import ReactionCollectors (this can be modified later to take a more generic approach)
+    await (async function importReactionCollectors () {
+        let succesfully_imported = 0; 
+        const GoodActsReactionCollector = require('./classes/GoodActsReactionCollector');
+        const collectors = await admin
+            .firestore()
+			.collection(`discord/bot/reaction_collectors/`)
+			.where('expires', '>', Date.now())
+            .get();
+        for (const doc of collectors.docs) {
+            try {
+                const ch = await bot.channels.fetch(doc.data().channel, true, true);
+                const msg = await ch.messages.fetch(doc.id, true, true);
+                const collector = await new GoodActsReactionCollector(bot, msg).loadMessageCache(doc);
+                doc.data().approved ? 
+                    collector.setupApprovedCollector({duration:doc.data().expires - Date.now()}) :
+                    collector.init(true);
+                succesfully_imported++;
+            } catch (err) {
+                bot.logger.error(`importReactionCollectors error with doc id ${doc.id}: ${err}`);
+            }   
+        }
+        bot.logger.log(`Imported ${succesfully_imported} ReactionCollectors from Firestore`);
+		return;
+    })();
 
+    bot.logger.debug('Post-initialization complete');
 };
 
 init();
