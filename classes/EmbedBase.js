@@ -24,6 +24,17 @@ class EmbedBase {
         this.timestamp      =   timestamp;
         this.footer         =   footer;
     }
+    
+    // --------- Presets ---------
+    Error() {
+        this.color = 0xf5223c;
+        return this;
+    }
+
+    Warn() {
+        this.color = 0xf57a22;
+        return this;
+    }
 }
 
 module.exports = EmbedBase;
