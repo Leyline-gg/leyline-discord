@@ -1,6 +1,7 @@
 const EmbedBase = require('./EmbedBase');
 const Firebase	= require('./FirebaseAPI');
 const admin = require('firebase-admin');
+const { Message } = require('discord.js');
 
 const cta_role 			= '853414453206188063'; //role to ping when photo is approved
 const collector_expires = 24;   //how long the collector expires, in hours
@@ -10,6 +11,11 @@ class GoodActsReactionCollector {
 	media_placeholder	//unfortunately, there is no easy way to extract the thumbnail from a video posted in discord
 		= 'https://cdn1.iconfinder.com/data/icons/growth-marketing/48/marketing_video_marketing-512.png';
 
+        /**
+         * 
+         * @param {*} bot 
+         * @param {Message} msg 
+         */
 	constructor(bot, msg) {
 		this.bot = bot;
 		this.msg = msg;
@@ -36,7 +42,6 @@ class GoodActsReactionCollector {
 		)
 		.on('collect', async (r, u) => {
 			this.collector.stop();  //stop this collector (we will create a new one later)
-            this.storeUserReaction(u);  //store mod's reaction, no need to wait since there shouldn't be any spam?
 			//send msg in channel
 			msg./*reply TODO:change w djs v13*/channel.send(
 				`<@&${cta_role}> 🚨 **NEW APPROVED ${this.media_type.toUpperCase()}!!** 🚨`,
@@ -74,6 +79,7 @@ class GoodActsReactionCollector {
 			//award LLP to msg author
 			else await this.awardApprovalLLP(msg, msg.author);
 
+            /*
 			// --- Give the Mod LLP ---
 			//ensure mod that approved is connected to LL
 			if(!(await Firebase.isUserConnectedToLeyline(u.id)))
@@ -85,6 +91,26 @@ class GoodActsReactionCollector {
 
 			//give the Mod that approved the msg LLP
 			else await this.awardReactionLLP(msg, u);
+            */
+
+            // ---  Give LLP to the users that have already reacted   ---
+            // --- (this includes the mod that just approved the msg) ---
+            for (const old_reaction of [...msg.reactions.cache.values()]) {
+                for(const old_user of [...(await old_reaction.users.fetch()).values()]) {
+                    if(!(await this.hasUserPreviouslyReacted(old_reaction, old_user))) {
+                        if(!(await Firebase.isUserConnectedToLeyline(old_user.id))) {
+                            this.handleUnconnectedAccount(old_user, {
+                                dm: `You reacted to the [${this.media_type}](${msg.url} 'click to view message') posted by <@!${msg.author.id}> in <#${msg.channel.id}>, but because you have not connected your Discord & Leyline accounts, I couldn't award you any LLP!
+                                    [Click here](${bot.connection_tutorial} 'How to connect your accounts') to view the account connection tutorial`,
+                                log: `<@!${old_user.id}> reacted to the [${this.media_type}](${msg.url} 'click to view message') posted by <@!${msg.author.id}> in <#${msg.channel.id}>, but I did not award them any LLP because they have not connected their Leyline & Discord accounts`,
+                            });
+                            continue;
+                        }
+                        await this.awardReactionLLP(msg, old_user);
+                        await this.storeUserReaction(old_user);  //store user's reaction locally
+                    }
+                }
+            }
 
 			this.setupApprovedCollector();
 			return;
@@ -201,7 +227,7 @@ class GoodActsReactionCollector {
 					value: dm,
 				},
 			],	
-		})});
+		}).Error()});
 		//Log in bot log
 		bot.logDiscord({
 			embed: new EmbedBase(bot, {
@@ -211,10 +237,42 @@ class GoodActsReactionCollector {
 						value: log,
 					},
 				],
-			}),
+			}).Error(),
 		});
 		return;
 	}
+
+    /**
+     * Check if a user has previously reacted to the class's `msg`; designed to be used as a filter for a ReactionCollector
+     * @param {MessageReaction} reaction Discord.js MessageReaction
+     * @param {User} user Discord.js User
+     * @returns {Promise<boolean>} Promise that resolves to boolean
+     */
+    async hasUserPreviouslyReacted(reaction, user) {
+        const bot = this.bot;
+        const msg = this.msg;
+
+        //allow any reactions, but only allow users who have not previously reacted
+        return await (async () => {
+            //ignore bots
+            if(user.bot) return true;
+        
+            //check the local custom cache first, because it's quicker than calling the API
+            bot.logger.debug(`Custom Reaction Cache: ${msg._cache.reacted_users}`);
+            if(msg._cache.reacted_users?.includes(user.id)) return true;
+            
+            //now check the Discord.js message reaction cache
+            for(const r of [...msg.reactions.cache.values()]) {
+                //ignore the reaction that was just added
+                if (r.emoji.identifier === reaction.emoji.identifier) continue;
+                //check if any of the other reactions have been added by target user
+                if ((await r.users.fetch()).has(user.id)) return true;
+            }
+            //passed all the checks
+            return false;
+        })();	//this IIFE was inspired by https://stackoverflow.com/a/67527585/8396479
+        //IIFE is necessary because we can't map an array and return promises
+    }
 
 	/**
 	 * Sets up a specific ReactionCollector on an approved message that is designed to last for 24hrs and award LLP to users that react
@@ -234,24 +292,7 @@ class GoodActsReactionCollector {
             }, { merge: true });
 
         //create collector to watch for user reactions
-		msg.createReactionCollector(async (reaction, user) => {
-			//allow any reactions, but only allow users who have not previously reacted
-			return await (async () => {
-				//check the Discord.js message reaction cache first
-				for(const r of [...msg.reactions.cache.values()]) {
-					//ignore the reaction that was just added
-					if (r.emoji.identifier === reaction.emoji.identifier) continue;
-					//check if any of the other reactions have been added by target user
-					if ((await r.users.fetch()).has(user.id)) return false;
-				}
-                bot.logger.debug(`Custom Reaction Cache: ${msg._cache.reacted_users}`);
-				//now check our custom reaction cache
-				if(msg._cache.reacted_users?.includes(user.id)) return false;
-				//passed all the checks
-				return true;
-			})();	//this IIFE was inspired by https://stackoverflow.com/a/67527585/8396479
-			//IIFE is necessary because we can't map an array and return promises
-		}, { time: duration })
+		msg.createReactionCollector(async (r, u) => !(await this.hasUserPreviouslyReacted(r, u)), { time: duration })
 		.on('collect', async (r, u) => {
 			try {
 				//cache the reaction right away to prevent reaction spam
