@@ -46,7 +46,7 @@ class help extends Command {
                 },
                 {
                     name: 'Usage',
-                    value: `\`${this.bot.config.prefix}${command.name} ${command.usage}\``
+                    value: `\`${this.bot.config.prefix}${command.name}${!!command.usage ? ` ${command.usage}` : ''}\``
                 }
             ],
         });
