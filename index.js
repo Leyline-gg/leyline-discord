@@ -44,7 +44,7 @@ class LeylineBot extends Client {
      * @returns `true` if user has mod perms, `false` otherwise
      */
     checkMod(uid) {
-        const mod_roles = ['784875278593818694'/*Admin*/, '752363863441145866'/*Mod*/, '751919243062411385'/*Staff*/];
+        const mod_roles = ['784875278593818694'/*Admin*/, '752363863441145866'/*Mod*/];
         return bot.leyline_guild.member(uid).roles.cache.some(r => mod_roles.includes(r.id));
     }
 
@@ -143,6 +143,7 @@ const init = function () {
         bot.logger.debug(`Bot succesfully initialized. Environment: ${process.env.NODE_ENV}. Version: ${bot.CURRENT_VERSION}`);
         process.env.NODE_ENV !== 'development' &&   //send message in log channel when staging/prod bot is online
             bot.logDiscord(`\`${process.env.NODE_ENV}\` environment online, running version ${bot.CURRENT_VERSION}`);
+        bot.logger.log('Beginning post-initializing sequence...');
         postInit();
     });
 };
