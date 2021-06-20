@@ -1,7 +1,6 @@
 const EmbedBase = require('./EmbedBase');
 const Firebase	= require('./FirebaseAPI');
 const admin = require('firebase-admin');
-const { Message } = require('discord.js');
 
 const cta_role 			= '853414453206188063'; //role to ping when photo is approved
 const collector_expires = 24;   //how long the collector expires, in hours
@@ -11,11 +10,6 @@ class GoodActsReactionCollector {
 	media_placeholder	//unfortunately, there is no easy way to extract the thumbnail from a video posted in discord
 		= 'https://cdn1.iconfinder.com/data/icons/growth-marketing/48/marketing_video_marketing-512.png';
 
-        /**
-         * 
-         * @param {*} bot 
-         * @param {Message} msg 
-         */
 	constructor(bot, msg) {
 		this.bot = bot;
 		this.msg = msg;
@@ -78,20 +72,6 @@ class GoodActsReactionCollector {
 
 			//award LLP to msg author
 			else await this.awardApprovalLLP(msg, msg.author);
-
-            /*
-			// --- Give the Mod LLP ---
-			//ensure mod that approved is connected to LL
-			if(!(await Firebase.isUserConnectedToLeyline(u.id)))
-				this.handleUnconnectedAccount(u, {
-					dm: `You reacted to the [${this.media_type}](${msg.url} 'click to view message') posted by <@!${msg.author.id}> in <#${msg.channel.id}>, but because you have not connected your Discord & Leyline accounts, I couldn't award you any LLP!
-						[Click here](${bot.connection_tutorial} 'How to connect your accounts') to view the account connection tutorial`,
-					log: `<@!${u.id}> reacted to the [${this.media_type}](${msg.url} 'click to view message') posted by <@!${msg.author.id}> in <#${msg.channel.id}>, but I did not award them any LLP because they have not connected their Leyline & Discord accounts`,
-				});
-
-			//give the Mod that approved the msg LLP
-			else await this.awardReactionLLP(msg, u);
-            */
 
             // ---  Give LLP to the users that have already reacted   ---
             // --- (this includes the mod that just approved the msg) ---
