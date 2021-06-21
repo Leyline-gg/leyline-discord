@@ -150,7 +150,8 @@ class GoodActsReactionCollector {
 					value: `You reacted to the [${this.media_type}](${msg.url} 'click to view message') posted by <@!${msg.author.id}> in <#${msg.channel.id}>, and received **+1 LLP**!`
 				},
 			],	
-		})});
+		})})
+			.catch(() => bot.sendDisabledDmMessage(user));
 		//Log in bot log
 		bot.logDiscord({
 			embed: new EmbedBase(bot, {
@@ -184,7 +185,8 @@ class GoodActsReactionCollector {
 					value: `Your [${this.media_type}](${msg.url} 'click to view message') posted in <#${msg.channel.id}> was approved, and you received **+5 LLP**!`
 				},
 			],	
-		})});
+		})})
+			.catch(() => bot.sendDisabledDmMessage(user));
 
 		//log LLP change in bot-log
 		bot.logDiscord({
@@ -212,7 +214,8 @@ class GoodActsReactionCollector {
 					value: dm,
 				},
 			],	
-		}).Error()});
+		}).Error()})
+			.catch(() => bot.sendDisabledDmMessage(user));
 		//Log in bot log
 		bot.logDiscord({
 			embed: new EmbedBase(bot, {
