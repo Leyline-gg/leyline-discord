@@ -5,12 +5,14 @@ const { Client, Collection } = require('discord.js');
 const admin = require('firebase-admin');
 const klaw = require('klaw');
 const path = require('path');
+const EmbedBase = require('./classes/EmbedBase');
 //formally, dotenv shouldn't be used in prod, but because staging and prod share a VM, it's an option I elected to go with for convenience
 require('dotenv').config();
 
 class LeylineBot extends Client {
     leyline_guild_id    = '751913089271726160'; //id of Leyline guild
     discord_log_channel = '843892751276048394'; //for logging actions performed
+    discord_bot_channel = '810265135419490314'; //for public log events
     connection_tutorial = 'https://www.notion.so/leyline/How-to-Connect-Your-Discord-Leyline-Accounts-917dd19be57c4242878b73108e0cc2d1';
 
     constructor(options) {
@@ -30,11 +32,35 @@ class LeylineBot extends Client {
     }
 
     /**
-     * Sends a discord message on the bot's behalf to a log channel
+     * Sends a discord message on the bot's behalf to a private log channel
      * @param {String} text 
      */
     async logDiscord(text) {
         (await bot.channels.fetch(this.discord_log_channel)).send(text);
+    }
+
+    /**
+     * Sends a discord message on the bot's behalf to a public log channel
+     * @param {String} text 
+     */
+    async msgBotChannel(text) {
+        (await bot.channels.fetch(this.discord_bot_channel)).send(text);
+    }
+
+    sendDisabledDmMessage(user) {
+        this.msgBotChannel({
+            content: user.toString(),
+            embed: new EmbedBase(this, {
+                fields: [
+                    {
+                        name: '❌ You need to enable DMs from server members!',
+                        value: "I tried to send you a direct message, but you currently have them disabled! Navigate to the server's Privacy Settings, then toggle **Allow Direct Messages From Server Members** to the right."
+                    }
+                ],
+                image: {
+                    url: 'https://i.ibb.co/L8j9dCD/discord-dm-tutorial.png'
+                }
+        }).Warn()});
     }
 
     /**
