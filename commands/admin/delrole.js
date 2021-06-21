@@ -12,7 +12,7 @@ class delrole extends Command {
     }
 
     async run(msg, args) {
-        const uid = args.shift().match(/\d+/g)[0];
+        const uid = args.shift().match(/\d+/g)?.shift();
         if(!uid) return msg.channel.send(`You didn't mention a valid user`);
         
         const mem = this.bot.leyline_guild.member(uid);
