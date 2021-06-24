@@ -1,19 +1,21 @@
 const Command = require('../../classes/Command');
 const Firebase = require('../../classes/FirebaseAPI');
 const LeylineUser = require('../../classes/LeylineUser');
+const EmbedBase = require('../../classes/EmbedBase');
 
 class profile extends Command {
     constructor(bot) {
         super(bot, {
             name: 'profile',
             description: 'View your Leyline profile or the profile of another user',
-            usage: 'profile [@discord-user]',
+            usage: '[@discord-user]',
             aliases: [],
             category: 'user'
         });
     }
 
     async run(msg, args) {
+        const bot = this.bot;
         // Functions
         /**
          * @returns {Promise<LeylineUser>}
@@ -37,19 +39,17 @@ class profile extends Command {
             if(!target_user?.id) return msg.channel.send('❌ Argument must be a Discord user');
 
             //easter egg if user tries to check the profile of the bot
-            if(target_user.id === this.bot.user.id) return msg.channel.send('My Leyline profile is beyond your capacity of comprehension');
+            if(target_user.id === bot.user.id) return msg.channel.send('My Leyline profile is beyond your capacity of comprehension');
 
             const user = await getLeylineInfo(target_user.id);
-            const embed = {
-                //title: '\u200b',
+            msg.channel.send({embed: new EmbedBase(bot, {
+                title: 'Leyline Profile',
+                url: `https://leyline.gg/profile/${user.profile_id}`,
                 author: {
                     name: user.username,
                     icon_url: user.avatarUrl,
                     url: `https://leyline.gg/profile/${user.profile_id}`
                 },
-                url: `https://leyline.gg/profile/${user.profile_id}`,
-                title: 'Leyline Profile',
-                color: 0x2EA2E0,
                 fields: [
                     {
                         name: '<:LeylineLogo:846152082226282506>  LLP Balance',
@@ -104,29 +104,31 @@ class profile extends Command {
                         inline: true,
                     },
                 ],
-                timestamp: new Date(),
-                footer: {
-                    text: 'LeylineBot', //TODO: add bot version
-                    icon_url: this.bot.user.avatarURL()
-                }
-            };
-            msg.channel.send({embed: embed});
+            })});
         } catch(err) {
             if(!!err.code) 
                 switch(err.code) {
                     case 2: //user tried to view their own LL profile; it was not found
-                        msg.channel.send('You have not connected your Leyline & Discord accounts!\nView the tutorial on how to do so at <https://www.notion.so/leyline/How-to-Connect-Your-Discord-Leyline-Accounts-917dd19be57c4242878b73108e0cc2d1>');
+                        msg.channel.send({embed: new EmbedBase(bot, {
+                            fields: [
+                                {
+                                    name: `❌ You need to Connect Your Leyline & Discord accounts!`,
+                                    value: `[Click here](${bot.connection_tutorial} 'Tutorial') to the view the tutorial page`,
+                                },
+                            ],
+                        }).Error()});
                         break;
                     case 3:
-                        msg.channel.send('That user has not connected their Leyline & Discord accounts');
+                        msg.channel.send({embed: new EmbedBase(bot, {
+                            description: `❌ **That user has not connected their Leyline & Discord accounts**`,
+                        }).Error()});
                         break;
                         
                     default:
                         msg.channel.send('Error while trying to run that command');
                         break;
                 }
-            this.bot.logger.error(JSON.stringify(err));
-            //msg.channel.send('Error while trying to run that command');
+            bot.logger.error(JSON.stringify(err));
         }
     }
 }

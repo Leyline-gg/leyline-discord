@@ -42,10 +42,16 @@ class FirebaseAPI {
 	 * @returns {Promise<boolean>} `true` if succesfully created, `false` if not
 	 */
 	static async createDiscordUser(discord_uid) {
-		return admin.firestore().collection('discord/bot/users').doc(discord_uid).create().then(() => true).catch(() => false);
+		return admin
+			.firestore()
+			.collection('discord/bot/users')
+			.doc(discord_uid)
+			.create()
+			.then(() => true)
+			.catch(() => false);
 	}
 
-    /**
+	/**
 	 * Retrieves the `DocumentSnapshot.data()` for a given Leyline user (under the collection `users`)
 	 * @param {String} leyline_uid Leyline UID of the user to retrieve the doc for
 	 * @param {boolean} [include_metadata] Whether or not to return the raw DocumentSnapshot if it exists (pass `true`), or an Object with the document's data (default)
@@ -124,19 +130,14 @@ class FirebaseAPI {
 		};
 	}
 
-    /**
-     * Returns all items in the database
-     * Taken from webapp's api package `itemsService.ts` file
-     * @param {Number} limit number of items to return
-     * @returns Array of items
-     */
+	/**
+	 * Returns all items in the database
+	 * Taken from webapp's api package `itemsService.ts` file
+	 * @param {Number} limit number of items to return
+	 * @returns Array of items
+	 */
 	static async getAllItems(limit = 1000) {
-		const snapshot = await admin
-            .firestore()
-            .collection('items')
-            .orderBy('name', 'asc')
-            .limit(limit)
-            .get();
+		const snapshot = await admin.firestore().collection('items').orderBy('name', 'asc').limit(limit).get();
 
 		const data = snapshot.docs.map((doc) => ({
 			id: doc.id,
@@ -145,47 +146,89 @@ class FirebaseAPI {
 		return data;
 	}
 
-    /**
-     * Retrieve all the current inventory items for the given Leyline user.
-     * Taken from webapp's api package `userService.ts`
-     * @param {String} uid Leyline UID
-     * @returns Array of items
-     */
-    static async getInventoryItems(uid) {
-        const user = await admin.firestore().doc(`users/${uid}`).get();
-        const userIsOnKlaytn = user.data()?.isKlaytnEnabled;
-      
-        const userInventory = await admin
-          .firestore()
-          .collection('users')
-          .doc(uid)
-          .collection('inventory')
-          .get();
-      
-        const items = await this.getAllItems();
-      
-        return userInventory.docs
-          .map((d) => ({ ...d.data(), itemId: d.id }))
-          .map((item) => {
-            const baseItem = items.filter((i) => i.id == item.id)[0]
-            return {
-              isEquipped: false,
-              ...item,
-              imageUrl: baseItem.imageUrl,
-              thumbnailUrl: baseItem.thumbnailUrl,
-              avatarUrl: baseItem.avatarUrl,
-              name: baseItem.name,
-              description: baseItem.description,
-              equipSlot: baseItem.equipSlot,
-              rarity: baseItem.rarity,
-              rewardType: baseItem.rewardType,
-      
-              transactionId: userIsOnKlaytn ? item.klaytn_tx_hash : item.tx_hash,
-              artistCredit: baseItem.artistCredit,
-              isKlaytn: userIsOnKlaytn,
-            }
-          });
-      };
+	/**
+	 * Retrieve all the current inventory items for the given Leyline user.
+	 * Taken from webapp's api package `userService.ts`
+	 * @param {String} uid Leyline UID
+	 * @returns Array of items
+	 */
+	static async getInventoryItems(uid) {
+		const user = await admin.firestore().doc(`users/${uid}`).get();
+		const userIsOnKlaytn = user.data()?.isKlaytnEnabled;
+
+		const userInventory = await admin.firestore().collection('users').doc(uid).collection('inventory').get();
+
+		const items = await this.getAllItems();
+
+		return userInventory.docs
+			.map((d) => ({ ...d.data(), itemId: d.id }))
+			.map((item) => {
+				const baseItem = items.filter((i) => i.id == item.id)[0];
+				return {
+					isEquipped: false,
+					...item,
+					imageUrl: baseItem.imageUrl,
+					thumbnailUrl: baseItem.thumbnailUrl,
+					avatarUrl: baseItem.avatarUrl,
+					name: baseItem.name,
+					description: baseItem.description,
+					equipSlot: baseItem.equipSlot,
+					rarity: baseItem.rarity,
+					rewardType: baseItem.rewardType,
+
+					transactionId: userIsOnKlaytn ? item.klaytn_tx_hash : item.tx_hash,
+					artistCredit: baseItem.artistCredit,
+					isKlaytn: userIsOnKlaytn,
+				};
+			});
+	}
+
+	/**
+	 * Get the latest LLP balance of a Leyline user
+	 * Taken from webapp's api package `userService.ts`
+	 * @param {String} uid Leyline UID 
+	 * @returns {Promise<Number>} User's most up-to-date LLP balance
+	 */
+	static async getLLPBalance(uid) {
+		const userDoc = await admin.firestore().doc(`users/${uid}`).get();
+		const userData = userDoc.data();
+
+		// get balance last snapshot
+		const snapshotValue = userData?.balance_snapshot?.snapshot_value || 0;
+		const snapshotTime = userData?.balance_snapshot?.snapshot_time?.toMillis() || 0;
+
+		// get points since last snapshot
+		const pointsDoc = await admin
+			.firestore()
+			.collection('leyline_points')
+			.where('uid', '==', uid)
+			.where('created', '>', snapshotTime)
+			.get();
+		const points = pointsDoc.docs.reduce((acc, doc) => {
+			return acc + doc.data().leyline_points;
+		}, 0);
+
+		return snapshotValue + points;
+	}
+
+	/**
+	 *
+	 * @param {String} uid Leyline UID
+	 * @param {Number} amount Amount of LLP to award
+	 * @param {Object} [metadata] Metadata for transaction. Should contain a `category` property
+	 */
+	static async awardLLP(uid, amount, metadata = {}) {
+		return await admin.firestore().collection('leyline_points').add({
+			uid: uid,
+			leyline_points: amount,
+			created: Date.now(),
+			metadata: {
+				category: 'Discord Participation',
+				...metadata,
+				fromDiscord: true,
+			},
+		});
+	}
 }
 
 module.exports = FirebaseAPI;
