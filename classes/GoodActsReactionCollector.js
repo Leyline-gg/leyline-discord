@@ -139,7 +139,7 @@ class GoodActsReactionCollector {
 		const bot = this.bot;
 		//new user reacted, award LLP
 		await Firebase.awardLLP(await Firebase.getLeylineUID(user.id), 1, {
-			category: 'Discord Reaction',
+			category: 'Discord Moral Support',
 			comment: `User reacted to Discord message (${msg.id})`,
 		});
 		//DM user informing them
@@ -173,7 +173,7 @@ class GoodActsReactionCollector {
 	async awardApprovalLLP(msg, user) {
 		const bot = this.bot;
 		await Firebase.awardLLP(await Firebase.getLeylineUID(user.id), 5, {
-			category: `Discord ${this.media_type[0].toUpperCase() + this.media_type.slice(1)} Approved`,
+			category: `Good Act ${this.media_type[0].toUpperCase() + this.media_type.slice(1)} Approved`,
 			comment: `User's Discord ${this.media_type} (${msg.id}) was approved by ${user.tag}`,
 		});
 
@@ -246,7 +246,7 @@ class GoodActsReactionCollector {
             if(user.bot) return true;
         
             //check the local custom cache first, because it's quicker than calling the API
-            bot.logger.debug(`Custom Reaction Cache: ${msg._cache.reacted_users}`);
+            bot.logger.debug(`Custom Reaction Cache (${msg.id}): ${msg._cache.reacted_users}`);	//debug added 1.1.0
             if(msg._cache.reacted_users?.includes(user.id)) return true;
             
             //now check the Discord.js message reaction cache
