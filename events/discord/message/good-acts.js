@@ -1,7 +1,7 @@
 const DiscordEvent = require("../../../classes/DiscordEvent");
 const GoodActsReactionCollector = require('../../../classes/GoodActsReactionCollector');
 
-const target_channel 	= '810237567168806922';	//channel to watch for events
+const target_channel 	= '840679701118189579';	//channel to watch for events
 
 module.exports = class extends DiscordEvent {
 	constructor(bot) {
