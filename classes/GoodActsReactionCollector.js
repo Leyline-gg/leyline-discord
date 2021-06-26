@@ -4,6 +4,36 @@ const admin = require('firebase-admin');
 
 const cta_role 			= '853414453206188063'; //role to ping when photo is approved
 const collector_expires = 24;   //how long the collector expires, in hours
+const reaction_emojis = [
+	{
+		unicode: '💪',
+		keyword: 'Exercise',
+	},
+	{
+		unicode: '🧘‍♂️',
+		keyword: 'Mindfulness',
+	},
+	{
+		unicode: '🩸',
+		keyword: 'Blood Donation',
+	},
+	{
+		unicode: '🧹',
+		keyword: 'Local Cleanup',
+	},
+	{
+		unicode: '👖',
+		keyword: 'Charity Donation',
+	},
+	{
+		unicode: '⛑',
+		keyword: 'Community Service',
+	},
+	{
+		unicode: '🇴',
+		keyword: 'Good Act',
+	},
+];
 
 class GoodActsReactionCollector {
 	media_type 		= 'submission'; //should be either photo/video (this is for the UX)
@@ -26,16 +56,25 @@ class GoodActsReactionCollector {
         const bot = this.bot;
         const msg = this.msg;
 
-        //add initial reaction
-		!from_firestore && msg.react('✅');  //await? the reaction to prevent the Collector from picking it up
+        //add initial reactions
+		if(!from_firestore) 
+			for (const reaction of reaction_emojis) 
+				msg.react(reaction.unicode);
         //setup first ReactionCollector for catching mod reaction
 		this.collector = msg	//intentionally decreasing indentation on the following chains for readability
 		.createReactionCollector(
-			(reaction, user) =>
-				reaction.emoji.name === '✅' && bot.checkMod(user.id)
+			(r, u) =>
+				bot.checkMod(u.id) && reaction_emojis.some(e => e.unicode === r.emoji.name)
 		)
 		.on('collect', async (r, u) => {
 			this.collector.stop();  //stop this collector (we will create a new one later)
+
+			//store the activity type for LLP award text
+			msg._activityType = reaction_emojis.find(e => e.unicode === r.emoji.name)?.keyword || '';
+
+			//remove all reactions added by the bot
+			msg.reactions.cache.each(reaction => reaction.users.remove(bot.user));
+
 			//send msg in channel
 			msg./*reply TODO:change w djs v13*/channel.send(
 				`<@&${cta_role}> 🚨 **NEW APPROVED ${this.media_type.toUpperCase()}!!** 🚨`,
@@ -173,7 +212,7 @@ class GoodActsReactionCollector {
 	async awardApprovalLLP(msg, user) {
 		const bot = this.bot;
 		await Firebase.awardLLP(await Firebase.getLeylineUID(user.id), 5, {
-			category: `Good Act ${this.media_type[0].toUpperCase() + this.media_type.slice(1)} Approved`,
+			category: `Discord ${msg._activityType} ${this.media_type[0].toUpperCase() + this.media_type.slice(1)} Approved`,
 			comment: `User's Discord ${this.media_type} (${msg.id}) was approved by ${user.tag}`,
 		});
 
