@@ -10,9 +10,6 @@ const EmbedBase = require('./classes/EmbedBase');
 require('dotenv').config();
 
 class LeylineBot extends Client {
-    leyline_guild_id    = '751913089271726160'; //id of Leyline guild
-    discord_log_channel = '843892751276048394'; //for logging actions performed
-    discord_bot_channel = '810265135419490314'; //for public log events
     connection_tutorial = 'https://www.notion.so/leyline/How-to-Connect-Your-Discord-Leyline-Accounts-917dd19be57c4242878b73108e0cc2d1';
 
     constructor(options) {
@@ -28,7 +25,7 @@ class LeylineBot extends Client {
     }
 
     get leyline_guild() {
-        return this.guilds.resolve(this.leyline_guild_id);
+        return this.guilds.resolve(this.config.leyline_guild_id);
     }
 
     /**
@@ -36,7 +33,7 @@ class LeylineBot extends Client {
      * @param {String} text 
      */
     async logDiscord(text) {
-        (await bot.channels.fetch(this.discord_log_channel)).send(text);
+        (await bot.channels.fetch(this.config.discord_log_channel)).send(text);
     }
 
     /**
@@ -44,7 +41,7 @@ class LeylineBot extends Client {
      * @param {String} text 
      */
     async msgBotChannel(text) {
-        (await bot.channels.fetch(this.discord_bot_channel)).send(text);
+        (await bot.channels.fetch(this.config.discord_bot_channel)).send(text);
     }
 
     sendDisabledDmMessage(user) {
@@ -70,7 +67,7 @@ class LeylineBot extends Client {
      * @returns `true` if user has mod perms, `false` otherwise
      */
     checkMod(uid) {
-        const mod_roles = ['784875278593818694'/*Admin*/, '752363863441145866'/*Mod*/];
+        const mod_roles = ['784875278593818694'/*Admin*/, '752363863441145866'/*Mod*/, '858144532318519326'/*Dev server Staff*/];
         return bot.leyline_guild.member(uid).roles.cache.some(r => mod_roles.includes(r.id));
     }
 
