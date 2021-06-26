@@ -213,5 +213,5 @@ bot.on("disconnect", () => bot.logger.warn("Bot is disconnecting..."))
 // Prevent the bot from crashing on unhandled rejections
 process.on("unhandledRejection", function (err, promise) {
     bot.logger.error(`Unhandled rejection: ${err.name}`);
-    console.error(`Unhandled rejection:\n${promise}\n\nReason:\n${err}`);
+    console.error("Unhandled rejection:\n", promise, "\n\nReason:\n", err);
 });

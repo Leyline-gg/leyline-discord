@@ -105,3 +105,6 @@ dist
 
 # Firebase admin key
 *adminsdk*.json
+
+# cache files
+cache/
