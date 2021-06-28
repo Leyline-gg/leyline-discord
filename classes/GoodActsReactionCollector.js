@@ -4,6 +4,44 @@ const admin = require('firebase-admin');
 
 const cta_role 			= '853414453206188063'; //role to ping when photo is approved
 const collector_expires = 24;   //how long the collector expires, in hours
+const reaction_emojis = [
+	{
+		unicode: '💪',
+		keyword: 'Exercise',
+	},
+	{
+		unicode: '🧘‍♀️',
+		keyword: 'Mindfulness',
+	},
+	{
+		unicode: '🩸',
+		keyword: 'Blood Donation',
+	},
+	{
+		unicode: '🧹',
+		keyword: 'Local Cleanup',
+	},
+	{
+		unicode: '👖',
+		keyword: 'Charity Donation',
+	},
+	{
+		unicode: '⛑',
+		keyword: 'Community Service',
+	},
+	{
+		unicode: '👨‍🏫',
+		keyword: 'Education',
+	},
+	{
+		unicode: '🌳',
+		keyword: 'Tree Planting',
+	},
+	{
+		unicode: '🇴',
+		keyword: 'Good Act',
+	},
+];
 
 class GoodActsReactionCollector {
 	media_type 		= 'submission'; //should be either photo/video (this is for the UX)
@@ -26,79 +64,91 @@ class GoodActsReactionCollector {
         const bot = this.bot;
         const msg = this.msg;
 
-        //add initial reaction
-		!from_firestore && msg.react('✅');  //await? the reaction to prevent the Collector from picking it up
+        //add initial reactions
+		if(!from_firestore) 
+			for (const reaction of reaction_emojis) 
+				msg.react(reaction.unicode);
         //setup first ReactionCollector for catching mod reaction
 		this.collector = msg	//intentionally decreasing indentation on the following chains for readability
 		.createReactionCollector(
-			(reaction, user) =>
-				reaction.emoji.name === '✅' && bot.checkMod(user.id)
+			(r, u) =>
+				bot.checkMod(u.id) && reaction_emojis.some(e => e.unicode === r.emoji.name)
 		)
 		.on('collect', async (r, u) => {
-			this.collector.stop();  //stop this collector (we will create a new one later)
-			//send msg in channel
-			msg./*reply TODO:change w djs v13*/channel.send(
-				`<@&${cta_role}> 🚨 **NEW APPROVED ${this.media_type.toUpperCase()}!!** 🚨`,
-				{
+			try {
+				this.collector.stop();  //stop this collector (we will create a new one later)
+
+				//store the activity type for LLP award text
+				msg._activityType = reaction_emojis.find(e => e.unicode === r.emoji.name)?.keyword || '';
+
+				//send msg in channel
+				msg./*reply TODO:change w djs v13*/channel.send(
+					`<@&${cta_role}> 🚨 **NEW APPROVED ${this.media_type.toUpperCase()}!!** 🚨`,
+					{
+						embed: new EmbedBase(bot, {
+							description: `A new ${this.media_type} was approved! Click [here](${msg.url} 'view message') to view the message.\nBe sure to react within 24 hours to get your LLP!`,
+							thumbnail: { url: this.media_type === 'photo' ? msg.attachments.first().url : this.media_placeholder },
+						}),
+					}
+				);
+
+				//log approval in bot log
+				bot.logDiscord({
 					embed: new EmbedBase(bot, {
-						description: `A new ${this.media_type} was approved! Click [here](${msg.url} 'view message') to view the message.\nBe sure to react within 24 hours to get your LLP!`,
+						fields: [
+							{
+								name: `${this.media_type[0].toUpperCase() + this.media_type.slice(1)} Approved`,
+								value: `<@!${u.id}> approved the [${this.media_type}](${msg.url} 'click to view message') posted in <#${msg.channel.id}> by <@!${msg.author.id}>`
+							},
+						],
 						thumbnail: { url: this.media_type === 'photo' ? msg.attachments.first().url : this.media_placeholder },
 					}),
-				}
-			);
-
-			//log approval in bot log
-			bot.logDiscord({
-				embed: new EmbedBase(bot, {
-					fields: [
-						{
-							name: `${this.media_type[0].toUpperCase() + this.media_type.slice(1)} Approved`,
-							value: `<@!${u.id}> approved the [${this.media_type}](${msg.url} 'click to view message') posted in <#${msg.channel.id}> by <@!${msg.author.id}>`
-						},
-					],
-					thumbnail: { url: this.media_type === 'photo' ? msg.attachments.first().url : this.media_placeholder },
-				}),
-			});
-
-			//ensure user is connected to LL
-			if(!(await Firebase.isUserConnectedToLeyline(msg.author.id)))
-				this.handleUnconnectedAccount(msg.author, {
-					dm: `Your [${this.media_type}](${msg.url} 'click to view message') posted in <#${msg.channel.id}> was approved, but because you have not connected your Discord & Leyline accounts, I couldn't award you any LLP!
-						[Click here](${bot.connection_tutorial} 'How to connect your accounts') to view the account connection tutorial`,
-					log: `<@!${msg.author.id}>'s [${this.media_type}](${msg.url} 'click to view message') posted in <#${msg.channel.id}> was approved, but I did not award them any LLP because they have not connected their Leyline & Discord accounts`,
 				});
 
-			// I could add some catch statements here and log them to Discord (for the awarding LLP process)
+				//setup approved collector now that users have been notified
+				this.setupApprovedCollector();
 
-			//award LLP to msg author
-			else await this.awardApprovalLLP(msg, msg.author);
+				//ensure user is connected to LL
+				if(!(await Firebase.isUserConnectedToLeyline(msg.author.id)))
+					this.handleUnconnectedAccount(msg.author, {
+						dm: `Your [${this.media_type}](${msg.url} 'click to view message') posted in <#${msg.channel.id}> was approved, but because you have not connected your Discord & Leyline accounts, I couldn't award you any LLP!
+							[Click here](${bot.connection_tutorial} 'How to connect your accounts') to view the account connection tutorial`,
+						log: `<@!${msg.author.id}>'s [${this.media_type}](${msg.url} 'click to view message') posted in <#${msg.channel.id}> was approved, but I did not award them any LLP because they have not connected their Leyline & Discord accounts`,
+					});
 
-            // ---  Give LLP to the users that have already reacted   ---
-            // --- (this includes the mod that just approved the msg) ---
-            for (const old_reaction of [...msg.reactions.cache.values()]) {
-                for(const old_user of [...(await old_reaction.users.fetch()).values()]) {
-                    if(!(await this.hasUserPreviouslyReacted(old_reaction, old_user))) {
-                        //store user's reaction right away, because we do the same in the approved collector
-                        await this.storeUserReaction(old_user);
+				// I could add some catch statements here and log them to Discord (for the awarding LLP process)
 
-                        //exit if user is not connected to Leyline
-                        if(!(await Firebase.isUserConnectedToLeyline(old_user.id))) {
-                            this.handleUnconnectedAccount(old_user, {
-                                dm: `You reacted to the [${this.media_type}](${msg.url} 'click to view message') posted by <@!${msg.author.id}> in <#${msg.channel.id}>, but because you have not connected your Discord & Leyline accounts, I couldn't award you any LLP!
-                                    [Click here](${bot.connection_tutorial} 'How to connect your accounts') to view the account connection tutorial`,
-                                log: `<@!${old_user.id}> reacted to the [${this.media_type}](${msg.url} 'click to view message') posted by <@!${msg.author.id}> in <#${msg.channel.id}>, but I did not award them any LLP because they have not connected their Leyline & Discord accounts`,
-                            });
-                            continue;
-                        }
+				//award LLP to msg author
+				else await this.awardApprovalLLP(msg, msg.author);
 
-                        //award LLP!
-                        await this.awardReactionLLP(msg, old_user);
-                    }
-                }
-            }
+				// ---  Give LLP to the users that have already reacted   ---
+				// --- (this includes the mod that just approved the msg) ---
+				for (const old_reaction of [...msg.reactions.cache.values()]) {
+					for(const old_user of [...(await old_reaction.users.fetch()).values()]) {
+						if(!(await this.hasUserPreviouslyReacted(old_reaction, old_user))) {
+							//store user's reaction right away, because we do the same in the approved collector
+							await this.storeUserReaction(old_user);
 
-			this.setupApprovedCollector();
-			return;
+							//exit if user is not connected to Leyline
+							if(!(await Firebase.isUserConnectedToLeyline(old_user.id))) {
+								this.handleUnconnectedAccount(old_user, {
+									dm: `You reacted to the [${this.media_type}](${msg.url} 'click to view message') posted by <@!${msg.author.id}> in <#${msg.channel.id}>, but because you have not connected your Discord & Leyline accounts, I couldn't award you any LLP!
+										[Click here](${bot.connection_tutorial} 'How to connect your accounts') to view the account connection tutorial`,
+									log: `<@!${old_user.id}> reacted to the [${this.media_type}](${msg.url} 'click to view message') posted by <@!${msg.author.id}> in <#${msg.channel.id}>, but I did not award them any LLP because they have not connected their Leyline & Discord accounts`,
+								});
+								continue;
+							}
+
+							//award LLP!
+							await this.awardReactionLLP(msg, old_user);
+						}
+					}
+				}
+
+				//remove all reactions added by the bot
+				msg.reactions.cache.each(reaction => reaction.users.remove(bot.user));
+				return;
+			} catch(err) { return bot.logger.error(err); }
 		});
         
         //create Firestore doc only if it we aren't already loading one from cache
@@ -173,7 +223,7 @@ class GoodActsReactionCollector {
 	async awardApprovalLLP(msg, user) {
 		const bot = this.bot;
 		await Firebase.awardLLP(await Firebase.getLeylineUID(user.id), 5, {
-			category: `Good Act ${this.media_type[0].toUpperCase() + this.media_type.slice(1)} Approved`,
+			category: `Discord ${msg._activityType} ${this.media_type[0].toUpperCase() + this.media_type.slice(1)} Approved`,
 			comment: `User's Discord ${this.media_type} (${msg.id}) was approved by ${user.tag}`,
 		});
 
