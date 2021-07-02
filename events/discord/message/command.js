@@ -7,6 +7,8 @@ module.exports = class extends DiscordEvent {
             description: 'Filter messages for commands and run the commands',
             event_type: 'message',
         });
+        //import event config from bot config
+		Object.assign(this, bot.config.events[this.name]);
     }
     
     async run(msg) {
