@@ -33,7 +33,7 @@ class DiscordAcctLink extends FirebaseEvent {
             bot.logDiscord({ embed: new EmbedBase(bot, {
                 fields: [{
                     name: '🔗 Leyline & Discord Accounts Linked',
-                    value: `<@!${member.id}> just connected their Leyline & Discord accounts, but they already had the <@&${this.alpha_role}> role so I didn't award it`
+                    value: `${bot.formatUser(member.user)} just connected their Leyline & Discord accounts, but they already had the <@&${this.alpha_role}> role so I didn't award it`
                 }],
             }).Warn()});
             member.send({embed: new EmbedBase(bot, {
@@ -53,7 +53,7 @@ class DiscordAcctLink extends FirebaseEvent {
         bot.logDiscord({ embed: new EmbedBase(bot, {
             fields: [{
                 name: '🔗 Leyline & Discord Accounts Linked',
-                value: `<@!${member.id}> just connected their Leyline & Discord accounts, and I awarded them the <@&${this.alpha_role}> role`
+                value: `${bot.formatUser(member.user)} just connected their Leyline & Discord accounts, and I awarded them the <@&${this.alpha_role}> role`
             }],
         })});
         member.send({embed: new EmbedBase(bot, {

@@ -98,7 +98,7 @@ class GoodActsReactionCollector {
 						fields: [
 							{
 								name: `${this.media_type[0].toUpperCase() + this.media_type.slice(1)} Approved`,
-								value: `<@!${u.id}> approved the [${this.media_type}](${msg.url} 'click to view message') posted in <#${msg.channel.id}> by <@!${msg.author.id}>`
+								value: `${bot.formatUser(u)} approved the [${this.media_type}](${msg.url} 'click to view message') posted in <#${msg.channel.id}> by ${bot.formatUser(msg.author)}`
 							},
 						],
 						thumbnail: { url: this.media_type === 'photo' ? msg.attachments.first().url : this.media_placeholder },
@@ -113,7 +113,7 @@ class GoodActsReactionCollector {
 					this.handleUnconnectedAccount(msg.author, {
 						dm: `Your [${this.media_type}](${msg.url} 'click to view message') posted in <#${msg.channel.id}> was approved, but because you have not connected your Discord & Leyline accounts, I couldn't award you any LLP!
 							[Click here](${bot.connection_tutorial} 'How to connect your accounts') to view the account connection tutorial`,
-						log: `<@!${msg.author.id}>'s [${this.media_type}](${msg.url} 'click to view message') posted in <#${msg.channel.id}> was approved, but I did not award them any LLP because they have not connected their Leyline & Discord accounts`,
+						log: `${bot.formatUser(msg.author)}'s [${this.media_type}](${msg.url} 'click to view message') posted in <#${msg.channel.id}> was approved, but I did not award them any LLP because they have not connected their Leyline & Discord accounts`,
 					});
 
 				// I could add some catch statements here and log them to Discord (for the awarding LLP process)
@@ -132,9 +132,9 @@ class GoodActsReactionCollector {
 							//exit if user is not connected to Leyline
 							if(!(await Firebase.isUserConnectedToLeyline(old_user.id))) {
 								this.handleUnconnectedAccount(old_user, {
-									dm: `You reacted to the [${this.media_type}](${msg.url} 'click to view message') posted by <@!${msg.author.id}> in <#${msg.channel.id}>, but because you have not connected your Discord & Leyline accounts, I couldn't award you any LLP!
+									dm: `You reacted to the [${this.media_type}](${msg.url} 'click to view message') posted by ${bot.formatUser(msg.author)} in <#${msg.channel.id}>, but because you have not connected your Discord & Leyline accounts, I couldn't award you any LLP!
 										[Click here](${bot.connection_tutorial} 'How to connect your accounts') to view the account connection tutorial`,
-									log: `<@!${old_user.id}> reacted to the [${this.media_type}](${msg.url} 'click to view message') posted by <@!${msg.author.id}> in <#${msg.channel.id}>, but I did not award them any LLP because they have not connected their Leyline & Discord accounts`,
+									log: `${bot.formatUser(old_user)} reacted to the [${this.media_type}](${msg.url} 'click to view message') posted by ${bot.formatUser(msg.author)} in <#${msg.channel.id}>, but I did not award them any LLP because they have not connected their Leyline & Discord accounts`,
 								});
 								continue;
 							}
@@ -197,7 +197,7 @@ class GoodActsReactionCollector {
 			fields: [
 				{
 					name: `🎉 You Earned Some LLP!`,
-					value: `You reacted to the [${this.media_type}](${msg.url} 'click to view message') posted by <@!${msg.author.id}> in <#${msg.channel.id}>, and received **+1 LLP**!`
+					value: `You reacted to the [${this.media_type}](${msg.url} 'click to view message') posted by ${bot.formatUser(msg.author)} in <#${msg.channel.id}>, and received **+1 LLP**!`
 				},
 			],	
 		})})
@@ -208,7 +208,7 @@ class GoodActsReactionCollector {
 				fields: [
 					{
 						name: `LLP Awarded`,
-						value: `<@!${user.id}> reacted to the [${this.media_type}](${msg.url} 'click to view message') posted by <@!${msg.author.id}> in <#${msg.channel.id}>, and I gave them **+1 LLP**`,
+						value: `${bot.formatUser(user)} reacted to the [${this.media_type}](${msg.url} 'click to view message') posted by ${bot.formatUser(msg.author)} in <#${msg.channel.id}>, and I gave them **+1 LLP**`,
 					},
 				],
 			}),
@@ -244,7 +244,7 @@ class GoodActsReactionCollector {
 				fields: [
 					{
 						name: `LLP Awarded`,
-						value: `<@!${user.id}>'s [${this.media_type}](${msg.url} 'click to view message') posted in <#${msg.channel.id}> was approved, and I gave them **+5 LLP**`,
+						value: `${bot.formatUser(user)}'s [${this.media_type}](${msg.url} 'click to view message') posted in <#${msg.channel.id}> was approved, and I gave them **+5 LLP**`,
 					},
 				],
 			}),
@@ -341,9 +341,9 @@ class GoodActsReactionCollector {
 				//ensure user is connected to LL
 				if(!(await Firebase.isUserConnectedToLeyline(u.id))) 
 					this.handleUnconnectedAccount(u, {
-						dm: `You reacted to the [${this.media_type}](${msg.url} 'click to view message') posted by <@!${msg.author.id}> in <#${msg.channel.id}>, but because you have not connected your Discord & Leyline accounts, I couldn't award you any LLP!
+						dm: `You reacted to the [${this.media_type}](${msg.url} 'click to view message') posted by ${bot.formatUser(msg.author)} in <#${msg.channel.id}>, but because you have not connected your Discord & Leyline accounts, I couldn't award you any LLP!
 							[Click here](${bot.connection_tutorial} 'How to connect your accounts') to view the account connection tutorial`,
-						log: `<@!${u.id}> reacted to the [${this.media_type}](${msg.url} 'click to view message') posted by <@!${msg.author.id}> in <#${msg.channel.id}>, but I did not award them any LLP because they have not connected their Leyline & Discord accounts`,
+						log: `${bot.formatUser(u)} reacted to the [${this.media_type}](${msg.url} 'click to view message') posted by ${bot.formatUser(msg.author)} in <#${msg.channel.id}>, but I did not award them any LLP because they have not connected their Leyline & Discord accounts`,
 					});
 
 				//this handles the whole awarding process
