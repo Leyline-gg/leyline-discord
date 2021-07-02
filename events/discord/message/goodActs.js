@@ -1,15 +1,15 @@
 const DiscordEvent = require("../../../classes/DiscordEvent");
 const GoodActsReactionCollector = require('../../../classes/GoodActsReactionCollector');
 
-const target_channel 	= '840679701118189579';	//channel to watch for events
-
 module.exports = class extends DiscordEvent {
 	constructor(bot) {
 		super(bot, {
-			name: 'good-acts',
+			name: 'goodActs',
 			description: 'Handler for good acts posted by users in a specific channel',
 			event_type: 'message',
 		});
+		//import event config from bot config
+		Object.assign(this, bot.config.events[this.name]);
 	}
 
 	/**
@@ -31,7 +31,7 @@ module.exports = class extends DiscordEvent {
 		if (msg.author.bot || !msg.guild) return;
 
 		//msg needs to be in specific channel
-		if (msg.channel.id !== target_channel) return;
+		if (msg.channel.id !== this.target_channel) return;
 
 		//msg needs to be an image or video file
 		if (msg.attachments.size < 1) return;
