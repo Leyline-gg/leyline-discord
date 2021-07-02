@@ -125,7 +125,7 @@ class GoodActsReactionCollector {
 				// --- (this includes the mod that just approved the msg) ---
 				for (const old_reaction of [...msg.reactions.cache.values()]) {
 					for(const old_user of [...(await old_reaction.users.fetch()).values()]) {
-						if(!(await this.hasUserPreviouslyReacted(old_reaction, old_user))) {
+						if(!(await this.hasUserPreviouslyReacted({reaction: old_reaction, user: old_user, checkMsgReactions: false}))) {
 							//store user's reaction right away, because we do the same in the approved collector
 							await this.storeUserReaction(old_user);
 
@@ -282,11 +282,13 @@ class GoodActsReactionCollector {
 
     /**
      * Check if a user has previously reacted to the class's `msg`; designed to be used as a filter for a ReactionCollector
-     * @param {MessageReaction} reaction Discord.js MessageReaction
-     * @param {User} user Discord.js User
+     * @param {Object} args
+	 * @param {MessageReaction} args.reaction Discord.js MessageReaction
+     * @param {User} args.user Discord.js User
+	 * @param {boolean} [args.checkMsgReactions] whether or not to check the msg reactions provided by Discord API
      * @returns {Promise<boolean>} Promise that resolves to boolean
      */
-    async hasUserPreviouslyReacted(reaction, user) {
+    async hasUserPreviouslyReacted({reaction, user, checkMsgReactions = true} = {}) {
         const bot = this.bot;
         const msg = this.msg;
 
@@ -300,7 +302,7 @@ class GoodActsReactionCollector {
             if(msg._cache.reacted_users?.includes(user.id)) return true;
             
             //now check the Discord.js message reaction cache
-            for(const r of [...msg.reactions.cache.values()]) {
+            if(checkMsgReactions) for(const r of [...msg.reactions.cache.values()]) {
                 //ignore the reaction that was just added
                 if (r.emoji.identifier === reaction.emoji.identifier) continue;
                 //check if any of the other reactions have been added by target user
@@ -314,7 +316,8 @@ class GoodActsReactionCollector {
 
 	/**
 	 * Sets up a specific ReactionCollector on an approved message that is designed to last for 24hrs and award LLP to users that react
-	 * @param {{duration: number}} [options] Collector options
+	 * @param {Object} [options] Collector options
+	 * @param {Number} [options.duration] How long until the collector expires, in `ms` 
 	 */
 	setupApprovedCollector({duration = collector_expires * 3600000} = {}) {
 		const bot = this.bot;
@@ -330,7 +333,7 @@ class GoodActsReactionCollector {
             }, { merge: true });
 
         //create collector to watch for user reactions
-		msg.createReactionCollector(async (r, u) => !(await this.hasUserPreviouslyReacted(r, u)), { time: duration })
+		msg.createReactionCollector(async (reaction, user) => !(await this.hasUserPreviouslyReacted({reaction, user})), { time: duration })
 		.on('collect', async (r, u) => {
 			try {
 				//cache the reaction right away to prevent reaction spam
