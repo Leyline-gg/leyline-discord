@@ -101,7 +101,6 @@ class GoodActsReactionCollector {
 							{
 								name: `${this.media_type[0].toUpperCase() + this.media_type.slice(1)} Approved`,
 								value: `${bot.formatUser(u)} approved the [${this.media_type}](${msg.url} 'click to view message') posted in <#${msg.channel.id}> by ${bot.formatUser(msg.author)}`
-
 							},
 						],
 						thumbnail: { url: this.media_type === 'photo' ? msg.attachments.first().url : this.media_placeholder },
@@ -145,7 +144,6 @@ class GoodActsReactionCollector {
 									dm: `You reacted to the [${this.media_type}](${msg.url} 'click to view message') posted by ${bot.formatUser(msg.author)} in <#${msg.channel.id}>, but because you have not connected your Discord & Leyline accounts, I couldn't award you any LLP!
 										[Click here](${bot.connection_tutorial} 'How to connect your accounts') to view the account connection tutorial`,
 									log: `${bot.formatUser(old_user)} reacted to the [${this.media_type}](${msg.url} 'click to view message') posted by ${bot.formatUser(msg.author)} in <#${msg.channel.id}>, but I did not award them any LLP because they have not connected their Leyline & Discord accounts`,
-
 								});
 								continue;
 							}

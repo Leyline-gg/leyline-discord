@@ -29,10 +29,5 @@ module.exports = {
     staging: {
         ...this.development,
         prefix: '$',
-        leyline_guild_id: '857839180608307210',
-        //private logs
-        discord_log_channel: '858141871788392448',
-        //public logs
-        discord_bot_channel: '858141914841481246',
     },
 }
