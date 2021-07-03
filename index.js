@@ -80,6 +80,14 @@ class LeylineBot extends Client {
      checkAdmin(uid) {
         return bot.leyline_guild.member(uid).hasPermission('ADMINISTRATOR');
     }
+
+    /**
+     * Formats a `User` for logging purposes
+     * @param {User} user Discord.js `User` object 
+     */
+    formatUser(user) {
+        return `<@!${user.id}> (${user.tag})`;
+    }
 }
 
 const bot = new LeylineBot({ restTimeOffset: 0 /*allegedly this helps with API delays*/ });
