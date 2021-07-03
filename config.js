@@ -33,7 +33,7 @@ module.exports = {
     get staging() {
         return {
             ...this.development,
-            prefix: '!!!',
+            prefix: '$',
         }
     },
 }

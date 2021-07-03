@@ -393,6 +393,8 @@ class GoodActsReactionCollector {
 				//this handles the whole awarding process
 				else await this.awardReactionLLP(msg, u);
 
+				//check if user who reacted is msg author
+				if(u.id === msg.author.id) return;
 				//award LLP to msg author
 				if(!(await Firebase.isUserConnectedToLeyline(msg.author.id))) 
 					this.handleUnconnectedAccount(msg.author, {
