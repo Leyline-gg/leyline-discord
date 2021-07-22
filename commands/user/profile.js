@@ -52,7 +52,7 @@ class profile extends Command {
                 },
                 fields: [
                     {
-                        name: '<:LeylineLogo:846152082226282506>  LLP Balance',
+                        name: '<:LeylineLogo:846152082226282506>  Lifetime LLP',
                         value: `**${user.llp}** Leyline Points\n\u200b`, /*newline for spacing*/
                         inline: true
                     },
@@ -68,6 +68,37 @@ class profile extends Command {
                                 ${
                                     !!user.stats.bloodDonationRanking ? 
                                     `#${user.stats.bloodDonationRanking}/${user.stats.bloodDonationTotalUsers}` :
+                                    'N/A'
+                                }\n\u200b`,
+                        inline: true,
+                    },
+                    {
+                        name: '🖥️  Computing Donated',
+                        value: `**${Math.round(user.stats.donatedHoursScore * 10) / 10 || 0} hours** - \
+                                ${
+                                    !!user.stats.donatedHoursRanking ? 
+                                    `#${user.stats.donatedHoursRanking}/${user.stats.donatedHoursTotalUsers}` :
+                                    'N/A'
+                                }\n\u200b`,
+                        inline: true,
+                    },
+                    //{ name: '\u200b', value: '\u200b', inline: false },
+                    {
+                        name: '🏃 Exercise Logged',
+                        value: `**${user.stats.dailyExerciseScore || 0} days** - \
+                                ${
+                                    !!user.stats.dailyExerciseRanking ? 
+                                    `#${user.stats.dailyExerciseRanking}/${user.stats.dailyExerciseTotalUsers}` :
+                                    'N/A'
+                                }\n\u200b`,
+                        inline: true,
+                    },
+                    {
+                        name: '🌙  Sleep Logged',
+                        value: `**${user.stats.sleepScore || 0} nights** - \
+                                ${
+                                    !!user.stats.sleepRanking ? 
+                                    `#${user.stats.sleepRanking}/${user.stats.sleepTotalUsers}` :
                                     'N/A'
                                 }\n\u200b`,
                         inline: true,
