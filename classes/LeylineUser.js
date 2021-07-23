@@ -8,9 +8,12 @@ class LeylineUser {
         return (async () => {
             const doc = await Firebase.getLeylineDoc(uid);
             this.uid = uid;
+            //this.discord_uid = discord_uid || (await Firebase.getDiscordDoc(uid, true)).id;
             this._username = doc?.username;
             this.llp = await Firebase.getLLPBalance(uid);
-            this.stats = await Firebase.getUserRankings(uid);
+            this.total_llp = await Firebase.getTotalEarnedLLP(uid);
+            this.volunteer_llp = await Firebase.getVolunteerLLP(uid);
+            this.rankings = await Firebase.getUserRankings(uid);
             this.inventory = await Firebase.getInventoryItems(uid);
             this.profile_id = doc?.profile_id;
 

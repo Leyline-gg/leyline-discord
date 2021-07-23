@@ -63,8 +63,6 @@ class FirebaseAPI {
 		return include_metadata ? res : res.data();
 	}
 
-	static async getLeylineInfo(uid) {}
-
 	/**
 	 * Retrieve the most recent leaderboard rankings for the target leyline user.
 	 * Taken from webapp's api package `userService.ts` file
@@ -209,6 +207,77 @@ class FirebaseAPI {
 		}, 0);
 
 		return snapshotValue + points;
+	}
+
+	/**
+	 * Get a Leyline user's total LLP earned
+	 * Taken from webapp's api `userService.ts`
+	 * @param {String} uid Leyline UID 
+	 * @returns {Promise<Number>} Total LLP earned up until this point
+	 */
+	static async getTotalEarnedLLP(uid) {
+		const snapshotRef = await admin
+			.firestore()
+			.collection('leaderboards')
+			.orderBy('snapshot_time', 'desc')
+			.limit(1)
+			.get();
+
+		const userRankingRef = await admin
+			.firestore()
+			.collection(`${'leaderboards'}/${snapshotRef.docs[0].id}/timeframes/all/categories/earned_llp/ranking`)
+			.get();
+
+		const userRankDoc = userRankingRef.docs.find((doc) => doc.id === uid);
+
+		return userRankDoc?.data().score;
+	}
+
+	/**
+	 * Get a Leyline user's total LLP earned for volunteering
+	 * @param {String} uid Leyline UID 
+	 * @returns {Promise<Number>} Approximate total LLP earned for volunteering
+	 */
+	static async getVolunteerLLP(uid) {
+		const snapshot = await admin
+			.firestore()
+			.collection('leyline_points')
+			.where('uid', '==', uid)
+			.where('metadata.category', '==', 'Leyline Volunteer Program')
+			.get();
+
+		return snapshot.docs.reduce((a, b) => a + (b.data()?.leyline_points > 0 ? b.data().leyline_points : 0), 0)
+	}
+
+	//this will be removed with the introduction of XPService class
+	static async getUserPosts(uid) {
+        return (await admin
+			.firestore()
+			.collection('discord/bot/xp')
+			.where('uid', '==', uid)
+            .where('type', '==', 'posts')
+			//.where('created', '>', snapshotTime)
+			.get()).size;
+    }
+
+	/**
+	 * Get the number of reactions to approved posts given out by a Discord user
+	 * @param {String} uid Discord UID
+	 * @returns {Promise<Number>}
+	 */
+	static async getDiscordReactions(uid) {
+		let res = 0;
+		const collectors = await admin
+			.firestore()
+			.collection('discord/bot/reaction_collectors')
+			//.where('author', '==', uid)
+			.where('approved', '==', true)
+			.get();
+	
+		for(const c of collectors.docs)
+			for(const doc of (await c.ref.collection('reacted_users').get()).docs)
+				doc.id === uid && res++;
+		return res;
 	}
 
 	/**
