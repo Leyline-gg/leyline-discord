@@ -56,8 +56,8 @@ class profile extends Command {
                 },
                 fields: [
                     {
-                        name: '<:LeylineLogo:859111140696391680>  Lifetime LLP',
-                        value: `**${user.total_llp}** Leyline Points\n\u200b`, /*newline for spacing*/
+                        name: `${bot.config.emoji.leyline_logo}  LLP Balance`,
+                        value: `**${user.llp}** Leyline Points\n\u200b`, /*newline for spacing*/
                         inline: true
                     },
                     {
