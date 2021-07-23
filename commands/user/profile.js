@@ -34,9 +34,13 @@ class profile extends Command {
         try {
             //break down args, look for a single user
             let target_user = msg.author;   //assume user is checking their own profile
-            if(args.length > 1) return msg.channel.send('❌ Too many arguments');
-            if(!!args[0]) target_user = msg.mentions.members.first();
-            if(!target_user?.id) return msg.channel.send('❌ Argument must be a Discord user');
+            if(args.length > 1) return msg.channel.send({embed: new EmbedBase(bot, {
+                    description: `❌ **Too many arguments**`,
+                }).Error()});
+            if(!!args[0]) target_user = await bot.users.fetch(args.shift().match(/\d+/g)?.shift()).catch(() => undefined);
+            if(!target_user?.id) return msg.channel.send({embed: new EmbedBase(bot, {
+                    description: `❌ **Argument must be a Discord user**`,
+                }).Error()});
 
             //easter egg if user tries to check the profile of the bot
             if(target_user.id === bot.user.id) return msg.channel.send('My Leyline profile is beyond your capacity of comprehension');
