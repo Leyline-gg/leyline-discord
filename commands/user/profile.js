@@ -58,7 +58,7 @@ class profile extends Command {
                     {
                         name: `${bot.config.emoji.leyline_logo}  Lifetime LLP`,
                         value: `**${user.total_llp}** Leyline Points\n\u200b`, /*newline for spacing*/
-                        inline: true
+                        inline: true,
                     },
                     {
                         name: '🎒 Inventory Size',
