@@ -56,7 +56,7 @@ class profile extends Command {
                 },
                 fields: [
                     {
-                        name: `${bot.config.emoji.leyline_logo}  LLP Balance`,
+                        name: `${bot.config.emoji.leyline_logo}  Lifetime LLP`,
                         value: `**${user.llp}** Leyline Points\n\u200b`, /*newline for spacing*/
                         inline: true
                     },
@@ -109,13 +109,13 @@ class profile extends Command {
                     },
                     {
                         name: '👍  Discord Good Acts',
-                        value: `**${await Firebase.getUserPosts(target_user.id) || 0}** Posts\n\u200b`,
+                        value: `**${await Firebase.getUserPosts(target_user.id) || 0}** Posts Approved\n\u200b`,
                         inline: true,
                     },
                     //{ name: '\u200b', value: '\u200b', inline: false },
                     {
                         name: '🙏  Discord Moral Support',
-                        value: `**${await Firebase.getDiscordReactions(target_user.id) || 0}** Reactions\n\u200b`,
+                        value: `**${await Firebase.getDiscordReactions(target_user.id) || 0}** Reactions Given\n\u200b`,
                         inline: true,
                     },
                     {
