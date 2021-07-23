@@ -15,7 +15,7 @@ class inspect extends Command {
 
     async run(msg, args) {
         const bot = this.bot;
-        const uid = args.shift().match(/\d+/g)?.shift();
+        const uid = args.shift()?.match(/\d+/g)?.shift();
         if(!uid) return msg.channel.send({embed: new EmbedBase(bot, {
                 description: `❌ **You didn't mention a valid Discord user**`,
             }).Error()});
