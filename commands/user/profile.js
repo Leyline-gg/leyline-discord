@@ -43,7 +43,7 @@ class profile extends Command {
 
             const user = await getLeylineInfo(target_user.id);
             msg.channel.send({embed: new EmbedBase(bot, {
-                title: 'Leyline Profile',
+                //title: 'Leyline Profile',
                 url: `https://leyline.gg/profile/${user.profile_id}`,
                 author: {
                     name: user.username,
@@ -52,8 +52,8 @@ class profile extends Command {
                 },
                 fields: [
                     {
-                        name: '<:LeylineLogo:846152082226282506>  Lifetime LLP',
-                        value: `**${user.llp}** Leyline Points\n\u200b`, /*newline for spacing*/
+                        name: '<:LeylineLogo:859111140696391680>  Lifetime LLP',
+                        value: `**${user.total_llp}** Leyline Points\n\u200b`, /*newline for spacing*/
                         inline: true
                     },
                     {
@@ -64,20 +64,20 @@ class profile extends Command {
                     //{ name: '\u200b', value: '\u200b', inline: false },
                     {
                         name: '🩸 Blood Donated',
-                        value: `**${user.stats.bloodDonationScore * 3 || 0} lives saved** - \
+                        value: `**${user.rankings.bloodDonationScore * 3 || 0} lives saved** - \
                                 ${
-                                    !!user.stats.bloodDonationRanking ? 
-                                    `#${user.stats.bloodDonationRanking}/${user.stats.bloodDonationTotalUsers}` :
+                                    !!user.rankings.bloodDonationRanking ? 
+                                    `#${user.rankings.bloodDonationRanking}/${user.rankings.bloodDonationTotalUsers}` :
                                     'N/A'
                                 }\n\u200b`,
                         inline: true,
                     },
                     {
                         name: '🖥️  Computing Donated',
-                        value: `**${Math.round(user.stats.donatedHoursScore * 10) / 10 || 0} hours** - \
+                        value: `**${Math.round(user.rankings.donatedHoursScore * 10) / 10 || 0} hours** - \
                                 ${
-                                    !!user.stats.donatedHoursRanking ? 
-                                    `#${user.stats.donatedHoursRanking}/${user.stats.donatedHoursTotalUsers}` :
+                                    !!user.rankings.donatedHoursRanking ? 
+                                    `#${user.rankings.donatedHoursRanking}/${user.rankings.donatedHoursTotalUsers}` :
                                     'N/A'
                                 }\n\u200b`,
                         inline: true,
@@ -85,54 +85,44 @@ class profile extends Command {
                     //{ name: '\u200b', value: '\u200b', inline: false },
                     {
                         name: '🏃 Exercise Logged',
-                        value: `**${user.stats.dailyExerciseScore || 0} days** - \
+                        value: `**${user.rankings.dailyExerciseScore || 0} days** - \
                                 ${
-                                    !!user.stats.dailyExerciseRanking ? 
-                                    `#${user.stats.dailyExerciseRanking}/${user.stats.dailyExerciseTotalUsers}` :
+                                    !!user.rankings.dailyExerciseRanking ? 
+                                    `#${user.rankings.dailyExerciseRanking}/${user.rankings.dailyExerciseTotalUsers}` :
                                     'N/A'
                                 }\n\u200b`,
                         inline: true,
                     },
                     {
                         name: '🌙  Sleep Logged',
-                        value: `**${user.stats.sleepScore || 0} nights** - \
+                        value: `**${user.rankings.sleepScore || 0} nights** - \
                                 ${
-                                    !!user.stats.sleepRanking ? 
-                                    `#${user.stats.sleepRanking}/${user.stats.sleepTotalUsers}` :
+                                    !!user.rankings.sleepRanking ? 
+                                    `#${user.rankings.sleepRanking}/${user.rankings.sleepTotalUsers}` :
                                     'N/A'
                                 }\n\u200b`,
                         inline: true,
                     },
                     {
-                        name: '🖥️  Computing Donated',
-                        value: `**${Math.round(user.stats.donatedHoursScore * 10) / 10 || 0} hours** - \
-                                ${
-                                    !!user.stats.donatedHoursRanking ? 
-                                    `#${user.stats.donatedHoursRanking}/${user.stats.donatedHoursTotalUsers}` :
-                                    'N/A'
-                                }\n\u200b`,
+                        name: '👍  Discord Good Acts',
+                        value: `**${await Firebase.getUserPosts(target_user.id) || 0}** Posts\n\u200b`,
                         inline: true,
                     },
                     //{ name: '\u200b', value: '\u200b', inline: false },
                     {
-                        name: '🏃 Exercise Logged',
-                        value: `**${user.stats.dailyExerciseScore || 0} days** - \
-                                ${
-                                    !!user.stats.dailyExerciseRanking ? 
-                                    `#${user.stats.dailyExerciseRanking}/${user.stats.dailyExerciseTotalUsers}` :
-                                    'N/A'
-                                }\n\u200b`,
+                        name: '🙏  Discord Moral Support',
+                        value: `**${await Firebase.getDiscordReactions(target_user.id) || 0}** Reactions\n\u200b`,
                         inline: true,
                     },
                     {
-                        name: '🌙  Sleep Logged',
-                        value: `**${user.stats.sleepScore || 0} nights** - \
-                                ${
-                                    !!user.stats.sleepRanking ? 
-                                    `#${user.stats.sleepRanking}/${user.stats.sleepTotalUsers}` :
-                                    'N/A'
-                                }\n\u200b`,
+                        name: '👤  Leyline Volunteering',
+                        value: `**${user.volunteer_llp || 0}** Leyline Points\n\u200b`,
                         inline: true,
+                    },
+                    {
+                        name: `Want to see more?`,
+                        value: `Check out my good deeds and NFTs on my [Leyline Profile](https://leyline.gg/profile/${user.profile_id})`,
+                        inline: false,
                     },
                 ],
             })});
@@ -159,7 +149,7 @@ class profile extends Command {
                         msg.channel.send('Error while trying to run that command');
                         break;
                 }
-            bot.logger.error(JSON.stringify(err));
+            bot.logger.error(err);
         }
     }
 }
