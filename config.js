@@ -13,6 +13,9 @@ module.exports = {
                     target_channel: '840679701118189579',
                 },
             },
+            emoji: {
+                leyline_logo: '<:LeylineLogo:846152082226282506>',
+            },
         }
     },
     get development() {
@@ -27,6 +30,9 @@ module.exports = {
                 goodActs: {
                     target_channel: '858141836513771550',
                 },
+            },
+            emoji: {
+                leyline_logo: '<:LeylineLogo:859111140696391680>',
             },
         }
     },
