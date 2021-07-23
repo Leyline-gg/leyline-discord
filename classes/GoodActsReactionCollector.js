@@ -2,9 +2,11 @@ const EmbedBase = require('./EmbedBase');
 const Firebase	= require('./FirebaseAPI');
 const admin = require('firebase-admin');
 
-const cta_role 			= '853414453206188063'; //role to ping when photo is approved
-const collector_expires = 24;   //how long the collector expires, in hours
-const reaction_emojis = [
+const CTA_ROLE 			= '853414453206188063'; //role to ping when photo is approved
+const COLLECTOR_EXPIRES = 24;   //how long the collector expires, in hours
+const APPROVAL_LLP = 100 	//LLP awarded for approved post
+const REACTION_LLP = 5;		//LLP awarded for reacting
+const REACTION_EMOJIS = [
 	{
 		unicode: '💪',
 		keyword: 'Exercise',
@@ -66,26 +68,26 @@ class GoodActsReactionCollector {
 
         //add initial reactions
 		if(!from_firestore) 
-			for (const reaction of reaction_emojis) 
+			for (const reaction of REACTION_EMOJIS) 
 				msg.react(reaction.unicode);
         //setup first ReactionCollector for catching mod reaction
 		this.collector = msg	//intentionally decreasing indentation on the following chains for readability
 		.createReactionCollector(
 			(r, u) =>
-				bot.checkMod(u.id) && reaction_emojis.some(e => e.unicode === r.emoji.name)
+				bot.checkMod(u.id) && REACTION_EMOJIS.some(e => e.unicode === r.emoji.name)
 		)
 		.on('collect', async (r, u) => {
 			try {
 				this.collector.stop();  //stop this collector (we will create a new one later)
 
 				//store the activity type for LLP award text both locally and in the cloud
-				msg._activityType = reaction_emojis.find(e => e.unicode === r.emoji.name)?.keyword || 'Good Act';
+				msg._activityType = REACTION_EMOJIS.find(e => e.unicode === r.emoji.name)?.keyword || 'Good Act';
 				admin.firestore().collection(`discord/bot/reaction_collectors/`).doc(msg.id)
 					.set({activityType: msg._activityType}, {merge: true});
 
 				//send msg in channel
 				msg./*reply TODO:change w djs v13*/channel.send(
-					`<@&${cta_role}> 🚨 **NEW APPROVED ${this.media_type.toUpperCase()}!!** 🚨`,
+					`<@&${CTA_ROLE}> 🚨 **NEW APPROVED ${this.media_type.toUpperCase()}!!** 🚨`,
 					{
 						embed: new EmbedBase(bot, {
 							description: `A new ${this.media_type} was approved! Click [here](${msg.url} 'view message') to view the message.\nBe sure to react within 24 hours to get your LLP!`,
@@ -197,7 +199,7 @@ class GoodActsReactionCollector {
 	async awardReactionLLP(msg, user) {
 		const bot = this.bot;
 		//new user reacted, award LLP
-		await Firebase.awardLLP(await Firebase.getLeylineUID(user.id), 1, {
+		await Firebase.awardLLP(await Firebase.getLeylineUID(user.id), REACTION_LLP, {
 			category: 'Discord Moral Support',
 			comment: `User reacted to Discord message (${msg.id})`,
 		});
@@ -206,7 +208,7 @@ class GoodActsReactionCollector {
 			fields: [
 				{
 					name: `🎉 You Earned Some LLP!`,
-					value: `You reacted to the [${this.media_type}](${msg.url} 'click to view message') posted by ${bot.formatUser(msg.author)} in <#${msg.channel.id}>, and received **+1 LLP**!`
+					value: `You reacted to the [${this.media_type}](${msg.url} 'click to view message') posted by ${bot.formatUser(msg.author)} in <#${msg.channel.id}>, and received **+${REACTION_LLP} LLP**!`
 				},
 			],	
 		})})
@@ -217,7 +219,7 @@ class GoodActsReactionCollector {
 				fields: [
 					{
 						name: `LLP Awarded`,
-						value: `${bot.formatUser(user)} reacted to the [${this.media_type}](${msg.url} 'click to view message') posted by ${bot.formatUser(msg.author)} in <#${msg.channel.id}>, and I gave them **+1 LLP**`,
+						value: `${bot.formatUser(user)} reacted to the [${this.media_type}](${msg.url} 'click to view message') posted by ${bot.formatUser(msg.author)} in <#${msg.channel.id}>, and I gave them **+${REACTION_LLP} LLP**`,
 					},
 				],
 			}),
@@ -232,7 +234,7 @@ class GoodActsReactionCollector {
 	async awardAuthorReactionLLP(msg, user) {
 		const bot = this.bot;
 		//new user reacted, award LLP
-		await Firebase.awardLLP(await Firebase.getLeylineUID(msg.author.id), 1, {
+		await Firebase.awardLLP(await Firebase.getLeylineUID(msg.author.id), REACTION_LLP, {
 			category: `Discord ${msg._activityType} ${this.media_type[0].toUpperCase() + this.media_type.slice(1)} Received Reaction`,
 			comment: `User's Discord ${this.media_type} (${msg.id}) received a reaction from ${user.tag}`,
 		});
@@ -241,7 +243,7 @@ class GoodActsReactionCollector {
 			fields: [
 				{
 					name: `🎉 You Earned Some LLP!`,
-					value: `Someone reacted reacted to your [${this.media_type}](${msg.url} 'click to view message') posted in <#${msg.channel.id}>, and you received **+1 LLP**!`
+					value: `Someone reacted reacted to your [${this.media_type}](${msg.url} 'click to view message') posted in <#${msg.channel.id}>, and you received **+${REACTION_LLP} LLP**!`
 				},
 			],	
 		})})
@@ -252,7 +254,7 @@ class GoodActsReactionCollector {
 				fields: [
 					{
 						name: `LLP Awarded`,
-						value: `${bot.formatUser(msg.author)}'s [${this.media_type}](${msg.url} 'click to view message') posted in <#${msg.channel.id}> received a reaction, and I gave them **+1 LLP**`,
+						value: `${bot.formatUser(msg.author)}'s [${this.media_type}](${msg.url} 'click to view message') posted in <#${msg.channel.id}> received a reaction, and I gave them **+${REACTION_LLP} LLP**`,
 					},
 				],
 			}),
@@ -266,7 +268,7 @@ class GoodActsReactionCollector {
 	 */
 	async awardApprovalLLP(msg, user) {
 		const bot = this.bot;
-		await Firebase.awardLLP(await Firebase.getLeylineUID(user.id), 5, {
+		await Firebase.awardLLP(await Firebase.getLeylineUID(user.id), APPROVAL_LLP, {
 			category: `Discord ${msg._activityType} ${this.media_type[0].toUpperCase() + this.media_type.slice(1)} Approved`,
 			comment: `User's Discord ${this.media_type} (${msg.id}) was approved by ${user.tag}`,
 		});
@@ -276,7 +278,7 @@ class GoodActsReactionCollector {
 			fields: [
 				{
 					name: `🎉 You Earned Some LLP!`,
-					value: `Your [${this.media_type}](${msg.url} 'click to view message') posted in <#${msg.channel.id}> was approved, and you received **+5 LLP**!`
+					value: `Your [${this.media_type}](${msg.url} 'click to view message') posted in <#${msg.channel.id}> was approved, and you received **+${APPROVAL_LLP} LLP**!`
 				},
 			],	
 		})})
@@ -288,7 +290,7 @@ class GoodActsReactionCollector {
 				fields: [
 					{
 						name: `LLP Awarded`,
-						value: `${bot.formatUser(user)}'s [${this.media_type}](${msg.url} 'click to view message') posted in <#${msg.channel.id}> was approved, and I gave them **+5 LLP**`,
+						value: `${bot.formatUser(user)}'s [${this.media_type}](${msg.url} 'click to view message') posted in <#${msg.channel.id}> was approved, and I gave them **+${APPROVAL_LLP} LLP**`,
 					},
 				],
 			}),
@@ -363,7 +365,7 @@ class GoodActsReactionCollector {
 	 * @param {Object} [options] Collector options
 	 * @param {Number} [options.duration] How long until the collector expires, in `ms` 
 	 */
-	setupApprovedCollector({duration = collector_expires * 3600000} = {}) {
+	setupApprovedCollector({duration = COLLECTOR_EXPIRES * 3600000} = {}) {
 		const bot = this.bot;
         const msg = this.msg;
 
