@@ -1,4 +1,5 @@
 const Command = require('../../classes/Command');
+const EmbedBase = require('../../classes/EmbedBase');
 
 class sudosay extends Command {
     constructor(bot) {
@@ -12,18 +13,25 @@ class sudosay extends Command {
     }
 
     async run(msg, args) {
-        const ch_id = args.shift().match(/\d+/g)[0];
-        if(!ch_id) return msg.channel.send(`The first argument must be a Discord channel mention, example: <#${msg.channel.id}>`);
+        const bot = this.bot;
+        const ch_id = args.shift()?.match(/\d+/g)[0];
+        if(!ch_id) return msg.channel.send({embed: new EmbedBase(bot, {
+            description: `❌ **The first argument must be a Discord channel mention, example: <#${msg.channel.id}>**`,
+        }).Error()});
 
         let ch;
         try {
             ch = await this.bot.channels.fetch(ch_id)
         } catch(err) {
-            return msg.channel.send(`Hmm... I couldn't find that channel`);
+            return msg.channel.send({embed: new EmbedBase(bot, {
+                description: `❌ **I couldn't find that channel**`,
+            }).Error()});
         }
         ch.send(args.join(' '))
             .then(() => msg.react('✅'))
-            .catch(err => msg.channel.send(`Error: \`${err}\``));
+            .catch(err => msg.channel.send({embed: new EmbedBase(bot, {
+                description: `❌ **Error:** ${err}`,
+            }).Error()}));
     }
 }
 
