@@ -83,7 +83,11 @@ class GoodActsReactionCollector {
 				//store the activity type for LLP award text both locally and in the cloud
 				msg._activityType = REACTION_EMOJIS.find(e => e.unicode === r.emoji.name)?.keyword || 'Good Act';
 				admin.firestore().collection(`discord/bot/reaction_collectors/`).doc(msg.id)
-					.set({activityType: msg._activityType}, {merge: true});
+					.set({
+						activity_type: msg._activityType,
+						approved_by: u.id,
+						approved_on: Date.now(),
+					}, {merge: true});
 
 				//send msg in channel
 				msg./*reply TODO:change w djs v13*/channel.send(
@@ -169,6 +173,7 @@ class GoodActsReactionCollector {
             .doc(msg.id)
             .set({
                 channel: msg.channel.id,
+				author: msg.author.id,
                 approved: false,    //will be updated once approved
                 expires: Date.now() + (7 * 24 * 3600 * 1000),  //1 week for mods to approve
             });
@@ -418,7 +423,7 @@ class GoodActsReactionCollector {
      */
     async loadMessageCache(doc) {
 		//load the activity type
-		this.msg._activityType = doc.data()?.activityType || 'Good Act';
+		this.msg._activityType = doc.data()?.activity_type || 'Good Act';
         //extract the ids of the users that have reacted
         this.msg._cache.reacted_users = (await doc.ref.collection('reacted_users').get()).docs.map(d => d.id);
         return this;
