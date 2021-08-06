@@ -250,6 +250,7 @@ class FirebaseAPI {
 		return snapshot.docs.reduce((a, b) => a + (b.data()?.leyline_points > 0 ? b.data().leyline_points : 0), 0);
 	}
 
+
 	/**
 	 * Get the number of reactions to approved posts given out by a Discord user
 	 * @param {String} uid Discord UID
