@@ -39,6 +39,11 @@ class EmbedBase {
         this.color = 0xf57a22;
         return this;
     }
+
+    Success() {
+        this.color = 0x35de2f;
+        return this;
+    }
 }
 
 module.exports = EmbedBase;

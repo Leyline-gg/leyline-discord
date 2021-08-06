@@ -1,5 +1,6 @@
 const Command = require('../../classes/Command');
 const Firebase = require('../../classes/FirebaseAPI');
+const XPService = require('../../classes/XPService');
 const LeylineUser = require('../../classes/LeylineUser');
 const EmbedBase = require('../../classes/EmbedBase');
 
@@ -45,14 +46,16 @@ class profile extends Command {
             //easter egg if user tries to check the profile of the bot
             if(target_user.id === bot.user.id) return msg.channel.send('My Leyline profile is beyond your capacity of comprehension');
 
+            msg.channel.startTyping();
+
             const user = await getLeylineInfo(target_user.id);
             msg.channel.send({embed: new EmbedBase(bot, {
                 //title: 'Leyline Profile',
-                url: `https://leyline.gg/profile/${user.profile_id}`,
+                url: user.profile_url,
                 author: {
-                    name: user.username,
-                    icon_url: user.avatarUrl,
-                    url: `https://leyline.gg/profile/${user.profile_id}`
+                    name: `${user.username} - Level ${(await XPService.getUserLevel(target_user.id)).number}`,
+                    icon_url: user.avatar_url,
+                    url: user.profile_url
                 },
                 fields: [
                     {
@@ -109,7 +112,7 @@ class profile extends Command {
                     },
                     {
                         name: '👍  Discord Good Acts',
-                        value: `**${await Firebase.getUserPosts(target_user.id) || 0}** Posts Approved\n\u200b`,
+                        value: `**${await XPService.getUserPosts(target_user.id) || 0}** Posts Approved\n\u200b`,
                         inline: true,
                     },
                     //{ name: '\u200b', value: '\u200b', inline: false },
@@ -125,7 +128,7 @@ class profile extends Command {
                     },
                     {
                         name: `Want to see more?`,
-                        value: `Check out my good deeds and NFTs on my [Leyline Profile](https://leyline.gg/profile/${user.profile_id})`,
+                        value: `Check out my good deeds and NFTs on my [Leyline Profile](${user.profile_url})`,
                         inline: false,
                     },
                 ],
@@ -155,6 +158,7 @@ class profile extends Command {
                 }
             bot.logger.error(err);
         }
+        msg.channel.stopTyping(true);
     }
 }
 
