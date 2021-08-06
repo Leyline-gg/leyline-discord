@@ -1,5 +1,6 @@
 const EmbedBase = require('./EmbedBase');
 const Firebase	= require('./FirebaseAPI');
+const XPService = require('./XPService');
 const admin = require('firebase-admin');
 
 const CTA_ROLE 			= '853414453206188063'; //role to ping when photo is approved
@@ -88,6 +89,12 @@ class GoodActsReactionCollector {
 						approved_by: u.id,
 						approved_on: Date.now(),
 					}, {merge: true});
+
+				//store the post for xp purposes
+				await XPService.addPost({
+					uid: msg.author.id,
+					post_id: msg.id,
+				});
 
 				//send msg in channel
 				msg./*reply TODO:change w djs v13*/channel.send(

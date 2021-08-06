@@ -4,10 +4,12 @@ module.exports = {
         return {
             prefix: '!',
             leyline_guild_id: '751913089271726160',
-            //private logs
-            discord_log_channel: '843892751276048394',
-            //public logs
-            discord_bot_channel: '810265135419490314',
+            channels: {
+                private_log: '843892751276048394',
+                public_log: '810265135419490314',
+                reward_log: '843892751276048394',
+                qna_vc: '794283967460147221',
+            },
             events: {
                 goodActs: {
                     target_channel: '840679701118189579',
@@ -22,10 +24,12 @@ module.exports = {
         return {
             prefix: '!!',
             leyline_guild_id: '857839180608307210',
-            //private logs
-            discord_log_channel: '858141871788392448',
-            //public logs
-            discord_bot_channel: '858141914841481246',
+            channels: {
+                private_log: '858141871788392448',
+                public_log: '858141914841481246',
+                reward_log: '858141836513771550',
+                qna_vc: '869993145499287604',
+            },
             events: {
                 goodActs: {
                     target_channel: '858141836513771550',
