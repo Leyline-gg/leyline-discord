@@ -7,7 +7,7 @@ module.exports = {
             channels: {
                 private_log: '843892751276048394',
                 public_log: '810265135419490314',
-                reward_log: '843892751276048394',
+                reward_log: '872724760805654538',
                 qna_vc: '794283967460147221',
             },
             events: {
