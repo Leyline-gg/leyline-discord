@@ -15,7 +15,7 @@ class LeylineUser {
             this.volunteer_llp = await Firebase.getVolunteerLLP(uid);
             this.rankings = await Firebase.getUserRankings(uid);
             this.inventory = await Firebase.getInventoryItems(uid);
-            this.profile_id = doc?.profile_id;
+            this.profile_url = `https://leyline.gg/profile/${doc?.profile_id}`;
 
             return this;
         })();
@@ -25,7 +25,7 @@ class LeylineUser {
         return this._username || `leylite#${this.uid}`.substring(0, 15);
     }
 
-    get avatarUrl() {
+    get avatar_url() {
         let url = 'https://i.ibb.co/qBBpDdh/avatar-default.png';  //default avatar
         const inv = this.inventory;
         if(!inv.length) return url;

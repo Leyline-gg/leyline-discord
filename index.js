@@ -30,18 +30,29 @@ class LeylineBot extends Client {
 
     /**
      * Sends a discord message on the bot's behalf to a private log channel
-     * @param {String} text 
+     * @param {String | Object} text String or object to be sent to channel
+     * @returns {Promise<Message>} Promise which resolves to the sent message
      */
     async logDiscord(text) {
-        (await bot.channels.fetch(this.config.discord_log_channel)).send(text);
+        return (await bot.channels.fetch(this.config.channels.private_log)).send(text);
     }
 
     /**
      * Sends a discord message on the bot's behalf to a public log channel
-     * @param {String} text 
+     * @param {String | Object} text String or object to be sent to channel
+     * @returns {Promise<Message>} Promise which resolves to the sent message
      */
     async msgBotChannel(text) {
-        (await bot.channels.fetch(this.config.discord_bot_channel)).send(text);
+        return (await bot.channels.fetch(this.config.channels.public_log)).send(text);
+    }
+
+    /**
+     * Sends a discord message on the bot's behalf to a public log channel, specific for rewards
+     * @param {String | Object} text String or object to be sent to channel
+     * @returns {Promise<Message>} Promise which resolves to the sent message
+     */
+     async logReward(text) {
+        return (await bot.channels.fetch(this.config.channels.reward_log)).send(text);
     }
 
     sendDisabledDmMessage(user) {
@@ -77,7 +88,7 @@ class LeylineBot extends Client {
      * @param {String} uid Discord UID of the user to check
      * @returns `true` if user has admin perms, `false` otherwise
      */
-     checkAdmin(uid) {
+    checkAdmin(uid) {
         return bot.leyline_guild.member(uid).hasPermission('ADMINISTRATOR');
     }
 

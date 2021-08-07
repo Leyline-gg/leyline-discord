@@ -1,4 +1,5 @@
 const admin = require('firebase-admin');
+const pubsub = new (require('@google-cloud/pubsub').PubSub)();
 
 class FirebaseAPI {
 	/**
@@ -230,7 +231,7 @@ class FirebaseAPI {
 
 		const userRankDoc = userRankingRef.docs.find((doc) => doc.id === uid);
 
-		return userRankDoc?.data().score;
+		return userRankDoc?.data()?.score || 0;
 	}
 
 	/**
@@ -246,19 +247,8 @@ class FirebaseAPI {
 			.where('metadata.category', '==', 'Leyline Volunteer Program')
 			.get();
 
-		return snapshot.docs.reduce((a, b) => a + (b.data()?.leyline_points > 0 ? b.data().leyline_points : 0), 0)
+		return snapshot.docs.reduce((a, b) => a + (b.data()?.leyline_points > 0 ? b.data().leyline_points : 0), 0);
 	}
-
-	//this will be removed with the introduction of XPService class
-	static async getUserPosts(uid) {
-        return (await admin
-			.firestore()
-			.collection('discord/bot/xp')
-			.where('uid', '==', uid)
-            .where('type', '==', 'posts')
-			//.where('created', '>', snapshotTime)
-			.get()).size;
-    }
 
 	/**
 	 * Get the number of reactions to approved posts given out by a Discord user
@@ -281,7 +271,7 @@ class FirebaseAPI {
 	}
 
 	/**
-	 *
+	 * Award a specific amount of LLP to a user, with an option to include transaction metadata
 	 * @param {String} uid Leyline UID
 	 * @param {Number} amount Amount of LLP to award
 	 * @param {Object} [metadata] Metadata for transaction. Should contain a `category` property
@@ -297,6 +287,99 @@ class FirebaseAPI {
 				fromDiscord: true,
 			},
 		});
+	}
+
+	/**
+	 * Add an item to a LL user's inventory and return the inventory id
+	 * Taken from webapp's api package `userService.ts`
+	 * @param {String} uid Leyline UID 
+	 * @param {Object} item Item object
+	 * @param {String} item.id ID of item to award
+	 * @param {String} [klaytn_tx_hash] 
+	 * @returns {Promise<String>} The inventory item id of the item just added
+	 */
+	static async #addInventoryItem(uid, item, klaytn_tx_hash) {
+		let inventoryItemId = '';
+		const itemData = { ...item };
+		if (klaytn_tx_hash) {
+			itemData.klaytn_tx_hash = klaytn_tx_hash;
+		}
+		await admin.firestore().runTransaction(async (t) => {
+			const userDoc = admin.firestore().doc(`users/${uid}`);
+			var newInventoryItem = await userDoc.collection('inventory').add(itemData);
+			inventoryItemId = newInventoryItem.id;
+		});
+		return inventoryItemId;
+	}
+
+	/**
+	 * 
+	 * Taken from webapp's api package `service.ts`
+	 * @param {String} uid Leyline UID
+	 * @param {String} itemId 
+	 * @returns {Promise<Boolean>}
+	 */
+	static async rewardNFT(uid, itemId) {
+		const userDoc = await admin.firestore().doc(`users/${uid}`).get();
+
+		const newInventoryItem = await this.#addInventoryItem(uid, {
+			id: itemId,
+		});
+
+		if (userDoc.data()?.isKlaytnEnabled) {
+			console.log(`Minting item ${itemId} for user ${uid} on Klaytn`);
+
+			await pubsub.topic('mint-klaytn-nft').publishJSON({
+				userId: uid,
+				inventoryItemIds: [newInventoryItem],
+			});
+
+			return true;
+		} else {
+			console.log(`Minting item ${itemId} for user ${uid} on VeChain`);
+			const walletDoc = await admin.firestore().doc(`wallets/${uid}`).get();
+			const userWalletAddress = JSON.parse(walletDoc.data()?.wallet).address;
+
+			await pubsub.topic('mint-rewards').publishJSON({
+				userId: uid,
+				account: userWalletAddress,
+				rewards: [[itemId, 1]],
+				inventoryItemId: newInventoryItem,
+			});
+
+			return true;
+		}
+	}
+
+	/**
+	 * Retrieve a Leyline NFT's information from Firestore
+	 * @param {String} id NFT ID 
+	 * @returns {Promise<Object | null>} NFT information if it exists, else `null`
+	 */
+	static async getNFT(id) {
+		const doc = (await admin.firestore()
+			.collection('items')
+			.where('id', '==', id)
+			.limit(1)
+			.get())?.docs?.shift();
+		if(!doc || !doc?.exists) return null;
+		return doc.data();
+	}
+
+	/**
+	 * Get a random Leyline NFT from Firestore, with the option to filter the result
+	 * @param {Object} options Destructured args 
+	 * @param {String} options.rarity NFT rarity, in uppercase
+	 * @param {String} options.reward_type NFT rewardType, in uppercase
+	 * @returns {Object | null} Random NFT information if one was found, else `null` 
+	 */
+	static async getRandomNFT({rarity=null, reward_type='MYSTERY_BOX'} = {}) {
+		let q = admin.firestore()
+			.collection('items')
+			.where('rewardType', '==', reward_type);
+		if(!!rarity) q = q.where('rarity', '==', rarity);
+		const coll = await q.get();
+		return coll.empty ? null : coll.docs[Math.floor(Math.random() * coll.docs.length)].data();
 	}
 }
 
