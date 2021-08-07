@@ -77,7 +77,7 @@ class XPService {
             //ALL metrics need to be at or above the minimum requirement
             for(const metric of Object.keys(l.requirements))
                 //if the metric does not exist for the user, return false
-                if(!stats[metric]) return false;
+                if(!stats.hasOwnProperty(metric)) return false;
                 else if(stats[metric] < l.requirements[metric])
                     return false;   //if any metric is less than requirement, all requirements fail
             return true;
