@@ -13,13 +13,13 @@ class ping extends Command {
     }
 
     async run(msg, args) {
-        //msg.channel.send({embed: new EmbedBase(this.bot, {
+        //bot.sendEmbed({msg, embed: new EmbedBase(this.bot, {
         //    fields: [{
         //        name: '⬆  User Leveled Up',
         //        value: `<@${msg.author.id}> reached level **4**!`
         //    }],
         //})});
-        msg.channel.send({embed: new EmbedBase(this.bot, {
+        bot.sendEmbed({msg, embed: new EmbedBase(this.bot, {
             title: '⬆  User Leveled Up',
             description: `<@${msg.author.id}> reached level **4**!\nWay to change the game & Leylight the way!`,
             color: 0x35de2f

@@ -36,16 +36,12 @@ class DiscordAcctLink extends FirebaseEvent {
                     value: `${bot.formatUser(member.user)} just connected their Leyline & Discord accounts, but they already had the <@&${this.alpha_role}> role so I didn't award it`
                 }],
             }).Warn()});
-            member.send({embed: new EmbedBase(bot, {
+            bot.sendDM({user: member.user, embed: new EmbedBase(bot, {
                 fields: [{
                     name: '🔗 Leyline & Discord Accounts Linked',
                     value: 'You succesfully linked your Leyline & Discord accounts!'
                 }]
-            })})
-                .catch(err => {
-                    bot.logger.error(`${this.name} Error: ${err}`);
-                    bot.sendDisabledDmMessage(member.user);
-                });
+            })}).catch(err => bot.logger.error(`${this.name} Error: ${err}`));
             return;
         }
         
@@ -56,15 +52,12 @@ class DiscordAcctLink extends FirebaseEvent {
                 value: `${bot.formatUser(member.user)} just connected their Leyline & Discord accounts, and I awarded them the <@&${this.alpha_role}> role`
             }],
         })});
-        member.send({embed: new EmbedBase(bot, {
+        bot.sendDM({user: member.user, embed: new EmbedBase(bot, {
             fields: [{
                 name: '🔗 Leyline & Discord Accounts Linked',
                 value: 'You just linked your Leyline & Discord accounts and received the `Alpha Tester` role!'
             }]
-        })}).catch(err => {
-                bot.logger.error(`${this.name} Error: ${err}`);
-                bot.sendDisabledDmMessage(member.user);
-            });
+        })}).catch(err => bot.logger.error(`${this.name} Error: ${err}`));
     }
 
     /**

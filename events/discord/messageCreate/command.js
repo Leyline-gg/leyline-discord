@@ -1,11 +1,12 @@
-const DiscordEvent = require("../../../classes/DiscordEvent");
+const DiscordEvent = require('../../../classes/DiscordEvent');
+const EmbedBase = require('../../../classes/EmbedBase');
 
 module.exports = class extends DiscordEvent {
     constructor(bot) {
         super(bot, {
             name: 'command',
             description: 'Filter messages for commands and run the commands',
-            event_type: 'message',
+            event_type: 'messageCreate',
         });
         //import event config from bot config
 		Object.assign(this, bot.config.events[this.name]);
@@ -31,7 +32,9 @@ module.exports = class extends DiscordEvent {
         if(!cmd) return;
         // Filter admin commands
         if(cmd?.category === 'admin' && !bot.checkAdmin(msg.author.id))
-            return msg.channel.send('You do not have sufficient permission to run that command');
+            return bot.sendEmbed({msg, embed: new EmbedBase(bot, {
+                description: `❌ **You do not have sufficient permission to run that command**`,
+            }).Error()});
 
         // Log command
         bot.logger.cmd(`${msg.author.tag} (${msg.author.id}) ran command ${commandName} with args [${args.toString()}]`);

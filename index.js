@@ -1,7 +1,7 @@
-if (process.version.slice(1).split(".")[0] < 14)
-  throw new Error("Node 14.0.0 or higher is required.");
+if (process.version.slice(1).split(".")[0] < 16)
+  throw new Error("Node 16.6.0 or higher is required.");
 
-const { Client, Collection } = require('discord.js');
+const { Client, Collection, Intents, } = require('discord.js');
 const admin = require('firebase-admin');
 const klaw = require('klaw');
 const path = require('path');
@@ -24,35 +24,91 @@ class LeylineBot extends Client {
         this.firebase_events    = new Collection();
     }
 
+    /**
+     * Send a single embed in the channel as the `msg` argument
+     * @param {Object} args
+     * @param {Message} args.msg Discord.js `Message` object, target channel is taken from this
+     * @param {EmbedBase} args.embed Singular embed object to be sent in channel
+     * @returns {Promise<Message>}
+     */
+    sendEmbed({msg, embed, ...options}) {
+        if(!msg.channel) throw new Error(`No channel property found on the msg object: ${msg}`);
+        return msg.channel.send({msg, 
+            embeds: [embed],
+            ...options,
+        });
+    }
+
+    /**
+     * Send an inline reply to the `msg` that mentions the author
+     * @param {Object} args
+     * @param {Message} args.msg Discord.js `Message` object, target author is taken from this
+     * @param {EmbedBase} args.embed Singular embed object to be sent as response
+     * @returns {Promise<Message>}
+     */
+    sendReply({msg, embed, ...options}) {
+        return msg.reply({
+            embeds: [embed],
+            failIfNotExists: false,
+            ...options,
+        });
+    }
+
+    /**
+     * Send a direct message to the target user, catches error if user has closed DMs
+     * @param {Object} args
+     * @param {Message} args.user Discord.js `User` object; recipient of msg
+     * @param {EmbedBase} args.embed Singular embed object to be sent as response
+     * @returns {Promise<Message>}
+     */
+     sendDM({user, embed, ...options}) {
+        return user.send({
+            embeds: [embed],
+            ...options,
+        }).catch(() => this.sendDisabledDmMessage(user));;
+    }
+
     get leyline_guild() {
         return this.guilds.resolve(this.config.leyline_guild_id);
     }
 
     /**
      * Sends a discord message on the bot's behalf to a private log channel
-     * @param {String | Object} text String or object to be sent to channel
+     * @param {Object} args
+     * @param {EmbedBase} args.embed Singular embed object to be sent in message 
      * @returns {Promise<Message>} Promise which resolves to the sent message
      */
-    async logDiscord(text) {
-        return (await bot.channels.fetch(this.config.channels.private_log)).send(text);
+    async logDiscord({embed, ...options}) {
+        return (await bot.channels.fetch(this.config.channels.private_log)).send({
+            embeds: [embed],
+            ...options,
+        });
     }
 
     /**
      * Sends a discord message on the bot's behalf to a public log channel
-     * @param {String | Object} text String or object to be sent to channel
+     * @param {Object} args
+     * @param {EmbedBase} args.embed Singular embed object to be sent in message
      * @returns {Promise<Message>} Promise which resolves to the sent message
      */
-    async msgBotChannel(text) {
-        return (await bot.channels.fetch(this.config.channels.public_log)).send(text);
+    async msgBotChannel({embed, ...options}) {
+        return (await bot.channels.fetch(this.config.channels.public_log)).send({
+            embeds: [embed],
+            ...options,
+        });
     }
 
     /**
      * Sends a discord message on the bot's behalf to a public log channel, specific for rewards
-     * @param {String | Object} text String or object to be sent to channel
+     * @param {Object} args
+     * @param {EmbedBase} args.embed Singular embed object to be sent in message
      * @returns {Promise<Message>} Promise which resolves to the sent message
      */
-     async logReward(text) {
-        return (await bot.channels.fetch(this.config.channels.reward_log)).send(text);
+     async logReward({embed, ...options}) {
+        return (await bot.channels.fetch(this.config.channels.reward_log)).send({
+            embeds: [embed],
+            ...options,
+        });
     }
 
     sendDisabledDmMessage(user) {
@@ -67,7 +123,7 @@ class LeylineBot extends Client {
                 ],
                 image: {
                     url: 'https://i.ibb.co/L8j9dCD/discord-dm-tutorial.png'
-                }
+                },
         }).Warn()});
     }
 
@@ -79,7 +135,7 @@ class LeylineBot extends Client {
      */
     checkMod(uid) {
         const mod_roles = ['784875278593818694'/*Admin*/, '752363863441145866'/*Mod*/, '858144532318519326'/*Dev server Staff*/];
-        return bot.leyline_guild.member(uid).roles.cache.some(r => mod_roles.includes(r.id));
+        return bot.leyline_guild.members.cache.get(uid).roles.cache.some(r => mod_roles.includes(r.id));
     }
 
     /**
@@ -89,7 +145,7 @@ class LeylineBot extends Client {
      * @returns `true` if user has admin perms, `false` otherwise
      */
     checkAdmin(uid) {
-        return bot.leyline_guild.member(uid).hasPermission('ADMINISTRATOR');
+        return bot.leyline_guild.members.cache.get(uid).permissions.has('ADMINISTRATOR');
     }
 
     /**
@@ -101,7 +157,21 @@ class LeylineBot extends Client {
     }
 }
 
-const bot = new LeylineBot({ restTimeOffset: 0 /*allegedly this helps with API delays*/ });
+const bot = new LeylineBot({ 
+    restTimeOffset: 0, /*allegedly this helps with API delays*/
+    intents: [
+        Intents.FLAGS.GUILDS,
+        Intents.FLAGS.GUILD_MEMBERS,
+        Intents.FLAGS.GUILD_MESSAGES,
+        Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
+        Intents.FLAGS.GUILD_VOICE_STATES,
+        Intents.FLAGS.DIRECT_MESSAGES,
+    ],
+    allowedMentions: {
+        parse: ['users', 'roles',],
+        repliedUser: true,
+    },
+});
 
 const init = function () {
     //initialize firebase
@@ -184,7 +254,9 @@ const init = function () {
     bot.login(process.env.BOT_TOKEN).then(() => {
         bot.logger.debug(`Bot succesfully initialized. Environment: ${process.env.NODE_ENV}. Version: ${bot.CURRENT_VERSION}`);
         process.env.NODE_ENV !== 'development' &&   //send message in log channel when staging/prod bot is online
-            bot.logDiscord(`\`${process.env.NODE_ENV}\` environment online, running version ${bot.CURRENT_VERSION}`);
+            bot.logDiscord({embed: new EmbedBase(bot, {
+                description: `\`${process.env.NODE_ENV}\` environment online, running version ${bot.CURRENT_VERSION}`,
+            }).Success()});
         bot.logger.log('Beginning post-initializtion sequence...');
         postInit();
     });
@@ -208,7 +280,7 @@ const postInit = async function () {
                 const collector = await new GoodActsReactionCollector(bot, msg).loadMessageCache(doc);
                 doc.data().approved ? 
                     collector.setupApprovedCollector({duration:doc.data().expires - Date.now()}) :
-                    collector.init(true);
+                    collector.init({from_firestore: true, duration:doc.data().expires - Date.now()});
                 succesfully_imported++;
             } catch (err) {
                 bot.logger.error(`importReactionCollectors error with doc id ${doc.id}: ${err}`);

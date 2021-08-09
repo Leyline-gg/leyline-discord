@@ -4,6 +4,7 @@ const XPService = require('./XPService');
 const admin = require('firebase-admin');
 
 const CTA_ROLE 			= '853414453206188063'; //role to ping when photo is approved
+const APPROVAL_WINDOW 	= 24 * 7;	//how long the mods have to approve a photo, in hours
 const COLLECTOR_EXPIRES = 24;   //how long the collector expires, in hours
 const APPROVAL_LLP = 100 	//LLP awarded for approved post
 const REACTION_LLP = 5;		//LLP awarded for reacting
@@ -60,10 +61,12 @@ class GoodActsReactionCollector {
 
     /**
      * Runs the initial setup process for a new message
-     * @param {boolean} [from_firestore] whether or not the message is being loaded from Firestore
+	 * @param {Object} args Destructured arguments
+     * @param {boolean} [args.from_firestore] whether or not the message is being loaded from Firestore
+	 * @param {number} [args.duration] how long the collector should last, in ms
      * @returns {GoodActsReactionCollector} the current class, for chaining 
      */
-    init(from_firestore = false) {
+    init({from_firestore = false, duration = APPROVAL_WINDOW * 3600 * 1000} = {}) {
         const bot = this.bot;
         const msg = this.msg;
 
@@ -73,10 +76,11 @@ class GoodActsReactionCollector {
 				msg.react(reaction.unicode);
         //setup first ReactionCollector for catching mod reaction
 		this.collector = msg	//intentionally decreasing indentation on the following chains for readability
-		.createReactionCollector(
-			(r, u) =>
-				bot.checkMod(u.id) && REACTION_EMOJIS.some(e => e.unicode === r.emoji.name)
-		)
+		.createReactionCollector({
+			filter: (r, u) =>
+				bot.checkMod(u.id) && REACTION_EMOJIS.some(e => e.unicode === r.emoji.name),
+			time: duration,
+		})
 		.on('collect', async (r, u) => {
 			try {
 				this.collector.stop();  //stop this collector (we will create a new one later)
@@ -97,15 +101,14 @@ class GoodActsReactionCollector {
 				});
 
 				//send msg in channel
-				msg./*reply TODO:change w djs v13*/channel.send(
-					`<@&${CTA_ROLE}> 🚨 **NEW APPROVED ${this.media_type.toUpperCase()}!!** 🚨`,
-					{
-						embed: new EmbedBase(bot, {
-							description: `A new ${this.media_type} was approved! Click [here](${msg.url} 'view message') to view the message.\nBe sure to react within 24 hours to get your LLP!`,
-							thumbnail: { url: this.media_type === 'photo' ? msg.attachments.first().url : this.media_placeholder },
-						}),
-					}
-				);
+				bot.sendReply({
+					msg,
+					content: `<@&${CTA_ROLE}> 🚨 **NEW APPROVED ${this.media_type.toUpperCase()}!!** 🚨`,
+					embed: new EmbedBase(bot, {
+						description: `A new ${this.media_type} was approved! Click [here](${msg.url} 'view message') to view the message.\nBe sure to react within 24 hours to get your LLP!`,
+						thumbnail: { url: this.media_type === 'photo' ? msg.attachments.first().url : this.media_placeholder },
+					}),
+				});
 
 				//log approval in bot log
 				bot.logDiscord({
@@ -182,7 +185,7 @@ class GoodActsReactionCollector {
                 channel: msg.channel.id,
 				author: msg.author.id,
                 approved: false,    //will be updated once approved
-                expires: Date.now() + (7 * 24 * 3600 * 1000),  //1 week for mods to approve
+                expires: Date.now() + (APPROVAL_WINDOW * 3600 * 1000),  //1 week for mods to approve
             });
         return this;
     }
@@ -216,15 +219,14 @@ class GoodActsReactionCollector {
 			comment: `User reacted to Discord message (${msg.id})`,
 		});
 		//DM user informing them
-		user.send({ embed: new EmbedBase(bot, {
+		bot.sendDM({user, embed: new EmbedBase(bot, {
 			fields: [
 				{
 					name: `🎉 You Earned Some LLP!`,
 					value: `You reacted to the [${this.media_type}](${msg.url} 'click to view message') posted by ${bot.formatUser(msg.author)} in <#${msg.channel.id}>, and received **+${REACTION_LLP} LLP**!`
 				},
 			],	
-		})})
-			.catch(() => bot.sendDisabledDmMessage(user));
+		})});
 		//Log in bot log
 		bot.logDiscord({
 			embed: new EmbedBase(bot, {
@@ -251,15 +253,16 @@ class GoodActsReactionCollector {
 			comment: `User's Discord ${this.media_type} (${msg.id}) received a reaction from ${user.tag}`,
 		});
 		//DM user informing them
-		msg.author.send({ embed: new EmbedBase(bot, {
-			fields: [
-				{
-					name: `🎉 You Earned Some LLP!`,
-					value: `Someone reacted reacted to your [${this.media_type}](${msg.url} 'click to view message') posted in <#${msg.channel.id}>, and you received **+${REACTION_LLP} LLP**!`
-				},
-			],	
-		})})
-			.catch(() => bot.sendDisabledDmMessage(msg.author));
+		bot.sendDM({ 
+			user: msg.author,
+			embed: new EmbedBase(bot, {
+				fields: [
+					{
+						name: `🎉 You Earned Some LLP!`,
+						value: `Someone reacted reacted to your [${this.media_type}](${msg.url} 'click to view message') posted in <#${msg.channel.id}>, and you received **+${REACTION_LLP} LLP**!`
+					},
+				],
+		})});
 		//Log in bot log
 		bot.logDiscord({
 			embed: new EmbedBase(bot, {
@@ -286,15 +289,14 @@ class GoodActsReactionCollector {
 		});
 
 		//send dm to author
-		user.send({ embed: new EmbedBase(bot, {
+		bot.sendDM({user, embed: new EmbedBase(bot, {
 			fields: [
 				{
 					name: `🎉 You Earned Some LLP!`,
 					value: `Your [${this.media_type}](${msg.url} 'click to view message') posted in <#${msg.channel.id}> was approved, and you received **+${APPROVAL_LLP} LLP**!`
 				},
 			],	
-		})})
-			.catch(() => bot.sendDisabledDmMessage(user));
+		})});
 
 		//log LLP change in bot-log
 		bot.logDiscord({
@@ -315,15 +317,14 @@ class GoodActsReactionCollector {
 	 */
 	handleUnconnectedAccount(user, {dm, log} = {}) {
 		const bot = this.bot;
-		user.send({ embed: new EmbedBase(bot, {
+		bot.sendDM({user, embed: new EmbedBase(bot, {
 			fields: [
 				{
 					name: `❌ You need to Connect Your Leyline & Discord accounts!`,
 					value: dm,
 				},
 			],	
-		}).Error()})
-			.catch(() => bot.sendDisabledDmMessage(user));
+		}).Error()});
 		//Log in bot log
 		bot.logDiscord({
 			embed: new EmbedBase(bot, {
@@ -377,7 +378,7 @@ class GoodActsReactionCollector {
 	 * @param {Object} [options] Collector options
 	 * @param {Number} [options.duration] How long until the collector expires, in `ms` 
 	 */
-	setupApprovedCollector({duration = COLLECTOR_EXPIRES * 3600000} = {}) {
+	setupApprovedCollector({duration = COLLECTOR_EXPIRES * 3600 * 1000} = {}) {
 		const bot = this.bot;
         const msg = this.msg;
 
@@ -391,7 +392,10 @@ class GoodActsReactionCollector {
             }, { merge: true });
 
         //create collector to watch for user reactions
-		msg.createReactionCollector(async (reaction, user) => !(await this.hasUserPreviouslyReacted({reaction, user})), { time: duration })
+		msg.createReactionCollector({ 
+			filter: async (reaction, user) => !(await this.hasUserPreviouslyReacted({reaction, user})),
+			time: duration,
+		})
 		.on('collect', async (r, u) => {
 			try {
 				//cache the reaction right away to prevent reaction spam

@@ -6,7 +6,7 @@ module.exports = class extends DiscordEvent {
 		super(bot, {
 			name: 'goodActs',
 			description: 'Handler for good acts posted by users in a specific channel',
-			event_type: 'message',
+			event_type: 'messageCreate',
 		});
 		//import event config from bot config
 		Object.assign(this, bot.config.events[this.name]);

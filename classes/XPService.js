@@ -150,7 +150,7 @@ class XPService {
                     value: `I tried to give ${bot.formatUser(member.user)} a ${rarity.toLowerCase()} NFT for reaching level ${level.number}, but they have not connected their Leyline & Discord accounts`
                 }]
             }).Error()});
-            member.send({ embed: new EmbedBase(bot, {
+            bot.sendDM({user: member.user, embed: new EmbedBase(bot, {
                 fields: [
                     {
                         name: `❌ You need to Connect Your Leyline & Discord accounts!`,
@@ -158,8 +158,7 @@ class XPService {
                         [Click here](${bot.connection_tutorial} 'How to connect your accounts') to view the account connection tutorial`,
                     },
                 ],	
-            }).Error()})
-                .catch(() => bot.sendDisabledDmMessage(member));
+            }).Error()});
         }
         const lluser = await new LeylineUser(await Firebase.getLeylineUID(member.id));
 
@@ -171,7 +170,7 @@ class XPService {
             //Award NFT to LL user
             await Firebase.rewardNFT(lluser.uid, nft.id);
             //Message user
-            member.send({embed: new EmbedBase(bot, {
+            bot.sendDM({user: member.user, embed: new EmbedBase(bot, {
                 thumbnail: { url: nft.thumbnailUrl },
                 fields: [
                     {
@@ -179,7 +178,7 @@ class XPService {
                         value: `Congratulations on reaching level ${level.number}! To celebrate, you have been awarded a(n) ${rarity.toLowerCase()} **${nft.name}**!`
                     },
                 ],	
-            })}).catch(() => bot.sendDisabledDmMessage(member));
+            })});
             //Generate embed, Log success
             const reward_embed = new EmbedBase(bot, {
                 thumbnail: { url: nft.thumbnailUrl },

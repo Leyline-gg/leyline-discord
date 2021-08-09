@@ -58,10 +58,10 @@ class help extends Command {
             const name = args[0].toLowerCase();
             const command = commands.get(name) || commands.find(c => c.aliases && c.aliases.includes(name));
             if(!command) return msg.reply('That\'s not a valid command');
-            return msg.channel.send({ embed: this.#generateCommandEmbed(command) });
+            return this.bot.sendEmbed({msg, embed: this.#generateCommandEmbed(command) });
         }
 
-        return msg.channel.send({ embed:this.#generateHelpEmbed(commands) });
+        return this.bot.sendEmbed({msg, embed:this.#generateHelpEmbed(commands) });
     }
 }
 

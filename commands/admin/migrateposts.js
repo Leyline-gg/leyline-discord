@@ -46,7 +46,7 @@ class migrateposts extends Command {
                 bot.logger.error(`${this.name} ERR: ${err}`);
             }
         }
-        msg.channel.send({embed: new EmbedBase(bot, {
+        bot.sendEmbed({msg, embed: new EmbedBase(bot, {
             description: `Succesfully migrated ${Object.values(res).reduce((acc, cur) => acc + cur)} posts`,
             fields: 
                 Object.entries(res).map(el => {

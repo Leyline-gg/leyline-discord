@@ -27,22 +27,22 @@ class selfrole extends Command {
             const bot = this.bot;
             
             //obtain and filter Role objects
-            const avail_roles = (await bot.leyline_guild.roles.fetch()).cache.filter(r => roles.includes(r.id));
+            const avail_roles = (await bot.leyline_guild.roles.fetch()).filter(r => roles.includes(r.id));
 
             //display list of available roles
             if(args.length < 1) {
-                return msg.channel.send({embed: new EmbedBase(bot, {
+                return bot.sendEmbed({msg, embed: new EmbedBase(bot, {
                     fields: [
                         {
                             name: 'Available Roles',
-                            value: avail_roles.map(r => r.name).join('\n')
+                            value: avail_roles.map(r => r.name).join('\n'),
                         },
                     ],
                 })});
             }
 
             const role = avail_roles.find(r => r.name.toLowerCase() === args.join(' ').toLowerCase());
-            if(!role) return msg.channel.send({embed: new EmbedBase(bot, {
+            if(!role) return bot.sendEmbed({msg, embed: new EmbedBase(bot, {
                     fields: [
                         {
                             name: '❌ Role not found',

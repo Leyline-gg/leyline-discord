@@ -28,11 +28,11 @@ class level extends Command {
         try {
             //break down args, look for a single user
             let target_user = msg.author;   //assume user is checking their own level
-            if(args.length > 1) return msg.channel.send({embed: new EmbedBase(bot, {
+            if(args.length > 1) return bot.sendEmbed({msg, embed: new EmbedBase(bot, {
                     description: `❌ **Too many arguments**`,
                 }).Error()});
             if(!!args[0]) target_user = await bot.users.fetch(args.shift().match(/\d+/g)?.shift()).catch(() => undefined);
-            if(!target_user?.id) return msg.channel.send({embed: new EmbedBase(bot, {
+            if(!target_user?.id) return bot.sendEmbed({msg, embed: new EmbedBase(bot, {
                     description: `❌ **Argument must be a Discord user**`,
                 }).Error()});
 
@@ -42,7 +42,7 @@ class level extends Command {
             const stats = await XPService.getUserStats(target_user.id);
             const level = XPService.getUserLevelSync(stats);
             const nextlevel = XPService.getLevel(level.number + 1);
-            msg.channel.send({embed: new EmbedBase(bot, {
+            bot.sendEmbed({msg, embed: new EmbedBase(bot, {
                 author: {
                     name: target_user.tag,
                     icon_url: target_user.avatarURL(),
@@ -57,7 +57,7 @@ class level extends Command {
                 }),
             })});
         } catch(err) {
-            msg.channel.send({embed: new EmbedBase(bot, {
+            bot.sendEmbed({msg, embed: new EmbedBase(bot, {
                 description: `❌ **Error while trying to run that command**`,
             }).Error()});
                         
