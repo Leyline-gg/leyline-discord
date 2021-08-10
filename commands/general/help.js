@@ -6,7 +6,6 @@ class help extends Command {
         super(bot, {
             name: 'help',
             description: 'View the list of commands available to run',
-            usage: '[command_name]',
             aliases: [],
             category: 'general'
         });

@@ -6,7 +6,20 @@ class sudosay extends Command {
         super(bot, {
             name: 'sudosay',
             description: 'Force (sudo) the bot to say something in a specific channel',
-            usage: '<#channel> <message>',
+            options: [
+                {
+                    type: 7,
+                    name: 'channel',
+                    description: 'The channel where the bot will send the message',
+                    required: true,
+                },
+                {
+                    type: 3,
+                    name: 'text',
+                    description: 'The text for the bot to say',
+                    required: true,
+                }
+            ],
             aliases: [],
             category: 'admin',
         })

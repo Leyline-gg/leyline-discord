@@ -8,8 +8,15 @@ class level extends Command {
             name: 'level',
             description: 'View your level or the level of another user',
             usage: '[@discord-user]',
-            aliases: [],
-            category: 'user'
+            options: [
+                {
+                    type: 6,
+                    name: 'user',
+                    description: "Which user's level you want to view",
+                    required: false,
+                },
+            ],
+            category: 'user',
         });
     }
 

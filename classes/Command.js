@@ -1,22 +1,20 @@
-class Command {
+const { ApplicationCommand, } = require('discord.js');
+class Command extends ApplicationCommand {
     constructor(bot, {
         name = null,
         description = "No description provided.",
-        category = "General",
-        usage = "No usage provided.",
-        cooldown = 0,
-        hidden = false,
-        aliases = [],
-        //perm level?
+        options = [],
+        aliases,
+        ...other
     }) {
-        this.bot        = bot;
-        this.name       = name;
-        this.description = description;
-        this.category   = category;
-        this.usage      = usage;
-        this.cooldown   = cooldown;
-        this.hidden     = hidden;
-        this.aliases    = aliases;
+        super(bot, {
+            name,
+            description,
+            options,
+            ...other
+        });
+        this.bot = bot;
+        this.aliases = aliases;
     }
 
     async run(message, args) {

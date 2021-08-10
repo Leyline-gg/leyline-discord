@@ -7,7 +7,14 @@ class inspect extends Command {
         super(bot, {
             name: 'inspect',
             description: 'Conveniently view information about a Discord user that would otherwise be hard to find',
-            usage: '<@discord-user>',
+            options: [
+                {
+                    type: 6,
+                    name: 'user',
+                    description: 'The Discord user you want to inspect',
+                    required: true,
+                },
+            ],
             aliases: [],
             category: 'admin'
         })

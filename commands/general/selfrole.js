@@ -11,8 +11,7 @@ class selfrole extends Command {
     constructor(bot) {
         super(bot, {
             name: 'selfrole',
-            description: 'Give a role to yourself',
-            usage: '[role name]',
+            description: 'Give/take roles to/from yourself',
             aliases: [],
             category: 'general'
         })

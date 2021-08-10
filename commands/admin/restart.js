@@ -5,7 +5,6 @@ class restart extends Command {
         super(bot, {
             name: 'restart',
             description: 'Restarts the bot',
-            usage: '',
             aliases: ['rs'],
             category: 'admin'
         })

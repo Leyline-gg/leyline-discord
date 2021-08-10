@@ -8,12 +8,24 @@ class awardnft extends Command {
         super(bot, {
             name: 'awardnft',
             description: "Mint & award an NFT to a discord user's Leyline profile",
-            usage: '<nft-id> <@discord-user>',
+            options: [
+                {
+                    type: 4,
+                    name: 'nft-id',
+                    description: 'The ID of the NFT to be awarded',
+                    required: true,
+                },
+                {
+                    type: 6,
+                    name: 'user',
+                    description: 'The Discord user to receive the NFT',
+                    required: true,
+                },
+            ],
             aliases: [],
-            category: 'admin'
+            category: 'admin',
         })
     }
-
     /**
      * Send a prompt to the user confirming the NFT awardal
      * @param {Object} params Destructured params

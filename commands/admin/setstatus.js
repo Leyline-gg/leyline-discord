@@ -6,7 +6,7 @@ class setstatus extends Command {
         super(bot, {
             name: 'setstatus',
             description: 'Set the Discord status of the bot',
-            usage: '[type] <text>',
+            //TODO: fix this cmd
             aliases: ['setactivity', 'sa'],
             category: 'admin',
         })

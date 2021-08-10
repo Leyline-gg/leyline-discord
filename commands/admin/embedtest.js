@@ -6,7 +6,6 @@ class ping extends Command {
         super(bot, {
             name: 'embedtest',
             description: 'Used for development embed testing',
-            usage: '',
             aliases: ['et'],
             category: 'admin'
         })

@@ -5,7 +5,6 @@ class shutdown extends Command {
         super(bot, {
             name: 'shutdown',
             description: "Terminates the bot's connection to Discord, without killing the process",
-            usage: '',
             aliases: [],
             category: 'admin'
         })
