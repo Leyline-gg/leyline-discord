@@ -8,8 +8,6 @@ module.exports = class extends DiscordEvent {
             description: 'Filter messages for commands and run the commands',
             event_type: 'messageCreate',
         });
-        //import event config from bot config
-		Object.assign(this, bot.config.events[this.name]);
     }
     
     async run(msg) {
@@ -39,6 +37,6 @@ module.exports = class extends DiscordEvent {
         // Log command
         bot.logger.cmd(`${msg.author.tag} (${msg.author.id}) ran command ${commandName} with args [${args.toString()}]`);
 
-        cmd.run(msg, args);  //TODO: modify this?
+        cmd.run({interaction, options});  //TODO: modify this?
     }
 };
