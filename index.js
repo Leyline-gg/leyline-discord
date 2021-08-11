@@ -132,13 +132,13 @@ class LeylineBot extends Client {
     /**
      * Replies to an interaction
      * @param {Object} args
-     * @param {Interaction} args.msg Discord.js `Interaction`
-     * @param {EmbedBase} args.embed Singular embed object to be included in reply
+     * @param {Interaction} args.intr Discord.js `Interaction`
+     * @param {EmbedBase} [args.embed] Singular embed object to be included in reply
      * @returns {Promise<Message>} The reply that was sent
      */
     intrReply({intr, embed, ...options}) {
         const payload = {
-            embeds: [embed],
+            ...embed && { embeds: [embed] },
             ...options,
         };
         return (intr.deferred || intr.replied) ? intr.editReply(payload) : intr.reply(payload);

@@ -21,8 +21,8 @@ module.exports = class extends DiscordEvent {
         await intr.deferReply({fetchReply: true}); 
 
         try {
-            bot.logger.cmd(`${intr.user.tag} (${intr.user.id}) ran command ${intr.commandName} with args [${intr.options.data.toString()}]`);
-            bot.commands.get(intr.commandName).run({intr, options: intr.options});
+            bot.logger.cmd(`${intr.user.tag} (${intr.user.id}) ran command ${intr.commandName} with ${intr.options.data.length} opts`);
+            bot.commands.get(intr.commandName).run({intr, opts: intr.options});
         } catch (err) {
             bot.logger.error(err);
             intr.editReply({ embeds: [new EmbedBase(bot, {

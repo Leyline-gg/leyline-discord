@@ -40,23 +40,14 @@ class profile extends Command {
 
         // Command logic
         try {
-            //break down args, look for a single user
-            let target_user = intr.user;   //assume user is checking their own profile
-            if(args.length > 1) return bot.sendEmbed({msg, embed: new EmbedBase(bot, {
-                    description: `❌ **Too many arguments**`,
-                }).Error()});
-            if(!!args[0]) target_user = await bot.users.fetch(args.shift().match(/\d+/g)?.shift()).catch(() => undefined);
-            if(!target_user?.id) return bot.sendEmbed({msg, embed: new EmbedBase(bot, {
-                    description: `❌ **Argument must be a Discord user**`,
-                }).Error()});
+            //get the target from opts, otherwise user is checking their own profile
+            let target_user = opts.getUser('user') || intr.user;
 
             //easter egg if user tries to check the profile of the bot
-            if(target_user.id === bot.user.id) return msg.channel.send('My Leyline profile is beyond your capacity of comprehension');
-
-            msg.channel.sendTyping();
+            if(target_user.id === bot.user.id) return bot.intrReply({intr, content: 'My Leyline profile is beyond your capacity of comprehension'});
 
             const user = await getLeylineInfo(target_user.id);
-            bot.sendEmbed({msg, embed: new EmbedBase(bot, {
+            bot.intrReply({intr, embed: new EmbedBase(bot, {
                 //title: 'Leyline Profile',
                 url: user.profile_url,
                 author: {
@@ -144,7 +135,7 @@ class profile extends Command {
             if(!!err.code) 
                 switch(err.code) {
                     case 2: //user tried to view their own LL profile; it was not found
-                        bot.sendEmbed({msg, embed: new EmbedBase(bot, {
+                        bot.intrReply({intr, embed: new EmbedBase(bot, {
                             fields: [
                                 {
                                     name: `❌ You need to Connect Your Leyline & Discord accounts!`,
@@ -154,13 +145,13 @@ class profile extends Command {
                         }).Error()});
                         break;
                     case 3:
-                        bot.sendEmbed({msg, embed: new EmbedBase(bot, {
+                        bot.intrReply({intr, embed: new EmbedBase(bot, {
                             description: `❌ **That user has not connected their Leyline & Discord accounts**`,
                         }).Error()});
                         break;
                         
                     default:
-                        bot.sendEmbed({msg, embed: new EmbedBase(bot, {
+                        bot.intrReply({intr, embed: new EmbedBase(bot, {
                             description: `❌ **Error trying to run that command**`,
                         }).Error()});
                         break;
