@@ -10,9 +10,9 @@ class shutdown extends Command {
         });
     }
 
-    run({interaction, options}) {
+    run({intr, opts}) {
         const bot = this.bot;
-        bot.logger.warn(`Shutdown command issued by ${msg.author.tag}`);
+        bot.logger.warn(`Shutdown command issued by ${intr.user.tag}`);
         //msg.channel.send('Shutting down...');
 
         bot.destroy();

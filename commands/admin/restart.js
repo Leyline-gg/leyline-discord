@@ -10,11 +10,11 @@ class restart extends Command {
         });
     }
 
-    run({interaction, options}) {
+    run({intr, opts}) {
         const bot = this.bot;
         if(process.env.NODE_ENV === 'development')
             return msg.channel.send('That command does not work in the dev env');
-        bot.logger.warn(`Restart command issued by ${msg.author.tag}`);
+        bot.logger.warn(`Restart command issued by ${intr.user.tag}`);
         msg.channel.send('Restarting...');
 
         bot.destroy();

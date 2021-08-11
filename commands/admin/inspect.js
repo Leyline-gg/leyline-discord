@@ -20,7 +20,7 @@ class inspect extends Command {
         });
     }
 
-    async run({interaction, options}) {
+    async run({intr, opts}) {
         const bot = this.bot;
         const uid = args.shift()?.match(/\d+/g)?.shift();
         if(!uid) return bot.sendEmbed({msg, embed: new EmbedBase(bot, {

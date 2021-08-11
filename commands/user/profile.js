@@ -22,7 +22,7 @@ class profile extends Command {
         });
     }
 
-    async run({interaction, options}) {
+    async run({intr, opts}) {
         const bot = this.bot;
         // Functions
         /**
@@ -31,7 +31,7 @@ class profile extends Command {
         const getLeylineInfo = function (discord_uid) {
             return new Promise(async (resolve, reject) => {
                 if(!(await Firebase.isUserConnectedToLeyline(discord_uid)))
-                    return reject({code:msg.author.id === discord_uid ? 2 : 3});
+                    return reject({code:intr.user.id === discord_uid ? 2 : 3});
 
                 const user = await new LeylineUser(await Firebase.getLeylineUID(discord_uid));
                 resolve(user);
@@ -41,7 +41,7 @@ class profile extends Command {
         // Command logic
         try {
             //break down args, look for a single user
-            let target_user = msg.author;   //assume user is checking their own profile
+            let target_user = intr.user;   //assume user is checking their own profile
             if(args.length > 1) return bot.sendEmbed({msg, embed: new EmbedBase(bot, {
                     description: `❌ **Too many arguments**`,
                 }).Error()});

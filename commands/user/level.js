@@ -28,13 +28,13 @@ class level extends Command {
         return `${'🟩'.repeat(progress)}${'⬛'.repeat(10 - progress)} **${percent}%**`;
     }
 
-    async run({interaction, options}) {
+    async run({intr, opts}) {
         const bot = this.bot;
 
         // Command logic
         try {
             //break down args, look for a single user
-            let target_user = msg.author;   //assume user is checking their own level
+            let target_user = intr.user;   //assume user is checking their own level
             if(args.length > 1) return bot.sendEmbed({msg, embed: new EmbedBase(bot, {
                     description: `❌ **Too many arguments**`,
                 }).Error()});

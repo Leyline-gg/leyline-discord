@@ -17,7 +17,7 @@ class Command {
         Object.assign(this, other);
     }
 
-    async run({interaction, options}) {
+    async run({intr, opts}) {
         throw new Error(`Command ${this.constructor.name} doesn't provide a run method.`);
     }
 

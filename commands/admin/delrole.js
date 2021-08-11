@@ -12,7 +12,7 @@ class delrole extends Command {
         });
     }
 
-    async run({interaction, options}) {
+    async run({intr, opts}) {
         const bot = this.bot;
         const uid = args.shift()?.match(/\d+/g)?.shift();
         if(!uid) return bot.sendEmbed({msg, embed: new EmbedBase(bot, {
@@ -33,7 +33,7 @@ class delrole extends Command {
         if(!role) return bot.sendEmbed({msg, embed: new EmbedBase(bot, {
             description: `❌ **I couldn't find a role with the name \`${args.join(' ')}\`**`,
         }).Error()});
-        mem.roles.remove(role, `Requested by ${msg.author.tag}`)
+        mem.roles.remove(role, `Requested by ${intr.user.tag}`)
             .then(() => msg.react('✅'))
             .catch(err => bot.sendEmbed({msg, embed: new EmbedBase(bot, {
                 description: `❌ **Error: ${err}**`,

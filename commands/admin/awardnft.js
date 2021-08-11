@@ -107,7 +107,7 @@ class awardnft extends Command {
 			await m.react('✅');
 			await m.react('❌');
 			await m.awaitReactions({ 
-                filter: (r, u) => (r.emoji.name === '✅' || r.emoji.name === '❌') && u.id === msg.author.id,
+                filter: (r, u) => (r.emoji.name === '✅' || r.emoji.name === '❌') && u.id === intr.user.id,
 				time: qna ? 15000 : 10000, max: 1, errors: ['time'],
             }).then((collected) => confirm = collected.first().emoji.name === '✅')	//update confirm boolean to match the emoji collected
 			    .catch((collected) => collected);	//do nothing
@@ -156,7 +156,7 @@ class awardnft extends Command {
                     },
                     {
                         name: `Requested By`,
-                        value: bot.formatUser(msg.author),
+                        value: bot.formatUser(intr.user),
                         inline: true
                     },
                     { name: '\u200b', value: '\u200b', inline: true },
@@ -191,7 +191,7 @@ class awardnft extends Command {
                     },
                     {
                         name: `Requested By`,
-                        value: bot.formatUser(msg.author),
+                        value: bot.formatUser(intr.user),
                         inline: true
                     },
                     { name: '\u200b', value: '\u200b', inline: true },
@@ -306,7 +306,7 @@ class awardnft extends Command {
         return;
     }
 
-    async run({interaction, options}) {
+    async run({intr, opts}) {
         const bot = this.bot;
 
         //Filter out args

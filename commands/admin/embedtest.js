@@ -11,16 +11,16 @@ class ping extends Command {
         });
     }
 
-    async run({interaction, options}) {
+    async run({intr, opts}) {
         //bot.sendEmbed({msg, embed: new EmbedBase(this.bot, {
         //    fields: [{
         //        name: '⬆  User Leveled Up',
-        //        value: `<@${msg.author.id}> reached level **4**!`
+        //        value: `<@${intr.user.id}> reached level **4**!`
         //    }],
         //})});
         bot.sendEmbed({msg, embed: new EmbedBase(this.bot, {
             title: '⬆  User Leveled Up',
-            description: `<@${msg.author.id}> reached level **4**!\nWay to change the game & Leylight the way!`,
+            description: `<@${intr.user.id}> reached level **4**!\nWay to change the game & Leylight the way!`,
             color: 0x35de2f
         })});
     }

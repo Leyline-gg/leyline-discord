@@ -21,7 +21,7 @@ class selfrole extends Command {
      * 
      * @param {Message} msg 
      */
-    async run({interaction, options}) {
+    async run({intr, opts}) {
         try {
             const bot = this.bot;
             

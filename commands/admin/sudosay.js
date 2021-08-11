@@ -25,7 +25,7 @@ class sudosay extends Command {
         });
     }
 
-    async run({interaction, options}) {
+    async run({intr, opts}) {
         const bot = this.bot;
         const ch_id = args.shift()?.match(/\d+/g)[0];
         if(!ch_id) return bot.sendEmbed({msg, embed: new EmbedBase(bot, {

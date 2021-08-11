@@ -24,8 +24,13 @@ class LeylineBot extends Client {
         this.firebase_events    = new Collection();
     }
 
+    get leyline_guild() {
+        return this.guilds.resolve(this.config.leyline_guild_id);
+    }
+
+    // ----- Message Methods -----
     /**
-     * Send a single embed in the channel as the `msg` argument
+     * Send a single embed in the `channel` of the `msg` argument
      * @param {Object} args
      * @param {Message} args.msg Discord.js `Message` object, target channel is taken from this
      * @param {EmbedBase} args.embed Singular embed object to be sent in channel
@@ -61,15 +66,11 @@ class LeylineBot extends Client {
      * @param {EmbedBase} args.embed Singular embed object to be sent as response
      * @returns {Promise<Message>}
      */
-     sendDM({user, embed, ...options}) {
+    sendDM({user, embed, ...options}) {
         return user.send({
             embeds: [embed],
             ...options,
-        }).catch(() => this.sendDisabledDmMessage(user));;
-    }
-
-    get leyline_guild() {
-        return this.guilds.resolve(this.config.leyline_guild_id);
+        }).catch(() => this.sendDisabledDmMessage(user));
     }
 
     /**
@@ -104,7 +105,7 @@ class LeylineBot extends Client {
      * @param {EmbedBase} args.embed Singular embed object to be sent in message
      * @returns {Promise<Message>} Promise which resolves to the sent message
      */
-     async logReward({embed, ...options}) {
+    async logReward({embed, ...options}) {
         return (await bot.channels.fetch(this.config.channels.reward_log)).send({
             embeds: [embed],
             ...options,
@@ -126,6 +127,24 @@ class LeylineBot extends Client {
                 },
         }).Warn()});
     }
+
+    // ----- Interaction Methods -----
+    /**
+     * Replies to an interaction
+     * @param {Object} args
+     * @param {Interaction} args.msg Discord.js `Interaction`
+     * @param {EmbedBase} args.embed Singular embed object to be included in reply
+     * @returns {Promise<Message>} The reply that was sent
+     */
+    intrReply({intr, embed, ...options}) {
+        const payload = {
+            embeds: [embed],
+            ...options,
+        };
+        return intr.replied ? intr.editReply(payload) : intr.reply(payload);
+    }
+
+    // ----- Other Methods -----
 
     /**
      * Checks if a user has mod permissions on the Leyline server.

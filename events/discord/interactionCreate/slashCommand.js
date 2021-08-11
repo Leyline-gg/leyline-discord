@@ -10,24 +10,24 @@ module.exports = class extends DiscordEvent {
         });
     }
     
-    async run(interaction) {
+    async run(intr) {
         const bot = this.bot;
 
-        if(!interaction.isCommand()) return;
+        if(!intr.isCommand()) return;
         // Ignore commands sent by other bots or sent in DM
-        if(interaction.user.bot || !interaction.inGuild()) return;
+        if(intr.user.bot || !intr.inGuild()) return;
 
         //defer reply because some commands take > 3 secs to run
-        await interaction.deferReply(); 
+        await intr.deferReply(); 
 
         try {
-            bot.logger.cmd(`${interaction.user.tag} (${interaction.user.id}) ran command ${interaction.commandName} with args [${interaction.options.data.toString()}]`);
-            bot.commands.get(interaction.commandName).run({interaction, options: interaction.options});
+            bot.logger.cmd(`${intr.user.tag} (${intr.user.id}) ran command ${intr.commandName} with args [${intr.options.data.toString()}]`);
+            bot.commands.get(intr.commandName).run({intr, options: intr.options});
         } catch (err) {
-            bot.logger.error(error);
-            interaction.reply({ embeds: [new EmbedBase(bot, {
+            bot.logger.error(err);
+            intr.editReply({ embeds: [new EmbedBase(bot, {
                 description: `❌ **I ran into an error while trying to run that command**`,
-            }).Error()], ephemeral: true });
+            }).Error()] });
         }
     }
 };
