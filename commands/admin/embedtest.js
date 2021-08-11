@@ -7,8 +7,8 @@ class ping extends Command {
             name: 'embedtest',
             description: 'Used for development embed testing',
             aliases: ['et'],
-            category: 'admin'
-        })
+            category: 'admin',
+        });
     }
 
     async run({interaction, options}) {

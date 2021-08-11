@@ -18,6 +18,10 @@ module.exports = {
             emoji: {
                 leyline_logo: '<:LeylineLogo:846152082226282506>',
             },
+            mod_roles: [
+                '784875278593818694',   //Admin
+                '752363863441145866',   //Mod
+            ],
         }
     },
     get development() {
@@ -38,6 +42,9 @@ module.exports = {
             emoji: {
                 leyline_logo: '<:LeylineLogo:859111140696391680>',
             },
+            mod_roles: [
+                '858144532318519326',   //Leyline Staff
+            ],
         }
     },
     get staging() {

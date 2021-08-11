@@ -6,8 +6,8 @@ class shutdown extends Command {
             name: 'shutdown',
             description: "Terminates the bot's connection to Discord, without killing the process",
             aliases: [],
-            category: 'admin'
-        })
+            category: 'admin',
+        });
     }
 
     run({interaction, options}) {

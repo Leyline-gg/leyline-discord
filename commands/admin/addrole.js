@@ -9,7 +9,7 @@ class addrole extends Command {
             usage: '<user> <role-name>',
             aliases: [],
             category: 'admin',
-        })
+        });
     }
 
     async run({interaction, options}) {

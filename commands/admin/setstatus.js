@@ -9,7 +9,7 @@ class setstatus extends Command {
             //TODO: fix this cmd
             aliases: ['setactivity', 'sa'],
             category: 'admin',
-        })
+        });
     }
 
     run({interaction, options}) {

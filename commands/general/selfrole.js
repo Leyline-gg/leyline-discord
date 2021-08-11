@@ -14,7 +14,7 @@ class selfrole extends Command {
             description: 'Give/take roles to/from yourself',
             aliases: [],
             category: 'general'
-        })
+        });
     }
 
     /**

@@ -22,7 +22,7 @@ class sudosay extends Command {
             ],
             aliases: [],
             category: 'admin',
-        })
+        });
     }
 
     async run({interaction, options}) {

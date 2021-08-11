@@ -24,7 +24,7 @@ class awardnft extends Command {
             ],
             aliases: [],
             category: 'admin',
-        })
+        });
     }
     /**
      * Send a prompt to the user confirming the NFT awardal

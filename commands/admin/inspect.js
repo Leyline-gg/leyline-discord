@@ -16,8 +16,8 @@ class inspect extends Command {
                 },
             ],
             aliases: [],
-            category: 'admin'
-        })
+            category: 'admin',
+        });
     }
 
     async run({interaction, options}) {

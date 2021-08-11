@@ -9,7 +9,7 @@ class delrole extends Command {
             usage: '<user> <role-name>',
             aliases: ['remrole'],
             category: 'admin',
-        })
+        });
     }
 
     async run({interaction, options}) {

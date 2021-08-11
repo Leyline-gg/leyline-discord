@@ -134,8 +134,7 @@ class LeylineBot extends Client {
      * @returns `true` if user has mod perms, `false` otherwise
      */
     checkMod(uid) {
-        const mod_roles = ['784875278593818694'/*Admin*/, '752363863441145866'/*Mod*/, '858144532318519326'/*Dev server Staff*/];
-        return bot.leyline_guild.members.cache.get(uid).roles.cache.some(r => mod_roles.includes(r.id));
+        return bot.leyline_guild.members.cache.get(uid).roles.cache.some(r => this.config.mod_roles.includes(r.id));
     }
 
     /**
@@ -270,6 +269,18 @@ const postInit = async function () {
             .catch(err => bot.logger.error(`registerCommands err: ${err}`));
         //turn each Command into an ApplicationCommand
         cmds.forEach(cmd => bot.commands.get(cmd.name).setApplicationCommand(cmd));
+        //Register command permissions
+        await bot.leyline_guild.commands.permissions.set({ 
+            fullPermissions: bot.commands.filter(c => c.category === 'admin')
+                .map(cmd => ({ 
+                    id: cmd.id,
+                    permissions: bot.config.mod_roles.map(id => ({
+                        id,
+                        type: 'ROLE',
+                        permission: true,
+                    })),
+                })),
+        }).catch(err => bot.logger.error(`registerCommands err: ${err}`));
         bot.logger.log(`Registered ${cmds.size} out of ${bot.commands.size} commands to Discord`);
     })();
 

@@ -4,6 +4,7 @@ class Command {
         description = "No description provided.",
         options = [],
         aliases,
+        category,
         ...other
     }) {
         this.bot = bot;
@@ -11,6 +12,8 @@ class Command {
         this.description = description;
         this.options = options;
         this.aliases = aliases;
+        this.category = category;
+        this.defaultPermission = (this.category !== 'admin');   //lock admin cmds
         Object.assign(this, other);
     }
 
