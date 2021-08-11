@@ -7,10 +7,10 @@ class ping extends Command {
             description: 'Get the latentcy of the bot and its connected APIs',
             aliases: [],
             category: 'general'
-        })
+        });
     }
 
-    async run(msg, args) {
+    async run({interaction, options}) {
         //TODO: implement Leyline API/Firebase API latency (choose a user-friendly label)
         const response = await msg.channel.send('Pinging...');	//send response
 		const latency = { discord: this.bot.ws.ping, /*leyline: new Date()*/ };	//generate latency variables

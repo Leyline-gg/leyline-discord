@@ -12,7 +12,7 @@ class delrole extends Command {
         })
     }
 
-    async run(msg, args) {
+    async run({interaction, options}) {
         const bot = this.bot;
         const uid = args.shift()?.match(/\d+/g)?.shift();
         if(!uid) return bot.sendEmbed({msg, embed: new EmbedBase(bot, {

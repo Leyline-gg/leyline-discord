@@ -10,7 +10,7 @@ class restart extends Command {
         })
     }
 
-    run(msg, args) {
+    run({interaction, options}) {
         const bot = this.bot;
         if(process.env.NODE_ENV === 'development')
             return msg.channel.send('That command does not work in the dev env');

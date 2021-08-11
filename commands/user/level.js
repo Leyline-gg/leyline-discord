@@ -28,7 +28,7 @@ class level extends Command {
         return `${'🟩'.repeat(progress)}${'⬛'.repeat(10 - progress)} **${percent}%**`;
     }
 
-    async run(msg, args) {
+    async run({interaction, options}) {
         const bot = this.bot;
 
         // Command logic

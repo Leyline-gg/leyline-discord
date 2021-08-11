@@ -51,7 +51,7 @@ class help extends Command {
         });
     }
 
-    run(msg, args) {
+    run({interaction, options}) {
         const { commands } = this.bot;
         if(args.length > 0) {
             const name = args[0].toLowerCase();

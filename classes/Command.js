@@ -1,5 +1,4 @@
-const { ApplicationCommand, } = require('discord.js');
-class Command extends ApplicationCommand {
+class Command {
     constructor(bot, {
         name = null,
         description = "No description provided.",
@@ -7,18 +6,25 @@ class Command extends ApplicationCommand {
         aliases,
         ...other
     }) {
-        super(bot, {
-            name,
-            description,
-            options,
-            ...other
-        });
         this.bot = bot;
+        this.name = name;
+        this.description = description;
+        this.options = options;
         this.aliases = aliases;
+        Object.assign(this, other);
     }
 
-    async run(message, args) {
+    async run({interaction, options}) {
         throw new Error(`Command ${this.constructor.name} doesn't provide a run method.`);
+    }
+
+    /**
+     * Adds all the properties of a registered `ApplicationCommand` to this `Command`
+     * @param {ApplicationCommand} appcmd A registered `ApplicationCommand`
+     * @returns {Command} This command itself
+     */
+    setApplicationCommand(appcmd) {
+        return Object.assign(this, appcmd);
     }
 }
 module.exports = Command;

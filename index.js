@@ -19,7 +19,7 @@ class LeylineBot extends Client {
         this.CURRENT_VERSION    = process.env.npm_package_version || require('./package.json').version;
         this.logger             = require('./classes/Logger');
         this.config             = require('./config')[process.env.NODE_ENV || 'development'];
-        this.oldcommands           = new Collection();
+        this.commands           = new Collection();
         this.events             = new Collection();
         this.firebase_events    = new Collection();
     }
@@ -187,14 +187,14 @@ const init = function () {
             const cmdName = cmdFile.name.split('.')[0];
             try {
                 const cmd = new (require(`${cmdFile.dir}${path.sep}${cmdFile.name}${cmdFile.ext}`))(bot);
-                bot.oldcommands.set(cmdName, cmd);
+                bot.commands.set(cmdName, cmd);
                 
                 delete require.cache[require.resolve(`${cmdFile.dir}${path.sep}${cmdFile.name}${cmdFile.ext}`)];
             } catch(error) {
-                bot.logger.error(`Error loading command ${cmdFile.name}: ${error}`);
+                bot.logger.error(`Error loading command file ${cmdFile.name}: ${error}`);
             }
         })
-        .on('end', () => bot.logger.log(`Loaded ${bot.oldcommands.size} commands.`))
+        .on('end', () => bot.logger.log(`Loaded ${bot.commands.size} command files`))
         .on('error', error => bot.logger.error(error));
     //import discord events
     klaw('./events/discord')
@@ -262,9 +262,17 @@ const init = function () {
     });
 };
 
-// post-initialization, when Discord API is accessible
+// post-initialization, when bot is logged in and Discord API is accessible
 const postInit = async function () {
-    //const cmd = await bot.leyline_guild.commands.create(bot.oldcommands.get('awardnft'));
+    //register commands with Discord
+    await (async function registerCommands() {
+        const cmds = await bot.leyline_guild.commands.set(bot.commands.map(({ run, ...data }) => data))
+            .catch(err => bot.logger.error(`registerCommands err: ${err}`));
+        //turn each Command into an ApplicationCommand
+        cmds.forEach(cmd => bot.commands.get(cmd.name).setApplicationCommand(cmd));
+        bot.logger.log(`Registered ${cmds.size} out of ${bot.commands.size} commands to Discord`);
+    })();
+
     //import ReactionCollectors (this can be modified later to take a more generic approach)
     await (async function importReactionCollectors () {
         let succesfully_imported = 0; 

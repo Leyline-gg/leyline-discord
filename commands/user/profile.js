@@ -22,7 +22,7 @@ class profile extends Command {
         });
     }
 
-    async run(msg, args) {
+    async run({interaction, options}) {
         const bot = this.bot;
         // Functions
         /**

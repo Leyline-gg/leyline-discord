@@ -11,7 +11,7 @@ class ping extends Command {
         })
     }
 
-    async run(msg, args) {
+    async run({interaction, options}) {
         //bot.sendEmbed({msg, embed: new EmbedBase(this.bot, {
         //    fields: [{
         //        name: '⬆  User Leveled Up',

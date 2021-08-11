@@ -286,7 +286,7 @@ class awardnft extends Command {
         return;
     }
 
-    async run(msg, args) {
+    async run({interaction, options}) {
         const bot = this.bot;
 
         //Filter out args
