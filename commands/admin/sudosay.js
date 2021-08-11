@@ -10,15 +10,15 @@ class sudosay extends Command {
                 {
                     type: 7,
                     name: 'channel',
-                    description: 'The channel where the bot will send the message',
+                    description: 'The text channel where the bot will send the message',
                     required: true,
                 },
                 {
                     type: 3,
                     name: 'text',
-                    description: 'The text for the bot to say',
+                    description: 'The text for the bot to say (markdown is supported)',
                     required: true,
-                }
+                },
             ],
             aliases: [],
             category: 'admin',
@@ -27,22 +27,17 @@ class sudosay extends Command {
 
     async run({intr, opts}) {
         const bot = this.bot;
-        const ch_id = args.shift()?.match(/\d+/g)[0];
-        if(!ch_id) return bot.sendEmbed({msg, embed: new EmbedBase(bot, {
-            description: `❌ **The first argument must be a Discord channel mention, example: <#${msg.channel.id}>**`,
-        }).Error()});
+        const ch = opts.getChannel('channel');
 
-        let ch;
-        try {
-            ch = await this.bot.channels.fetch(ch_id)
-        } catch(err) {
-            return bot.sendEmbed({msg, embed: new EmbedBase(bot, {
-                description: `❌ **I couldn't find that channel**`,
-            }).Error()});
-        }
-        ch.send(args.join(' '))
-            .then(() => msg.react('✅'))
-            .catch(err => bot.sendEmbed({msg, embed: new EmbedBase(bot, {
+        //validate args
+        if(!ch.isText()) return bot.intrReply({intr, embed: new EmbedBase(bot, {
+            description: `**That's not a text channel!**`,
+        }).Error()});
+        
+        //send msg
+        ch.send(opts.getString('text'))
+            .then(m => bot.intrReply({intr, content: `[Done](${m.url})`}))
+            .catch(err => bot.intrReply({intr, embed: new EmbedBase(bot, {
                 description: `❌ **Error:** ${err}`,
             }).Error()}));
     }
