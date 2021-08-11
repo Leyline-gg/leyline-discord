@@ -141,7 +141,7 @@ class LeylineBot extends Client {
             embeds: [embed],
             ...options,
         };
-        return intr.replied ? intr.editReply(payload) : intr.reply(payload);
+        return (intr.deferred || intr.replied) ? intr.editReply(payload) : intr.reply(payload);
     }
 
     // ----- Other Methods -----

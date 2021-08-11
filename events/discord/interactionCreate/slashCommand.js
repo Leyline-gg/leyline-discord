@@ -18,7 +18,7 @@ module.exports = class extends DiscordEvent {
         if(intr.user.bot || !intr.inGuild()) return;
 
         //defer reply because some commands take > 3 secs to run
-        await intr.deferReply(); 
+        await intr.deferReply({fetchReply: true}); 
 
         try {
             bot.logger.cmd(`${intr.user.tag} (${intr.user.id}) ran command ${intr.commandName} with args [${intr.options.data.toString()}]`);
