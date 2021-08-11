@@ -23,18 +23,18 @@ class inspect extends Command {
     async run({intr, opts}) {
         const bot = this.bot;
         const uid = args.shift()?.match(/\d+/g)?.shift();
-        if(!uid) return bot.sendEmbed({msg, embed: new EmbedBase(bot, {
+        if(!uid) return bot.intrReply({intr, embed: new EmbedBase(bot, {
                 description: `❌ **You didn't mention a valid Discord user**`,
             }).Error()});
         
         const user = await bot.users.fetch(uid).catch(() => undefined);
-        if(!user) return bot.sendEmbed({msg, embed: new EmbedBase(bot, {
+        if(!user) return bot.intrReply({intr, embed: new EmbedBase(bot, {
             description: `❌ **I couldn't find that user**`,
         }).Error()});
         const member = await bot.leyline_guild.members.fetch(user);
         const llid = await Firebase.getLeylineUID(user.id);
 
-        bot.sendEmbed({msg, embed: new EmbedBase(bot, {
+        bot.intrReply({intr, embed: new EmbedBase(bot, {
             author: {
                 name: user.tag,
                 icon_url: user.avatarURL(),

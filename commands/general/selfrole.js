@@ -30,7 +30,7 @@ class selfrole extends Command {
 
             //display list of available roles
             if(args.length < 1) {
-                return bot.sendEmbed({msg, embed: new EmbedBase(bot, {
+                return bot.intrReply({intr, embed: new EmbedBase(bot, {
                     fields: [
                         {
                             name: 'Available Roles',
@@ -41,7 +41,7 @@ class selfrole extends Command {
             }
 
             const role = avail_roles.find(r => r.name.toLowerCase() === args.join(' ').toLowerCase());
-            if(!role) return bot.sendEmbed({msg, embed: new EmbedBase(bot, {
+            if(!role) return bot.intrReply({intr, embed: new EmbedBase(bot, {
                     fields: [
                         {
                             name: '❌ Role not found',

@@ -58,7 +58,7 @@ class awardnft extends Command {
     async sendConfirmPrompt({msg, nft, lluser, qna=false, ...other} = {}) {
         const bot = this.bot;
         let confirm = false;
-        await bot.sendEmbed({msg, embed: new EmbedBase(bot, {
+        await bot.intrReply({intr, embed: new EmbedBase(bot, {
             title: 'Confirm NFT Award',
             thumbnail: {
                 url: nft.thumbnailUrl,
@@ -131,7 +131,7 @@ class awardnft extends Command {
             //Award NFT to LL user
             await Firebase.rewardNFT(lluser.uid, nft.id);
             //Log success
-            log_same_chat && bot.sendEmbed({msg, embed: new EmbedBase(bot, {
+            log_same_chat && bot.intrReply({intr, embed: new EmbedBase(bot, {
                 description: `✅ **NFT succesfully minted for Leyline user [${lluser.username}](${lluser.profile_url})**`,
             }).Success()});
             const reward_embed = new EmbedBase(bot, {
@@ -197,7 +197,7 @@ class awardnft extends Command {
                     { name: '\u200b', value: '\u200b', inline: true },
                 ],
             }).Error()}).then(m => //chained so we can include the URL of the private log msg
-                log_same_chat && bot.sendEmbed({msg, embed: new EmbedBase(bot, {
+                log_same_chat && bot.intrReply({intr, embed: new EmbedBase(bot, {
                     description: `❌ **I ran into an error, please check the log [message](${m.url}) for more information**`,
                 }).Error()}));
             return false;
@@ -237,7 +237,7 @@ class awardnft extends Command {
             await Firebase.isUserConnectedToLeyline(member.id) ?
                 connected.push(member) :
                 unconnected.push(member);
-        if(!connected.length && !unconnected.length) return bot.sendEmbed({msg, embed: new EmbedBase(bot, {
+        if(!connected.length && !unconnected.length) return bot.intrReply({intr, embed: new EmbedBase(bot, {
             description: `❌ **There are no users in the <#${bot.config.channels.qna_vc}> voice channel!**`,
         }).Error()});
 
@@ -257,7 +257,7 @@ class awardnft extends Command {
                 value: unconnected.map(m => bot.formatUser(m.user)).join('\n'),
                 inline: false
             }] : [],
-        }))) return bot.sendEmbed({msg, embed: new EmbedBase(bot, {
+        }))) return bot.intrReply({intr, embed: new EmbedBase(bot, {
                 description: `❌ **NFT Award Canceled**`,
             }).Error()});
 
@@ -283,7 +283,7 @@ class awardnft extends Command {
             connected.filter(m => !m.awarded)
         ];
 
-        bot.sendEmbed({msg, embed: new EmbedBase(bot, {
+        bot.intrReply({intr, embed: new EmbedBase(bot, {
             description: `**${awarded.length} out of ${connected.length} NFTs** were awarded`,
             fields: [
                 ...(!!awarded.length ? [
@@ -311,12 +311,12 @@ class awardnft extends Command {
 
         //Filter out args
         const nftid = args.shift()?.match(/\d+/g)?.shift();
-        if(!nftid) return bot.sendEmbed({msg, embed: new EmbedBase(bot, {
+        if(!nftid) return bot.intrReply({intr, embed: new EmbedBase(bot, {
             description: `❌ **That's not a valid Leyline NFT ID**`,
         }).Error()});
 
         const nft = await Firebase.getNFT(nftid);
-        if(!nft?.id) return bot.sendEmbed({msg, embed: new EmbedBase(bot, {
+        if(!nft?.id) return bot.intrReply({intr, embed: new EmbedBase(bot, {
             description: `❌ **I couldn't locate that NFT in Leyline's database**`,
         }).Error()});
 
@@ -324,15 +324,15 @@ class awardnft extends Command {
             return this.qna({msg, nft});
 
         const uid = args.shift()?.match(/\d+/g)?.shift();
-        if(!uid) return bot.sendEmbed({msg, embed: new EmbedBase(bot, {
+        if(!uid) return bot.intrReply({intr, embed: new EmbedBase(bot, {
                 description: `❌ **You didn't mention a valid Discord user**`,
         }).Error()});
         
         const user = await bot.users.fetch(uid).catch(() => undefined);
-        if(!user) return bot.sendEmbed({msg, embed: new EmbedBase(bot, {
+        if(!user) return bot.intrReply({intr, embed: new EmbedBase(bot, {
             description: `❌ **I couldn't find that user**`,
         }).Error()});
-        if(!(await Firebase.isUserConnectedToLeyline(uid))) return bot.sendEmbed({msg, embed: new EmbedBase(bot, {
+        if(!(await Firebase.isUserConnectedToLeyline(uid))) return bot.intrReply({intr, embed: new EmbedBase(bot, {
             description: `❌ **That user has not connected their Leyline & Discord accounts**`,
         }).Error()});
 
@@ -340,7 +340,7 @@ class awardnft extends Command {
 
         //send Confirm prompt
         if(!(await this.sendConfirmPrompt({msg, nft, lluser})))
-            return bot.sendEmbed({msg, embed: new EmbedBase(bot, {
+            return bot.intrReply({intr, embed: new EmbedBase(bot, {
                 description: `❌ **NFT Award Canceled**`,
             }).Error()});
 
