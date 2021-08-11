@@ -7,19 +7,39 @@ class awardnft extends Command {
     constructor(bot) {
         super(bot, {
             name: 'awardnft',
-            description: "Mint & award an NFT to a discord user's Leyline profile",
+            description: "Mint & award NFTs to Leyline users through Discord",
             options: [
                 {
-                    type: 4,
-                    name: 'nft-id',
-                    description: 'The ID of the NFT to be awarded',
-                    required: true,
+                    type: 1,
+                    name: 'user',
+                    description: 'Award a single NFT to a single Discord user',
+                    options: [
+                        {
+                            type: 4,
+                            name: 'nft-id',
+                            description: 'The ID of the NFT to be awarded',
+                            required: true,
+                        },
+                        {
+                            type: 6,
+                            name: 'user',
+                            description: 'The Discord user to receive the NFT',
+                            required: true,
+                        },
+                    ],
                 },
                 {
-                    type: 6,
-                    name: 'user',
-                    description: 'The Discord user to receive the NFT',
-                    required: true,
+                    type: 1,
+                    name: 'qna',
+                    description: 'Award an NFT to all users in the Q&A voice channel',
+                    options: [
+                        {
+                            type: 4,
+                            name: 'nft-id',
+                            description: 'The ID of the NFT to be awarded',
+                            required: true,
+                        },
+                    ],
                 },
             ],
             aliases: [],
