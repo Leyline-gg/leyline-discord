@@ -7,7 +7,7 @@ class ping extends Command {
             name: 'ping',
             description: 'Get the latentcy of the bot and its connected APIs',
             aliases: [],
-            category: 'general'
+            category: 'general',
         });
     }
 
