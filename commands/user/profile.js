@@ -41,7 +41,7 @@ class profile extends Command {
         // Command logic
         try {
             //get the target from opts, otherwise user is checking their own profile
-            let target_user = opts.getUser('user') || intr.user;
+            const target_user = opts.getUser('user') || intr.user;
 
             //easter egg if user tries to check the profile of the bot
             if(target_user.id === bot.user.id) return bot.intrReply({intr, content: 'My Leyline profile is beyond your capacity of comprehension'});

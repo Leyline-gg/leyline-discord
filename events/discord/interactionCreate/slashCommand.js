@@ -22,12 +22,12 @@ module.exports = class extends DiscordEvent {
 
         try {
             bot.logger.cmd(`${intr.user.tag} (${intr.user.id}) ran command ${intr.commandName} with ${intr.options.data.length} opts`);
-            bot.commands.get(intr.commandName).run({intr, opts: intr.options});
+            await bot.commands.get(intr.commandName).run({intr, opts: intr.options});
         } catch (err) {
-            bot.logger.error(err);
-            intr.editReply({ embeds: [new EmbedBase(bot, {
+            bot.logger.error(`Error with cmd ${intr.commandName}: ${err}`);
+            bot.intrReply({intr, embed: new EmbedBase(bot, {
                 description: `❌ **I ran into an error while trying to run that command**`,
-            }).Error()] });
+            }).Error()});
         }
     }
 };
