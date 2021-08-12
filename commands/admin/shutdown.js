@@ -33,7 +33,7 @@ class shutdown extends Command {
 
         bot.intrReply({intr, embed: new EmbedBase(bot, {
             description: `❌ **Shutdown unsuccessful**`,
-        }).Error()}); 
+        }).Error()});
     }
 }
 

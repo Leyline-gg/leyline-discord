@@ -1,4 +1,5 @@
 const Command = require('../../classes/Command');
+const EmbedBase = require('../../classes/EmbedBase');
 
 class restart extends Command {
     constructor(bot) {
@@ -10,17 +11,34 @@ class restart extends Command {
         });
     }
 
-    run({intr, opts}) {
+    async run({intr, opts}) {
         const bot = this.bot;
         if(process.env.NODE_ENV === 'development')
-            return msg.channel.send('That command does not work in the dev env');
+            return bot.intrReply({intr, embed: new EmbedBase(bot, {
+                description: '❌ **That command does not work in the `dev` environment**',
+            }).Error()});
+
+        // Get user confirmation first
+        const confirm = await bot.intrConfirm({intr, embed: new EmbedBase(bot, {
+            description: '⚠ **This will immediately disconnect & attempt to reconnect the bot, are you sure you want to proceed?**'
+        }).Warn()});
+
+        if(!confirm) return bot.intrReply({intr, embed: new EmbedBase(bot, {
+            description: `❌ **Restart canceled**`,
+        }).Error()}); 
+
+        // Proceed with restart
+        await bot.intrReply({intr, embed: new EmbedBase(bot, {
+            description: `🔄 **Restarting...**`,
+        }).Warn()}); 
         bot.logger.warn(`Restart command issued by ${intr.user.tag}`);
-        msg.channel.send('Restarting...');
 
         bot.destroy();
         process.kill(process.pid, 'SIGINT');
 
-        return msg.channel.send('Restart unsuccessful');
+        bot.intrReply({intr, embed: new EmbedBase(bot, {
+            description: `❌ **Restart unsuccessful**`,
+        }).Error()}); 
     }
 }
 
