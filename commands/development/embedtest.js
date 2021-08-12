@@ -1,17 +1,18 @@
 const Command = require('../../classes/Command');
 const EmbedBase = require('../../classes/EmbedBase');
 
-class ping extends Command {
+class embedtest extends Command {
     constructor(bot) {
         super(bot, {
             name: 'embedtest',
             description: 'Used for development embed testing',
             aliases: ['et'],
-            category: 'admin',
+            category: 'development',
         });
     }
 
     async run({intr, opts}) {
+        const bot = this.bot;
         //bot.intrReply({intr, embed: new EmbedBase(this.bot, {
         //    fields: [{
         //        name: '⬆  User Leveled Up',
@@ -26,4 +27,4 @@ class ping extends Command {
     }
 }
 
-module.exports = ping;
+module.exports = embedtest;

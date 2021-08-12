@@ -229,7 +229,10 @@ const init = function () {
             const cmdName = cmdFile.name.split('.')[0];
             try {
                 const cmd = new (require(`${cmdFile.dir}${path.sep}${cmdFile.name}${cmdFile.ext}`))(bot);
-                bot.commands.set(cmdName, cmd);
+                process.env.NODE_ENV === 'development' ?
+                     bot.commands.set(cmdName, cmd) :
+                     cmd.category !== 'development' &&
+                        bot.commands.set(cmdName, cmd);
                 
                 delete require.cache[require.resolve(`${cmdFile.dir}${path.sep}${cmdFile.name}${cmdFile.ext}`)];
             } catch(error) {
