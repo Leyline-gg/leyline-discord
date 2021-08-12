@@ -1,5 +1,6 @@
 const Command = require('../../classes/Command');
 const EmbedBase = require('../../classes/EmbedBase');
+const ConfirmInteraction = require('../../classes/ConfirmInteraction');
 
 class shutdown extends Command {
     constructor(bot) {
@@ -11,19 +12,28 @@ class shutdown extends Command {
         });
     }
 
-    run({intr}) {
+    async run({intr}) {
         const bot = this.bot;
 
         // Get user confirmation first
-        await bot.intrReply({intr, embed: new EmbedBase(bot, {
+        const confirm = await bot.intrConfirm({intr, embed: new EmbedBase(bot, {
             description: '⚠ **This will immediately disconnect the bot, are you sure you want to proceed?**'
-        }).Warn(), components: []})
+        }).Warn()});
 
+        if(!confirm) return bot.intrReply({intr, embed: new EmbedBase(bot, {
+            description: `❌ **Shutdown canceled**`,
+        }).Error()}); 
+
+        // Proceed with shutdown
+        await bot.intrReply({intr, embed: new EmbedBase(bot, {
+            description: `✅ **Shutdown successful**`,
+        }).Success()}); 
         bot.logger.warn(`Shutdown command issued by ${intr.user.tag}`);
-        await bot.intrReply({intr, embed: new Embed})
         bot.destroy();
 
-        return msg.channel.send('Shutdown unsuccessful');
+        bot.intrReply({intr, embed: new EmbedBase(bot, {
+            description: `❌ **Shutdown unsuccessful**`,
+        }).Error()}); 
     }
 }
 

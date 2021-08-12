@@ -5,6 +5,7 @@ const { Client, Collection, Intents, } = require('discord.js');
 const admin = require('firebase-admin');
 const klaw = require('klaw');
 const path = require('path');
+const ConfirmInteraction = require('./classes/ConfirmInteraction');
 const EmbedBase = require('./classes/EmbedBase');
 //formally, dotenv shouldn't be used in prod, but because staging and prod share a VM, it's an option I elected to go with for convenience
 require('dotenv').config();
@@ -131,7 +132,7 @@ class LeylineBot extends Client {
     // ----- Interaction Methods -----
     /**
      * Replies to an interaction
-     * @param {Object} args
+     * @param {Object} args Destructured arguments
      * @param {Interaction} args.intr Discord.js `Interaction`
      * @param {EmbedBase} [args.embed] Singular embed object to be included in reply
      * @returns {Promise<Message>} The reply that was sent
@@ -143,6 +144,29 @@ class LeylineBot extends Client {
         };
         return (intr.deferred || intr.replied) ? intr.editReply(payload) : intr.reply(payload);
     }
+
+    /**
+     * Reply to a `CommandInteraction` with a message containing 'Confirm' and 'Cancel' as buttons, among other options passed as parameters
+     * Returns a promise which resolves to a boolean indicating the user's selection
+     * @param {Object} args Destructured arguments. `options` will be passed to `LeylineBot.intrReply()` as params
+     * @param {CommandInteraction} args.intr Discord.js `CommandInteraction` to reply w/ confirmation prompt 
+     * @returns {Promise<boolean>} `true` if user selected 'Confirm', `false` if user selected `Cancel`
+     */
+    async intrConfirm({intr, ...options}) {
+        try {
+            const msg = await this.intrReply({intr, ...options, components:[new ConfirmInteraction()]});
+            const res = await msg.awaitMessageComponent({
+                filter: (i) => i.user.id === intr.user.id,
+            });
+            //remove components
+            await res.update({components:[]});
+            return res.customId === 'confirm';
+        } catch (err) {
+            this.logger.error(`intrConfirm err: ${err}`);
+            return false;
+        }
+    }
+
 
     // ----- Other Methods -----
 

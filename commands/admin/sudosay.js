@@ -31,7 +31,7 @@ class sudosay extends Command {
 
         //validate args
         if(!ch.isText()) return bot.intrReply({intr, embed: new EmbedBase(bot, {
-            description: `**That's not a text channel!**`,
+            description: `❌ **That's not a text channel!**`,
         }).Error()});
         
         //send msg
