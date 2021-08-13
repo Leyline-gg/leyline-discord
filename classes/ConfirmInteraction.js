@@ -3,7 +3,7 @@ class ConfirmInteraction extends MessageActionRow {
     constructor({
         custom_id_suffix = '',
     } = {}) {
-        if(!!custom_id_suffix) custom_id_suffix += '-';
+        custom_id_suffix &&= custom_id_suffix + '-';
         super({
             components: [
                 {
