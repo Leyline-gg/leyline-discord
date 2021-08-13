@@ -156,7 +156,14 @@ class LeylineBot extends Client {
         try {
             const msg = await this.intrReply({intr, ...options, components:[new ConfirmInteraction()]});
             const res = await msg.awaitMessageComponent({
-                filter: (i) => i.user.id === intr.user.id,
+                filter: (i) => {
+                    const fromAuthor = i.user.id === intr.user.id;
+                    !fromAuthor && i.reply({
+                        ephemeral: true,
+                        content: `These buttons aren't meant for you!`,
+                    });
+                    return fromAuthor;
+                },
             });
             //remove components
             await res.update({components:[]});
