@@ -7,8 +7,6 @@ module.exports = class extends DiscordEvent {
             description: 'User joins Leyline server',
             event_type: 'guildMemberAdd',
         });
-        //import event config from bot config
-		Object.assign(this, bot.config.events[this.name]);
     }
 
     run(member) {

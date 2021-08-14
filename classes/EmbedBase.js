@@ -1,5 +1,6 @@
+const { MessageEmbed } = require('discord.js');
 //base Embed object, customized for Leyline
-class EmbedBase {
+class EmbedBase extends MessageEmbed {
     constructor(bot, {
         color = 0x2EA2E0,
         title,
@@ -16,17 +17,19 @@ class EmbedBase {
         },
         ...other
     }) {
-        this.color          =   color;
-        this.title          =   title;
-        this.url            =   url;
-        this.author         =   author;
-        this.description    =   description;
-        this.thumbnail      =   thumbnail;
-        this.fields         =   fields;
-        this.image          =   image;
-        this.timestamp      =   timestamp;
-        this.footer         =   footer;
-        Object.assign(this, other);
+        super({
+            color,
+            title,
+            url,
+            author,
+            description,
+            thumbnail,
+            fields,
+            image,
+            timestamp,
+            footer,
+            ...other,
+        });
     }
     
     // --------- Presets ---------
@@ -36,7 +39,7 @@ class EmbedBase {
     }
 
     Warn() {
-        this.color = 0xf57a22;
+        this.color = 0xf5a122;  //0xf59a22 for slightly less bright
         return this;
     }
 

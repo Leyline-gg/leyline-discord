@@ -7,27 +7,26 @@ class inspect extends Command {
         super(bot, {
             name: 'inspect',
             description: 'Conveniently view information about a Discord user that would otherwise be hard to find',
-            usage: '<@discord-user>',
-            aliases: [],
-            category: 'admin'
-        })
+            options: [
+                {
+                    type: 'USER',
+                    name: 'user',
+                    description: 'The Discord user you want to inspect',
+                    required: true,
+                },
+            ],
+            category: 'admin',
+        });
     }
 
-    async run(msg, args) {
+    async run({intr, opts}) {
         const bot = this.bot;
-        const uid = args.shift()?.match(/\d+/g)?.shift();
-        if(!uid) return bot.sendEmbed({msg, embed: new EmbedBase(bot, {
-                description: `❌ **You didn't mention a valid Discord user**`,
-            }).Error()});
-        
-        const user = await bot.users.fetch(uid).catch(() => undefined);
-        if(!user) return bot.sendEmbed({msg, embed: new EmbedBase(bot, {
-            description: `❌ **I couldn't find that user**`,
-        }).Error()});
+
+        const user = opts.getUser('user') || intr.user;
         const member = await bot.leyline_guild.members.fetch(user);
         const llid = await Firebase.getLeylineUID(user.id);
 
-        bot.sendEmbed({msg, embed: new EmbedBase(bot, {
+        bot.intrReply({intr, embed: new EmbedBase(bot, {
             author: {
                 name: user.tag,
                 icon_url: user.avatarURL(),

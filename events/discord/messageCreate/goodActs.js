@@ -8,8 +8,6 @@ module.exports = class extends DiscordEvent {
 			description: 'Handler for good acts posted by users in a specific channel',
 			event_type: 'messageCreate',
 		});
-		//import event config from bot config
-		Object.assign(this, bot.config.events[this.name]);
 	}
 
 	/**
