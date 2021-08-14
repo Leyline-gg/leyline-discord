@@ -39,7 +39,7 @@ class EmbedBase extends MessageEmbed {
     }
 
     Warn() {
-        this.color = 0xf57a22;
+        this.color = 0xf5a122;  //0xf59a22 for slightly less bright
         return this;
     }
 
