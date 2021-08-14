@@ -199,7 +199,7 @@ class LeylineBot extends Client {
 
 // Modify Discord.js classes to include custom methods
 /**
- * 
+ * Await a single component interaction from the target user. All other users are sent an epheremal rejecting their attempt
  * @param {Object} args Destructured arguments
  * @param {User} args.user Specific `User` to await an interaction from
  * @returns {Promise<MessageComponentInteraction>}

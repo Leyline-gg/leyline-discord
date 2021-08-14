@@ -5,16 +5,15 @@ class selfrole extends Command {
     constructor(bot) {
         super(bot, {
             name: 'selfrole',
-            description: 'Give a role to yourself',
-            usage: '[role name]',
+            description: 'Give or take assignable roles from yourself',
             aliases: [],
-            category: 'general'
+            category: 'general',
         });
     }
     
-    async run({intr, opts}) {
+    async run({intr}) {
+        const bot = this.bot;
         try {
-            const bot = this.bot;
             
             //obtain and filter Role objects
             const avail_roles = (await bot.leyline_guild.roles.fetch()).filter(r => bot.config.self_roles.includes(r.id));
@@ -26,39 +25,30 @@ class selfrole extends Command {
                         disabled: false,
                         placeholder: 'Select a role...',
                         min_values: 1,
-                        options: avail_roles.map(r => {return {
+                        options: avail_roles.map(r => ({
                             label: r.name,
                             value: r.id,
-                        }}),
-                        type: 3
-                    }
+                        })),
+                        type: 3,
+                    },
                 ],
-                type: 1
+                type: 1,
             };
             
-            return this.awaitInteraction({
-                msg: await msg.channel.send({
-                    content: `Choose from the below list. Roles you don't already have will be added to you, and roles you do have will be removed.`,
-                    components: [m],
-                }),
-                cb: this.interactionResponse.bind(this),    //funky syntax reason: https://stackoverflow.com/a/59060545/8396479
-            });
-        } catch (err) {
-            this.bot.logger.error(`${this.name} Error: ${err}`);
-        }
-    }
+            const response_intr = await (await bot.intrReply({
+                intr,
+                content: `Choose from the below list. Roles you don't already have will be added to you, and roles you do have will be removed.`,
+                components: [m],
+            })).awaitInteractionFromUser({user: intr.user});
 
-    async interactionResponse(i) {
-        const bot = this.bot;
-        try {
             const [add, rem] = [[], []];
             //filter roles so we can reference them later
-            for(const role of i.values) 
-                i.member.roles.cache.has(role) ? rem.push(role) : add.push(role);
-            await i.member.roles.add(add, `Self-assigned with the ${this.name} command`);
-            await i.member.roles.remove(rem, `Self-removed with the ${this.name} command`);
+            for(const role of response_intr.values) 
+                response_intr.member.roles.cache.has(role) ? rem.push(role) : add.push(role);
+            await response_intr.member.roles.add(add, `Self-assigned with the ${this.name} command`);
+            await response_intr.member.roles.remove(rem, `Self-removed with the ${this.name} command`);
 
-            i.update({embeds: [new EmbedBase(bot, {
+            bot.intrReply({intr, embed: new EmbedBase(bot, {
                 fields: [
                     ...(!!add.length ? [{
                         name: 'Roles Added',
@@ -69,7 +59,7 @@ class selfrole extends Command {
                         value: rem.map(role => bot.leyline_guild.roles.resolve(role).toString()).join('\n'),
                     }] : []),
                 ],
-            })], components: [], content: '\u200b',})
+            }), components: [], content: '\u200b'})
         } catch (err) {
             bot.logger.error(`${this.name} Error: ${err}`);
         }
