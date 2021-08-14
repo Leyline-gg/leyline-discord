@@ -22,6 +22,10 @@ module.exports = {
                 '784875278593818694',   //Admin
                 '752363863441145866',   //Mod
             ],
+            self_roles: [
+                '853414453206188063',   //do good alerts
+                '874704370103615559',   //Bot Updates
+            ],
         }
     },
     get development() {
@@ -44,6 +48,10 @@ module.exports = {
             },
             mod_roles: [
                 '858144532318519326',   //Leyline Staff
+            ],
+            self_roles: [
+                '873234204706631720',
+                '865629785015320608',
             ],
         }
     },

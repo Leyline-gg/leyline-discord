@@ -1,14 +1,6 @@
 const Command = require('../../classes/Command');
 const EmbedBase = require('../../classes/EmbedBase');
 
-//roles available to be self-roled
-const roles = [
-    //'853414453206188063',   //do good alerts
-    //'874704370103615559',   //Bot Updates
-    '873234204706631720',
-    '865629785015320608',
-];
-
 class selfrole extends Command {
     constructor(bot) {
         super(bot, {
@@ -20,12 +12,12 @@ class selfrole extends Command {
         });
     }
     
-    async run(msg, args) {
+    async run({intr, opts}) {
         try {
             const bot = this.bot;
             
             //obtain and filter Role objects
-            const avail_roles = (await bot.leyline_guild.roles.fetch()).filter(r => roles.includes(r.id));
+            const avail_roles = (await bot.leyline_guild.roles.fetch()).filter(r => bot.config.self_roles.includes(r.id));
 
             const m = {
                 components: [
