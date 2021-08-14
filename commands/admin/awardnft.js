@@ -30,8 +30,8 @@ class awardnft extends Command {
                 },
                 {
                     type: 'SUB_COMMAND',
-                    name: 'qna',
-                    description: 'Award an NFT to all users in the Q&A voice channel',
+                    name: 'ama',
+                    description: 'Award an NFT to all users in the AMA voice channel',
                     options: [
                         {
                             type: 'INTEGER',
@@ -67,8 +67,8 @@ class awardnft extends Command {
                 await this.messageUser({user, nft});
             return;
         },
-        qna: ({intr, nft}) => {
-            this.qna({intr, nft});
+        ama: ({intr, nft}) => {
+            this.ama({intr, nft});
             return;
         },
     };
@@ -79,10 +79,10 @@ class awardnft extends Command {
      * @param {Interaction} params.intr Discord.js `Interaction` that initiated the cmd
      * @param {Object} params.nft NFT object retrieved from Firestore
      * @param {LeylineUser} params.lluser LeylineUser that will receive the NFT
-     * @param {boolean} params.qna Whether or not this prompt is in the context of weekly qna awardal
+     * @param {boolean} params.ama Whether or not this prompt is in the context of weekly ama awardal
      * @returns {Promise<boolean>} `true` if the prompt was confirmed by the user, `false` otherwise
      */
-    sendConfirmPrompt({intr, nft, lluser, qna=false, ...other} = {}) {
+    sendConfirmPrompt({intr, nft, lluser, ama=false, ...other} = {}) {
         const bot = this.bot;
         return bot.intrConfirm({intr, embed: new EmbedBase(bot, {
             title: 'Confirm NFT Award',
@@ -90,16 +90,16 @@ class awardnft extends Command {
                 url: nft.thumbnailUrl,
             },
             //to whoever happens to read this in the future: sorry for the syntax :(
-            ...qna && { description: other.description },
+            ...ama && { description: other.description },
             fields: [
-                ...(qna ? [
+                ...(ama ? [
                     other.connected,
                     other.unconnected,
                     { name:'\u200b', value:'\u200b' },
                 ] : []),
                 {
                     name: `To User`,
-                    value: qna ? 'See above list' : `[${lluser.username}](${lluser.profile_url})`,
+                    value: ama ? 'See above list' : `[${lluser.username}](${lluser.profile_url})`,
                     inline: true
                 },
                 {
@@ -242,26 +242,26 @@ class awardnft extends Command {
     }
     
     /**
-     * Function specifically for awarding qna NFTs to every user in the Q&A VC
+     * Function specifically for awarding ama NFTs to every user in the Q&A VC
      * @returns {Promise<void>} promise that resolves when function execution is complete
      */
-    async qna({intr, nft} = {}) {
+    async ama({intr, nft} = {}) {
         const bot = this.bot;
         const [connected, unconnected] = [[], []];
         //add a custom 'leyline' prop to each GuildMember in the vc
-        for(const member of (await bot.channels.fetch(bot.config.channels.qna_vc, {force: true})).members.values())
+        for(const member of (await bot.channels.fetch(bot.config.channels.ama_vc, {force: true})).members.values())
             await Firebase.isUserConnectedToLeyline(member.id) ?
                 connected.push(member) :
                 unconnected.push(member);
         if(!connected.length && !unconnected.length) return bot.intrReply({intr, embed: new EmbedBase(bot, {
-            description: `❌ **There are no users in the <#${bot.config.channels.qna_vc}> voice channel!**`,
+            description: `❌ **There are no users in the <#${bot.config.channels.ama_vc}> voice channel!**`,
         }).Error()});
 
         //send confirm prompt with some custom values
         if(!(await this.sendConfirmPrompt({
             intr,
             nft,
-            qna: true,
+            ama: true,
             description: `**${connected.length} out of the ${connected.length + unconnected.length} users** in the voice channel have connected their Leyline & Discord accounts`,
             connected: !!connected.length ? [{
                 name: '✅ Will Receive NFT',
