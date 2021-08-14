@@ -1,7 +1,7 @@
 if (process.version.slice(1).split(".")[0] < 16)
   throw new Error("Node 16.6.0 or higher is required.");
 
-const { Client, Collection, Intents, } = require('discord.js');
+const { Client, Collection, Intents, Message, } = require('discord.js');
 const admin = require('firebase-admin');
 const klaw = require('klaw');
 const path = require('path');
@@ -10,6 +10,7 @@ const EmbedBase = require('./classes/EmbedBase');
 //formally, dotenv shouldn't be used in prod, but because staging and prod share a VM, it's an option I elected to go with for convenience
 require('dotenv').config();
 
+// Custom bot class, based off the discord.js Client (bot)
 class LeylineBot extends Client {
     connection_tutorial = 'https://www.notion.so/leyline/How-to-Connect-Your-Discord-Leyline-Accounts-917dd19be57c4242878b73108e0cc2d1';
 
@@ -155,16 +156,7 @@ class LeylineBot extends Client {
     async intrConfirm({intr, ...options}) {
         try {
             const msg = await this.intrReply({intr, ...options, components:[new ConfirmInteraction()]});
-            const res = await msg.awaitMessageComponent({
-                filter: (i) => {
-                    const fromAuthor = i.user.id === intr.user.id;
-                    !fromAuthor && i.reply({
-                        ephemeral: true,
-                        content: `These buttons aren't meant for you!`,
-                    });
-                    return fromAuthor;
-                },
-            });
+            const res = await msg.awaitInteractionFromUser({user: intr.user});
             //remove components
             await res.update({components:[]});
             return res.customId === 'confirm';
@@ -176,7 +168,6 @@ class LeylineBot extends Client {
 
 
     // ----- Other Methods -----
-
     /**
      * Checks if a user has mod permissions on the Leyline server.
      * Current mod roles: `Admin`, `Moderator`
@@ -206,6 +197,28 @@ class LeylineBot extends Client {
     }
 }
 
+// Modify Discord.js classes to include custom methods
+/**
+ * 
+ * @param {Object} args Destructured arguments
+ * @param {User} args.user Specific `User` to await an interaction from
+ * @returns {Promise<MessageComponentInteraction>}
+ */
+Message.prototype.awaitInteractionFromUser = function ({user, ...options}) {
+    return this.awaitMessageComponent({
+        ...options,
+        filter: (i) => {
+            const from_user = i.user.id === user.id;
+            !from_user && i.reply({
+                ephemeral: true,
+                content: `This interaction isn't meant for you!`,
+            });
+            return from_user;
+        },
+    });
+};
+
+// Instantiate our bot; prepare to login later
 const bot = new LeylineBot({ 
     restTimeOffset: 0, /*allegedly this helps with API delays*/
     intents: [
@@ -222,6 +235,7 @@ const bot = new LeylineBot({
     },
 });
 
+// Initialization process
 const init = function () {
     //initialize firebase
     admin.initializeApp({});
