@@ -29,7 +29,6 @@ class setstatus extends Command {
                 },
                 
             ],
-            aliases: ['setactivity', 'sa'],
             category: 'admin',
         });
     }

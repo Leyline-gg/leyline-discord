@@ -6,7 +6,6 @@ class selfrole extends Command {
         super(bot, {
             name: 'selfrole',
             description: 'Give or take assignable roles from yourself',
-            aliases: [],
             category: 'general',
         });
     }

@@ -46,7 +46,6 @@ class role extends Command {
                     ],
                 },
             ],
-            aliases: [],
             category: 'admin',
         });
     }

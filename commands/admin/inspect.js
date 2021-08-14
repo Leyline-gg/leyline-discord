@@ -9,13 +9,12 @@ class inspect extends Command {
             description: 'Conveniently view information about a Discord user that would otherwise be hard to find',
             options: [
                 {
-                    type: 6,
+                    type: 'USER',
                     name: 'user',
                     description: 'The Discord user you want to inspect',
                     required: true,
                 },
             ],
-            aliases: [],
             category: 'admin',
         });
     }

@@ -10,7 +10,7 @@ class level extends Command {
             usage: '[@discord-user]',
             options: [
                 {
-                    type: 6,
+                    type: 'USER',
                     name: 'user',
                     description: "Which user's level you want to view",
                     required: false,

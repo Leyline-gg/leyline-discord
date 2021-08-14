@@ -8,19 +8,18 @@ class sudosay extends Command {
             description: 'Force (sudo) the bot to say something in a specific channel',
             options: [
                 {
-                    type: 7,
+                    type: 'CHANNEL',
                     name: 'channel',
                     description: 'The text channel where the bot will send the message',
                     required: true,
                 },
                 {
-                    type: 3,
+                    type: 'STRING',
                     name: 'text',
                     description: 'The text for the bot to say (markdown is supported)',
                     required: true,
                 },
             ],
-            aliases: [],
             category: 'admin',
         });
     }

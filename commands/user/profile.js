@@ -11,13 +11,12 @@ class profile extends Command {
             description: 'View your Leyline profile or the profile of another user',
             options: [
                 {
-                    type: 6,
+                    type: 'USER',
                     name: 'user',
                     description: "Which user's profile you want to view",
                     required: false,
                 },
             ],
-            aliases: [],
             category: 'user',
         });
     }

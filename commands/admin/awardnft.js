@@ -42,7 +42,6 @@ class awardnft extends Command {
                     ],
                 },
             ],
-            aliases: [],
             category: 'admin',
         });
     }

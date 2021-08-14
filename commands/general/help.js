@@ -6,7 +6,6 @@ class help extends Command {
         super(bot, {
             name: 'help',
             description: 'Displays a traditional command menu, with each command sorted by its category',
-            aliases: [],
             category: 'general',
         });
     }

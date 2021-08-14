@@ -6,7 +6,6 @@ class embedtest extends Command {
         super(bot, {
             name: 'embedtest',
             description: 'Used for development embed testing',
-            aliases: ['et'],
             category: 'development',
         });
     }
