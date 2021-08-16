@@ -218,6 +218,15 @@ Message.prototype.awaitInteractionFromUser = function ({user, ...options}) {
     });
 };
 
+/**
+ * Fetch the reactions of a Discord message, updating the `ReactionManager`'s cache in-place
+ * @returns {Promise<Message>} Resolves to itself once the cache update is complete
+ */
+Message.prototype.fetchReactions = async function () {
+    this.reactions.cache = (await this.fetch()).reactions.cache;
+    return this;
+};
+
 // Instantiate our bot; prepare to login later
 const bot = new LeylineBot({ 
     restTimeOffset: 0, /*allegedly this helps with API delays*/
@@ -230,7 +239,7 @@ const bot = new LeylineBot({
         Intents.FLAGS.DIRECT_MESSAGES,
     ],
     allowedMentions: {
-        parse: ['users', 'roles',],
+        parse: ['users', 'roles'],
         repliedUser: true,
     },
 });

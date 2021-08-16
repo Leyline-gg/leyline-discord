@@ -45,6 +45,10 @@ const REACTION_EMOJIS = [
 		unicode: '🇴',
 		keyword: 'Good Act',
 	},
+	{
+		unicode: '❌',
+		keyword: 'Rejected',
+	},
 ];
 
 class GoodActsReactionCollector {
@@ -84,6 +88,11 @@ class GoodActsReactionCollector {
 		.on('collect', async (r, u) => {
 			try {
 				this.collector.stop();  //stop this collector (we will create a new one later)
+
+				if(r.emoji.name === '❌') {
+					r.remove();
+					return this.rejectSubmission({user: u});
+				}
 
 				//store the activity type for LLP award text both locally and in the cloud
 				msg._activityType = REACTION_EMOJIS.find(e => e.unicode === r.emoji.name)?.keyword || 'Good Act';
@@ -142,6 +151,7 @@ class GoodActsReactionCollector {
 
 				// ---  Give LLP to the users that have already reacted   ---
 				// --- (this includes the mod that just approved the msg) ---
+				await msg.fetchReactions();
 				for (const old_reaction of [...msg.reactions.cache.values()]) {
 					for(const old_user of [...(await old_reaction.users.fetch()).values()]) {
 						if(!(await this.hasUserPreviouslyReacted({reaction: old_reaction, user: old_user, checkMsgReactions: false}))) {
@@ -425,6 +435,36 @@ class GoodActsReactionCollector {
 			} catch(err) { return bot.logger.error(err); }
 		});
         return this;
+	}
+
+	rejectSubmission({user}) {
+		const bot = this.bot;
+		const msg = this.msg;
+		admin.firestore()
+            .collection(`discord/bot/reaction_collectors/`)
+            .doc(msg.id)
+            .set({
+                expires: Date.now(),
+                approved: false,
+				rejected_by: user.id,
+            }, { merge: true });
+
+		//remove all reactions added by the bot
+		msg.reactions.cache.each(reaction => reaction.users.remove(bot.user));
+
+		bot.logDiscord({
+			embed: new EmbedBase(bot, {
+				fields: [
+					{
+						name: `Submission Rejected`,
+						value: `${bot.formatUser(user)} rejected the [${this.media_type}](${msg.url} 'click to view message') posted in <#${msg.channel.id}> by ${bot.formatUser(msg.author)}`
+					},
+				],
+				thumbnail: { url: this.media_type === 'photo' ? msg.attachments.first().url : this.media_placeholder },
+			}).Error(),
+		});
+
+		return this;
 	}
 
     /**
