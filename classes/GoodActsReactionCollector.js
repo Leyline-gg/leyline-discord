@@ -90,7 +90,7 @@ class GoodActsReactionCollector {
 				this.collector.stop();  //stop this collector (we will create a new one later)
 
 				if(r.emoji.name === '❌') {
-					r.remove();
+					r.remove();	//remove all X's (for anti-degregation purposes)
 					return this.rejectSubmission({user: u});
 				}
 
@@ -437,9 +437,16 @@ class GoodActsReactionCollector {
         return this;
 	}
 
+	/**
+	 * Soft-rejects a submission and logs actions appropriately
+	 * @param {Object} [args] Destructured arguments
+	 * @param {User} [args.user] Discord.js `User` that rejected the submission
+	 */
 	rejectSubmission({user}) {
 		const bot = this.bot;
 		const msg = this.msg;
+
+		//set expiration time to right now, so collector does not get picked up during initialization
 		admin.firestore()
             .collection(`discord/bot/reaction_collectors/`)
             .doc(msg.id)
@@ -452,6 +459,7 @@ class GoodActsReactionCollector {
 		//remove all reactions added by the bot
 		msg.reactions.cache.each(reaction => reaction.users.remove(bot.user));
 
+		//log rejection
 		bot.logDiscord({
 			embed: new EmbedBase(bot, {
 				fields: [
