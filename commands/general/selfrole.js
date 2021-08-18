@@ -16,28 +16,26 @@ class selfrole extends Command {
             
             //obtain and filter Role objects
             const avail_roles = (await bot.leyline_guild.roles.fetch()).filter(r => bot.config.self_roles.includes(r.id));
-
-            const m = {
-                components: [
-                    {
-                        custom_id: 'role-menu',
-                        disabled: false,
-                        placeholder: 'Select a role...',
-                        min_values: 1,
-                        options: avail_roles.map(r => ({
-                            label: r.name,
-                            value: r.id,
-                        })),
-                        type: 3,
-                    },
-                ],
-                type: 1,
-            };
             
             const response_intr = await (await bot.intrReply({
                 intr,
                 content: `Choose from the below list. Roles you don't already have will be added to you, and roles you do have will be removed.`,
-                components: [m],
+                components: [{
+                    components: [
+                        {
+                            custom_id: 'role-menu',
+                            disabled: false,
+                            placeholder: 'Select a role...',
+                            min_values: 1,
+                            options: avail_roles.map(r => ({
+                                label: r.name,
+                                value: r.id,
+                            })),
+                            type: 3,
+                        },
+                    ],
+                    type: 1,
+                }],
             })).awaitInteractionFromUser({user: intr.user});
 
             const [add, rem] = [[], []];
