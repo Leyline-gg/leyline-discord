@@ -6,7 +6,14 @@ class ReactionCollectorBase {
     REACTION_WINDOW   	= 24;   //(hours) how long users have to react after collector approval
     APPROVAL_LLP        = 10; 	//LLP awarded for approved post
     REACTION_LLP        = 1;    //LLP awarded for reacting
-	MOD_EMOJIS 			= [];	// Allowed in setupModReactionCollector
+	MOD_EMOJIS 			= [
+		// Emojis allowed in setupModReactionCollector
+		/* Should be of structure {
+			unicode: String,
+			keyword?: String,
+			add_on_msg?: boolean,
+		} */
+	];
     media_type = 'submission';
 
     constructor(bot, {
@@ -21,12 +28,27 @@ class ReactionCollectorBase {
 		Object.assign(this, other);
 	}
 
-	// This needs to be implemented in all subclasses
-	reactionReceived() {
+	/**
+	 * !! MUST BE IMPLEMENTED IN ALL SUBCLASSES !!
+	 * Method called after a reaction to an approved submission has been received.
+	 * This method should specify actions in addition to reaction storage, Leyline acct
+	 * validation, and reaction user "Moral Support" LLP awardal
+	 * @param {Object} args Destructured args
+	 * @param {Reaction} args.reaction The received reaction
+	 * @param {User} args.user The user associated with the incoming reaction
+	 */
+	reactionReceived({reaction, user}) {
 		throw new Error(`${this.constructor.name} doesn't provide a ${arguments.callee.name} method`);
 	}
 
-	approveSubmission() {
+	/**
+	 * !! MUST BE IMPLEMENTED IN ALL SUBCLASSES !!
+	 * Method called after a submission has been approved
+	 * @param {Object} args Destructured args
+	 * @param {Reaction} args.reaction The reaction that approved the submission
+	 * @param {User} args.user The user that approved the submission
+	 */
+	approveSubmission({reaction, user}) {
 		throw new Error(`${this.constructor.name} doesn't provide a ${arguments.callee.name} method`);
 	}
 
@@ -40,7 +62,8 @@ class ReactionCollectorBase {
 		//add initial reactions
 		if(!from_firestore)
 			for (const reaction of this.MOD_EMOJIS) 
-				msg.react(reaction.unicode);
+				reaction?.add_on_msg !== false && 
+					msg.react(reaction.unicode);
 
 		//setup collector
 		this.collector = msg
@@ -74,23 +97,23 @@ class ReactionCollectorBase {
 		msg.createReactionCollector({ 
 			filter: async (reaction, user) => !(await this.hasUserPreviouslyReacted({reaction, user})),
 			time: duration,
-		}).on('collect', async (r, u) => {
+		}).on('collect', async (reaction, user) => {
 			try {
 				//cache the reaction right away to prevent reaction spam
-				await this.storeUserReaction(u);
+				await this.storeUserReaction(user);
 				//ensure user is connected to LL
-				if(!(await Firebase.isUserConnectedToLeyline(u.id))) 
-					this.handleUnconnectedAccount(u, {
+				if(!(await Firebase.isUserConnectedToLeyline(user.id))) 
+					this.handleUnconnectedAccount(user, {
 						dm: `You reacted to the [${this.media_type}](${msg.url} 'click to view message') posted by ${bot.formatUser(msg.author)} in <#${msg.channel.id}>, but because you have not connected your Discord & Leyline accounts, I couldn't award you any LLP!
 							[Click here](${bot.connection_tutorial} 'How to connect your accounts') to view the account connection tutorial`,
-						log: `${bot.formatUser(u)} reacted to the [${this.media_type}](${msg.url} 'click to view message') posted by ${bot.formatUser(msg.author)} in <#${msg.channel.id}>, but I did not award them any LLP because they have not connected their Leyline & Discord accounts`,
+						log: `${bot.formatUser(user)} reacted to the [${this.media_type}](${msg.url} 'click to view message') posted by ${bot.formatUser(msg.author)} in <#${msg.channel.id}>, but I did not award them any LLP because they have not connected their Leyline & Discord accounts`,
 					});
 
 				//this handles the whole awarding process
-				else await this.awardReactionLLP({user: u});
+				else await this.awardReactionLLP({user});
 
 				//await in case callback is async
-				await this.reactionReceived(r, u);
+				await this.reactionReceived({reaction, user});
 				return;
 			} catch(err) { return bot.logger.error(err); }
 		});
