@@ -382,6 +382,96 @@ class FirebaseAPI {
 		return coll.empty ? null : coll.docs[Math.floor(Math.random() * coll.docs.length)].data();
 	}
 
+	// ---------------------------
+	//  ReactionCollector Methods
+	// ---------------------------
+	/**
+	 * Creates a collector in Firestore from the given `ReactionCollectorBase` object
+	 * Assumes collector is still pending mod approval
+	 * @param {ReactionCollectorBase} collector 
+	 */
+	 static async createCollector(collector) {
+		await admin.firestore()
+			.collection(`discord/bot/reaction_collectors/`)
+			.doc(collector.id)
+			.set({
+				type: collector.type,
+				channel: collector.msg.channel.id,
+				author: collector.msg.author.id,
+				approved: false,
+				expires: Date.now() + (collector.APPROVAL_WINDOW * 3600 * 1000),
+			});
+		return;
+	}
+
+	/**
+	 * Update an exisiting collector document to indicate its approval
+	 * @param {Object} args Destructured args
+	 * @param {ReactionCollectorBase} args.collector The collector to reject
+	 * @param {User} args.user The user that initiated the rejection
+	 * @param {Object} [args.metadata] Data to be included in the Firestore document
+	 * @returns {Promise<void>} Resolves when the write has been completed
+	 */
+	static async approveCollector({collector, user, metadata}) {
+		//set expiration time to right now, so collector does not get picked up during initialization
+		await admin.firestore()
+			.collection(`discord/bot/reaction_collectors/`)
+			.doc(collector.id)
+			.set({
+				...metadata,
+				expires: Date.now() + collector.REACTION_WINDOW * 3600 * 1000,
+				approved: true,
+				approved_by: user.id,
+				approved_on: Date.now(),
+			}, { merge: true });
+		return;	
+	}
+
+	/**
+	 * "Reject" a collector by setting its approval status to false, expiration time to `Date.now()`,
+	 * and storing the id of the user that initiated the rejection
+	 * @param {Object} args Destructured args
+	 * @param {ReactionCollectorBase} args.collector The collector to reject
+	 * @param {User} args.user The user that initiated the rejection
+	 * @returns {Promise<void>} Resolves when the write has been completed
+	 */
+	static async rejectCollector({collector, user}) {
+		//set expiration time to right now, so collector does not get picked up during initialization
+		await admin.firestore()
+            .collection(`discord/bot/reaction_collectors/`)
+            .doc(collector.id)
+            .set({
+                expires: Date.now(),
+                approved: false,
+				rejected_by: user.id,
+            }, { merge: true });
+		return;	
+	}
+	
+	/**
+	 * 
+	 * @param {Object} args Destructured args
+	 * @param {ReactionCollectorBase} args.collector The collector to store the reaction under
+	 * @param {User} args.user The user that reacted
+	 * @returns {Promise<void>} Resolves when the write has been completed
+	 */
+	static async storeUserReaction({collector, user}) {
+		await admin.firestore()
+			.collection(`discord/bot/reaction_collectors/`)
+			.doc(collector.id)
+			.collection('reacted_users')
+			.doc(user.id)
+			.set({
+				reacted: true,
+				timestamp: Date.now(),
+			}, { merge: true });
+		return;
+	}
+
+
+	// ----------------
+	//   Poll Methods
+	// ----------------
 	/**
 	 * Creates a poll in Firestore from the given `CommunityPoll` object
 	 * @param {CommunityPoll} poll 

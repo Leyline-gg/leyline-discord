@@ -1,5 +1,5 @@
 const DiscordEvent = require("../../../classes/DiscordEvent");
-const GoodActsReactionCollector = require('../../../classes/GoodActsReactionCollector');
+const ReactionCollector = require('../../../classes/ReactionCollector');
 
 module.exports = class extends DiscordEvent {
 	constructor(bot) {
@@ -39,7 +39,7 @@ module.exports = class extends DiscordEvent {
 			);
 		
 		//create a specific instance for each approved message
-		new GoodActsReactionCollector(bot, msg).init();
+		new ReactionCollector(bot, {type:ReactionCollector.Collectors.GOOD_ACTS, msg}).setupModReactionCollector();
 		return;
 	}
 };
