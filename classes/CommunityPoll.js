@@ -190,7 +190,7 @@ class CommunityPoll {
     /**
      * Load information into the local cache from the Firestore doc for this poll
      * @param {FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>} doc 
-     * @returns {Promise<GoodActsReactionCollector>} the current class, for chaining
+     * @returns {Promise<CommunityPoll>} the current class, for chaining
      */
     async importFirestoreData(doc) {
         const data = await doc.ref.collection('votes').get();
