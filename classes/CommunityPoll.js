@@ -24,7 +24,7 @@ class CommunityPoll {
             footer: `Created by ${this.author.tag}`,
         } : {
             title: this.question,
-            description: `This poll expires <t:${(Date.now() + duration) /1000 |0}:R>`,
+            description: `This poll expires ${bot.formatTimestamp(Date.now() + duration, 'R')}`,
             fields: this.choices.map(c => ({
                 name: `${this.nums_unicode[c.name]}  ${c.value.trim()}`,
                 value: this.#parseVotes({cur: 0, total: 1}),
@@ -37,6 +37,14 @@ class CommunityPoll {
     };
 
     end() {
+        const bot = this.bot;
+        //log poll closure
+        bot.logDiscord({embed: new EmbedBase(bot, {
+            fields: [{
+                name: 'Poll Ended',
+                value: `The [poll](${this.msg.url}) created by ${bot.formatUser(this.author)} with the question \`${this.question}\` just expired`,
+            }],
+        })});
         this.msg.disableComponents();
         this.embed.description = this.embed.description.replace('expires', 'expired');
         this.#updateMessageEmbed();
@@ -163,6 +171,14 @@ class CommunityPoll {
             
             //record vote
             await this.#storeVote(vote);
+            //log vote
+            bot.logDiscord({embed: new EmbedBase(bot, {
+                fields: [{
+                    name: 'User Voted on Poll',
+                    value: `${bot.formatUser(vote.user)} voted for option number \`${vote.customId}\` on the [poll](${this.msg.url}) with the question \`${this.question}\``,
+                }],
+            })});
+
             return bot.intrUpdate({intr: vote, embed: new EmbedBase(bot, {
                 description: `✅ **Vote Submitted**`,
             }).Success()});
@@ -172,7 +188,7 @@ class CommunityPoll {
     }
 
     /**
-     * 
+     * Load information into the local cache from the Firestore doc for this poll
      * @param {FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>} doc 
      * @returns {Promise<GoodActsReactionCollector>} the current class, for chaining
      */
@@ -217,7 +233,15 @@ class CommunityPoll {
         
         this.createCollector(msg);
 
-        return msg;
+        //log poll creation
+        bot.logDiscord({embed: new EmbedBase(bot, {
+            fields: [{
+                name: 'Poll Created',
+                value: `${bot.formatUser(this.author)} created a new [poll](${this.msg.url}) with the question \`${this.question}\`, set to expire on ${bot.formatTimestamp(Date.now() + this.duration, 'F')})`,
+            }],
+        })});
+
+        return this.msg;
     }
 }
 
