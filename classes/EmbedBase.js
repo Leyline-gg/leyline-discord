@@ -11,10 +11,7 @@ class EmbedBase extends MessageEmbed {
         fields = [],
         image = {},
         timestamp = new Date(),
-        footer = {
-            text: `LeylineBot ${bot.CURRENT_VERSION}`,
-            icon_url: bot.user.avatarURL()
-        },
+        footer = '',
         ...other
     }) {
         super({
@@ -27,7 +24,10 @@ class EmbedBase extends MessageEmbed {
             fields,
             image,
             timestamp,
-            footer,
+            footer: {
+                text: `${footer &&= footer + '  •  '}LeylineBot ${bot.CURRENT_VERSION}`,
+                icon_url: bot.user.avatarURL(),
+            },
             ...other,
         });
     }

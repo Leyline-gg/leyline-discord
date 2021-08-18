@@ -141,9 +141,19 @@ class LeylineBot extends Client {
     intrReply({intr, embed, ...options}) {
         const payload = {
             ...embed && { embeds: [embed] },
+            fetchReply: true,
             ...options,
         };
         return (intr.deferred || intr.replied) ? intr.editReply(payload) : intr.reply(payload);
+    }
+
+    intrUpdate({intr, embed, ...options}) {
+        const payload = {
+            ...embed && { embeds: [embed] },
+            fetchReply: true,
+            ...options,
+        };
+        return intr.replied ? intr.editReply(payload) : intr.update(payload);
     }
 
     /**
@@ -155,7 +165,7 @@ class LeylineBot extends Client {
      */
     async intrConfirm({intr, ...options}) {
         try {
-            const msg = await this.intrReply({intr, ...options, components:[new ConfirmInteraction()]});
+            const msg = await this[`${intr.isButton() ? 'intrUpdate' : 'intrReply'}`]({intr, ...options, components:[new ConfirmInteraction()]});
             const res = await msg.awaitInteractionFromUser({user: intr.user});
             //remove components
             await res.update({components:[]});
@@ -225,6 +235,17 @@ Message.prototype.awaitInteractionFromUser = function ({user, ...options}) {
 Message.prototype.fetchReactions = async function () {
     this.reactions.cache = (await this.fetch()).reactions.cache;
     return this;
+};
+
+/**
+ * Disable all the components in a message by editing it
+ * @returns {Promise<Message>} Resolves to the edited message with disabled components
+ */
+Message.prototype.disableComponents = function () {
+    for(const row of this.components)
+        for(const comp of row.components)
+            comp.setDisabled();
+    return this.edit({components: this.components});
 };
 
 // Instantiate our bot; prepare to login later
@@ -384,6 +405,37 @@ const postInit = async function () {
         }
         bot.logger.log(`Imported ${succesfully_imported} ReactionCollectors from Firestore`);
 		return;
+    })();
+
+    //import active polls
+    await (async function importPolls () {
+        let succesfully_imported = 0; 
+        const CommunityPoll = require('./classes/CommunityPoll');
+        const polls = await admin
+            .firestore()
+			.collection(`discord/bot/polls/`)
+			.where('expires', '>', Date.now())
+            .get();
+        for (const doc of polls.docs) {
+            try {
+                const ch = await bot.channels.fetch(bot.config.channels.polls, true, true);
+                const msg = await ch.messages.fetch(doc.id, true, true);
+                const embed = msg.embeds[0];
+                if(!embed) throw new Error('No embeds found on the fetched message');
+                await new CommunityPoll(bot, {
+                    embed,
+                    author: doc.data().created_by,
+                    question: embed.title, 
+                    duration: doc.data().expires - Date.now(),
+                    choices: doc.data().choices,
+                }).createCollector(msg).importFirestoreData(doc);
+                succesfully_imported++;
+            } catch (err) {
+                bot.logger.error(`importPolls error with doc id ${doc.id}: ${err}`);
+            }   
+        }
+        bot.logger.log(`Imported ${succesfully_imported} polls from Firestore`);
+        return;
     })();
 
     bot.logger.debug('Post-initialization complete');
