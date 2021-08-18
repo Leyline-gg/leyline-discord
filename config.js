@@ -15,6 +15,9 @@ module.exports = {
                 goodActs: {
                     target_channel: '840679701118189579',
                 },
+                kindWords: {
+                    target_channel: '830163592803254352',
+                },
             },
             emoji: {
                 leyline_logo: '<:LeylineLogo:846152082226282506>',
@@ -43,6 +46,9 @@ module.exports = {
             events: {
                 goodActs: {
                     target_channel: '877229121086840912',
+                },
+                kindWords: {
+                    target_channel: '877229143786422323',
                 },
             },
             emoji: {

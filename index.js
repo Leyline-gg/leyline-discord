@@ -395,7 +395,7 @@ const postInit = async function () {
     //import ReactionCollectors (this can be modified later to take a more generic approach)
     await (async function importReactionCollectors () {
         let succesfully_imported = 0; 
-        const GoodActsReactionCollector = require('./classes/GoodActsReactionCollector');
+        const ReactionCollector = require('./classes/ReactionCollector');
         const collectors = await admin
             .firestore()
 			.collection(`discord/bot/reaction_collectors/`)
@@ -405,10 +405,13 @@ const postInit = async function () {
             try {
                 const ch = await bot.channels.fetch(doc.data().channel, true, true);
                 const msg = await ch.messages.fetch(doc.id, true, true);
-                const collector = await new GoodActsReactionCollector(bot, msg).loadMessageCache(doc);
+                const collector = await new ReactionCollector(bot, {
+                    type: ReactionCollector.Collectors[doc.data().type],
+                    msg,
+                }).loadMessageCache(doc);
                 doc.data().approved ? 
                     collector.setupApprovedCollector({duration:doc.data().expires - Date.now()}) :
-                    collector.init({from_firestore: true, duration:doc.data().expires - Date.now()});
+                    collector.setupModReactionCollector({from_firestore: true, duration:doc.data().expires - Date.now()});
                 succesfully_imported++;
             } catch (err) {
                 bot.logger.error(`importReactionCollectors error with doc id ${doc.id}: ${err}`);
