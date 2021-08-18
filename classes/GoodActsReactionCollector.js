@@ -81,7 +81,10 @@ class GoodActsReactionCollector extends ReactionCollectorBase {
 					[Click here](${bot.connection_tutorial} 'How to connect your accounts') to view the account connection tutorial`,
 				log: `${bot.formatUser(msg.author)}'s [${this.media_type}](${msg.url} 'click to view message') posted in <#${msg.channel.id}> recevied a reaction, but I did not award them any LLP because they have not connected their Leyline & Discord accounts`,
 			});
-		else await this.awardAuthorReactionLLP(u);
+		else await this.awardAuthorReactionLLP({
+			user: u,
+			pog: `Discord ${msg._activityType} ${this.media_type[0].toUpperCase() + this.media_type.slice(1)} Received Reaction`,
+		});
 		return;
 	}
 

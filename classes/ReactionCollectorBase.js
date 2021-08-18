@@ -49,14 +49,14 @@ class ReactionCollectorBase {
 					bot.checkMod(u.id) && this.MOD_EMOJIS.some(e => e.unicode === r.emoji.name),
 				time: duration,
 			})
-			.once('collect', async (r, u) => {
+			.once('collect', async (reaction, user) => {
 				//submission was rejected
-				if(r.emoji.name === '❌') {
-					r.remove();	//remove all X's (for anti-degregation purposes)
-					return this.rejectSubmission({user: u});
+				if(reaction.emoji.name === '❌') {
+					reaction.remove();	//remove all X's (for anti-degregation purposes)
+					return this.rejectSubmission({user});
 				}
 
-				this.approveSubmission();
+				this.approveSubmission({reaction, user});
 			});
 		return this;
 	}
