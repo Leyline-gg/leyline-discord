@@ -9,6 +9,7 @@ module.exports = {
                 public_log: '810265135419490314',
                 reward_log: '872724760805654538',
                 ama_vc: '794283967460147221',
+                polls: '790063418898907166',
             },
             events: {
                 goodActs: {
@@ -37,10 +38,11 @@ module.exports = {
                 public_log: '858141914841481246',
                 reward_log: '858141836513771550',
                 ama_vc: '869993145499287604',
+                polls: '877229054456107069',
             },
             events: {
                 goodActs: {
-                    target_channel: '858141836513771550',
+                    target_channel: '877229121086840912',
                 },
             },
             emoji: {
