@@ -34,18 +34,18 @@ class inspect extends Command {
             fields: [
                 {
                     name: 'User Joined Discord',
-                    value: `<t:${Math.floor(user.createdTimestamp/1000)}:D>`,
+                    value: bot.formatTimestamp(user.createdTimestamp),
                     inline: true
                 },
                 {
                     name: 'User Joined Server',
-                    value: `<t:${Math.floor(member.joinedTimestamp/1000)}:D>`,
+                    value: bot.formatTimestamp(member.joinedTimestamp),
                     inline: true
                 },
                 { name: '\u200b', value: '\u200b', inline: true },
                 {
                     name: 'Leyline Acct Connected',
-                    value: `${!!llid ? `<t:${(await Firebase.getDiscordDoc(user.id)).connectedLeylineAt.seconds}:D>` : 'N/A'}`,
+                    value: `${!!llid ? bot.formatTimestamp((await Firebase.getDiscordDoc(user.id)).connectedLeylineAt.toMillis()) : 'N/A'}`,
                     inline: true
                 },
                 {

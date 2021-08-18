@@ -182,7 +182,7 @@ class LeylineBot extends Client {
      * Checks if a user has mod permissions on the Leyline server.
      * Current mod roles: `Admin`, `Moderator`
      * @param {String} uid Discord UID of the user to check
-     * @returns `true` if user has mod perms, `false` otherwise
+     * @returns {boolean} `true` if user has mod perms, `false` otherwise
      */
     checkMod(uid) {
         return bot.leyline_guild.members.cache.get(uid).roles.cache.some(r => this.config.mod_roles.includes(r.id));
@@ -192,7 +192,7 @@ class LeylineBot extends Client {
      * Checks if a user has admin permissions on the Leyline server.
      * Current admin permission: Anyone with the ADMINISTRATOR permission
      * @param {String} uid Discord UID of the user to check
-     * @returns `true` if user has admin perms, `false` otherwise
+     * @returns {boolean} `true` if user has admin perms, `false` otherwise
      */
     checkAdmin(uid) {
         return bot.leyline_guild.members.cache.get(uid).permissions.has('ADMINISTRATOR');
@@ -205,6 +205,17 @@ class LeylineBot extends Client {
     formatUser(user) {
         return `<@!${user.id}> (${user.tag})`;
     }
+
+    /**
+     * Format a UNIX timestamp to be sent in a Discord message
+     * @param {Number} [timestamp] UNIX timestamp in milliseconds, default is `Date.now()`
+     * @param {*} [letter] The suffix to append, resulting in a different display
+     * @returns {String}
+     */
+    formatTimestamp(timestamp=Date.now(), letter='D') {
+        return `<t:${timestamp /1000 |0}:${letter}>`;
+    }
+
 }
 
 // Modify Discord.js classes to include custom methods
