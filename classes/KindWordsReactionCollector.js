@@ -29,7 +29,7 @@ class KindWordsReactionCollector extends ReactionCollectorBase {
 	}
 
 	// Callback specific to this Collector class
-	async reactionReceived(r, u) {
+	async reactionReceived({reaction, user}) {
         //No specific implementation
 		return;
 	}

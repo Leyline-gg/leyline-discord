@@ -31,8 +31,7 @@ class ReactionCollectorBase {
 	/**
 	 * !! MUST BE IMPLEMENTED IN ALL SUBCLASSES !!
 	 * Method called after a reaction to an approved submission has been received.
-	 * This method should specify actions in addition to reaction storage, Leyline acct
-	 * validation, and reaction user "Moral Support" LLP awardal
+	 * This method should specify actions in addition to reaction storage and reaction user "Moral Support" LLP awardal
 	 * @param {Object} args Destructured args
 	 * @param {Reaction} args.reaction The received reaction
 	 * @param {User} args.user The user associated with the incoming reaction

@@ -67,12 +67,12 @@ class GoodActsReactionCollector extends ReactionCollectorBase {
 	}
 
 	// Callback specific to this Collector class
-	async reactionReceived(r, u) {
+	async reactionReceived({reaction, user}) {
 		const bot = this.bot;
 		const msg = this.msg;
 
 		//check if user who reacted is msg author
-		if(u.id === msg.author.id) return;
+		if(user.id === msg.author.id) return;
 		//award LLP to msg author
 		if(!(await Firebase.isUserConnectedToLeyline(msg.author.id))) 
 			this.handleUnconnectedAccount(msg.author, {
@@ -81,7 +81,7 @@ class GoodActsReactionCollector extends ReactionCollectorBase {
 				log: `${bot.formatUser(msg.author)}'s [${this.media_type}](${msg.url} 'click to view message') posted in <#${msg.channel.id}> recevied a reaction, but I did not award them any LLP because they have not connected their Leyline & Discord accounts`,
 			});
 		else await this.awardAuthorReactionLLP({
-			user: u,
+			user: user,
 			pog: `Discord ${msg._activityType} ${this.media_type[0].toUpperCase() + this.media_type.slice(1)} Received Reaction`,
 		});
 		return;

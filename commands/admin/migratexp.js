@@ -18,8 +18,7 @@ class migratexp extends Command {
         const migrated = new Collection();
         // Command logic
         try {
-            const xpdocs = await admin.firestore()
-                .collection('discord/bot/xp').get();
+            const xpdocs = await admin.firestore().collection('discord/bot/xp').get();
             const batch = admin.firestore().batch();
             for(const doc of xpdocs.docs) {
                 batch.set(doc.ref, {xp:5}, {merge: true});
