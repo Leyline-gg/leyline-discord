@@ -5,63 +5,28 @@ class help extends Command {
     constructor(bot) {
         super(bot, {
             name: 'help',
-            description: 'View the list of commands available to run',
-            usage: '[command_name]',
-            aliases: [],
-            category: 'general'
+            description: 'Displays a traditional command menu, with each command sorted by its category',
+            category: 'general',
         });
     }
 
-    //generate a generic help embed for all commands
-    #generateHelpEmbed = function(commands) {
-        //get each category from all the commands and put them into an array where each category appears only once. remove all instances of the admin category
-        const embed_fields = Array.from(new Set(commands.map((cmd) => cmd.category).filter((category) => category !== 'admin')));
-        return new EmbedBase(this.bot, {
+    run({intr}) {
+        const bot = this.bot;
+
+        //get each category from all the commands and put them into an array where each category appears only once
+        //remove all development cmds
+        //remove all instances of the admin category if author is not mod
+        const embed_fields = Array.from(new Set(bot.commands.map((cmd) => cmd.category)
+            .filter((category) => category !== 'development' && (category !== 'admin' || bot.checkMod(intr.user.id)))));
+        return bot.intrReply({intr, embed: new EmbedBase(bot, {
             title: 'Bot Commands',
             description: `Hover over a command for more info`,
             fields: embed_fields.map((category) => ({
                 name: category,
-                value: `${commands.filter((command) => command.category === category).map(command => `[\`${command.name}\`](https://leyline.gg "${command.description}")`).join('\n')}\n\u200b\n`,
+                value: `${bot.commands.filter((command) => command.category === category).map(command => `[\`${command.name}\`](https://leyline.gg "${command.description}")`).join('\n')}\n\u200b\n`,
                 inline: true
             })),
-        });
-    }
-    
-    //an embed for a single command
-    #generateCommandEmbed = function (command) {
-        return new EmbedBase(this.bot, {
-            description: 'Fields surrounded by `<>` are required, and fields surrounded by `[]` are optional',
-            fields: [
-                {
-                    name: 'Name',
-                    value: `\`${command.name}\``
-                },
-                {
-                    name: 'Description',
-                    value: `\`${command.description}\``
-                },
-                {
-                    name: 'Aliases',
-                    value: `\`${command.aliases.length > 0 ? command.aliases.join('`, `') : '`None`'}\``
-                },
-                {
-                    name: 'Usage',
-                    value: `\`${this.bot.config.prefix}${command.name}${!!command.usage ? ` ${command.usage}` : ''}\``
-                }
-            ],
-        });
-    }
-
-    run(msg, args) {
-        const { commands } = this.bot;
-        if(args.length > 0) {
-            const name = args[0].toLowerCase();
-            const command = commands.get(name) || commands.find(c => c.aliases && c.aliases.includes(name));
-            if(!command) return msg.reply('That\'s not a valid command');
-            return msg.channel.send({ embed: this.#generateCommandEmbed(command) });
-        }
-
-        return msg.channel.send({ embed:this.#generateHelpEmbed(commands) });
+        })});
     }
 }
 

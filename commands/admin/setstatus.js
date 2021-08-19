@@ -1,23 +1,52 @@
 const { ActivityTypes } = require('discord.js').Constants;
 const Command = require('../../classes/Command');
+const EmbedBase = require('../../classes/EmbedBase');
 
 class setstatus extends Command {
     constructor(bot) {
         super(bot, {
             name: 'setstatus',
             description: 'Set the Discord status of the bot',
-            usage: '[type] <text>',
-            aliases: ['setactivity', 'sa'],
+            options: [
+                {
+                    type: 'STRING',
+                    name: 'activity-type',
+                    description: 'The type of activity to display',
+                    required: true,
+                    choices: Object.keys(ActivityTypes)
+                        //we don't want the numbers for the UI & bots can't set CUSTOM activities
+                        .filter(a => !isNaN(Number(ActivityTypes[a])) && a !== 'CUSTOM')
+                        .map(a => ({
+                            name: a.charAt(0) + a.substring(1).toLowerCase(),
+                            value: a,
+                    })),
+                },
+                {
+                    type: 'STRING',
+                    name: 'text',
+                    description: 'The status text to display. Enter "clear" to remove the current status',
+                    required: true,
+                },
+                
+            ],
             category: 'admin',
-        })
+        });
     }
 
-    run(msg, args) {
-        if(args.length < 1) return this.bot.user.setPresence({activty: null}).then(() => msg.reply('Status cleared'));
-        const type = ActivityTypes.includes(args[0].toUpperCase()) ? args.shift().toUpperCase() : 'PLAYING';
-        this.bot.user.setActivity(args.join(' '), { type: type })
-            .then(() => msg.reply('Bot status succesfully updated'))
-            .catch(err => msg.reply(`Could not update status, error: \`${err}\``));
+    run({intr, opts}) {
+        const bot = this.bot;
+        const status_name = opts.getString('text');
+
+        bot.user.setPresence({activities:[
+            ...(status_name !== 'clear' ? [{
+                name: status_name,
+                type: ActivityTypes[opts.getString('activity-type')],
+            }] : []), 
+        ]});
+
+        bot.intrReply({intr, embed: new EmbedBase(bot, {
+            description: `✅ **Status updated**`,
+        }).Success()});
     }
 }
 

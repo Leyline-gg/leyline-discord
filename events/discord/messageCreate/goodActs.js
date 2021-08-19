@@ -1,15 +1,13 @@
 const DiscordEvent = require("../../../classes/DiscordEvent");
-const GoodActsReactionCollector = require('../../../classes/GoodActsReactionCollector');
+const ReactionCollector = require('../../../classes/ReactionCollector');
 
 module.exports = class extends DiscordEvent {
 	constructor(bot) {
 		super(bot, {
 			name: 'goodActs',
 			description: 'Handler for good acts posted by users in a specific channel',
-			event_type: 'message',
+			event_type: 'messageCreate',
 		});
-		//import event config from bot config
-		Object.assign(this, bot.config.events[this.name]);
 	}
 
 	/**
@@ -41,7 +39,7 @@ module.exports = class extends DiscordEvent {
 			);
 		
 		//create a specific instance for each approved message
-		new GoodActsReactionCollector(bot, msg).init();
+		new ReactionCollector(bot, {type:ReactionCollector.Collectors.GOOD_ACTS, msg}).setupModReactionCollector();
 		return;
 	}
 };
