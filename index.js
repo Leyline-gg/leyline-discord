@@ -438,7 +438,7 @@ const postInit = async function () {
                 if(!embed) throw new Error('No embeds found on the fetched message');
                 await new CommunityPoll(bot, {
                     embed,
-                    author: doc.data().created_by,
+                    author: await bot.users.fetch(doc.data().created_by),
                     question: embed.title, 
                     duration: doc.data().expires - Date.now(),
                     choices: doc.data().choices,

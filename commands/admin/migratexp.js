@@ -21,15 +21,11 @@ class migratexp extends Command {
             const xpdocs = await admin.firestore().collection('discord/bot/xp').get();
 
             //convert current xp to current user level
-            //also add 5 xp to all the posts in the db
-            const batch = admin.firestore().batch();
             for(const doc of xpdocs.docs) {
-                batch.set(doc.ref, {xp:5}, {merge: true});
                 const data = doc.data();
                 if(migrated.has(data.uid)) continue;
                 migrated.set(data.uid, (await XPService.getUserLevelOld(data.uid)).number);
             }
-            await batch.commit();
 
             //update the level in the database for each user
             await admin.firestore().runTransaction(async t => {
