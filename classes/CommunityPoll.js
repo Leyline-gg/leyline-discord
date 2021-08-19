@@ -242,7 +242,7 @@ class CommunityPoll {
         bot.logDiscord({embed: new EmbedBase(bot, {
             fields: [{
                 name: 'Poll Created',
-                value: `${bot.formatUser(this.author)} created a new [poll](${this.msg.url}) with the question \`${this.question}\`, set to expire on ${bot.formatTimestamp(Date.now() + this.duration, 'F')})`,
+                value: `${bot.formatUser(this.author)} created a new [poll](${this.msg.url}) with the question \`${this.question}\`, set to expire on ${bot.formatTimestamp(Date.now() + this.duration, 'F')}`,
             }],
         })});
 

@@ -24,11 +24,13 @@ class poll extends Command {
                     type: 'STRING',
                     name: 'choice1',
                     description: 'A choice for the user to select',
+                    required: true,
                 },
                 {
                     type: 'STRING',
                     name: 'choice2',
                     description: 'A choice for the user to select',
+                    required: true,
                 },
                 {
                     type: 'STRING',
