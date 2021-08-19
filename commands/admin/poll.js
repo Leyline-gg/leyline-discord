@@ -24,11 +24,13 @@ class poll extends Command {
                     type: 'STRING',
                     name: 'choice1',
                     description: 'A choice for the user to select',
+                    required: true,
                 },
                 {
                     type: 'STRING',
                     name: 'choice2',
                     description: 'A choice for the user to select',
+                    required: true,
                 },
                 {
                     type: 'STRING',
@@ -82,6 +84,10 @@ class poll extends Command {
         if(opts.getNumber('duration') > 24)
             return bot.intrReply({intr, embed: new EmbedBase(bot, {
                 description: `❌ **24 days is the maximum duration of the poll!**`,
+            }).Error()});
+        if(opts.getNumber('duration') <= 0)
+            return bot.intrReply({intr, embed: new EmbedBase(bot, {
+                description: `❌ **The duration of the poll must be \`>\` 0 days**`,
             }).Error()});
 
         //generate and send poll preview
