@@ -42,10 +42,10 @@ class KindWordsReactionCollector extends ReactionCollectorBase {
 			await Firebase.approveCollector({collector: this, user});
 
 			//store the post for xp purposes
-			//await XPService.addPost({
-			//	uid: msg.author.id,
-			//	post_id: msg.id,
-			//});
+			await XPService.addKindWord({
+				uid: msg.author.id,
+				msg: msg.id,
+			});
 
 			//log approval in bot log
 			bot.logDiscord({

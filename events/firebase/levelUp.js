@@ -11,7 +11,8 @@ class LevelUp extends FirebaseEvent {
         });
     }
 
-    didUserLevelUp({stat_type, stats, level} = {}) {
+    didUserLevelUp({xp, level} = {}) {
+        return xp >= level.xp;
         //user stats must have greater than the minimum requirement
         for(const [name, val] of Object.entries(level.requirements))
             if(!stats[name]) return false;
@@ -34,26 +35,27 @@ class LevelUp extends FirebaseEvent {
     async onAdd(doc) {
         const bot = this.bot;
         const uid = doc.data().uid;
-        if(!uid) return bot.logger.error(`${this.name} onAdd() was not provided a uid in the document data`);
-        const stats = await XPService.getUserStats(uid);
-        const level = XPService.getUserLevelSync(stats);
+        if(!uid) return bot.logger.error(`${this.name} onAdd() could not find a uid for doc ${doc.ref.path}`);
+        const xp = await XPService.getUserXP(uid);
+        const level = await XPService.getUserLevel(uid);    //this returns what's in the db, which should be the user's old level
         // Check the user's profile to see if they leveled up
         // Tag the user in the public bot log
         // Distribute awards
-        if(!this.didUserLevelUp({stats, level, stat_type: doc.data().type})) return;
+        if(doc.data()?.metadata?.migrated_on) return;
+        if(!this.didUserLevelUp({xp, level})) return;
 
         await XPService.userLevelUp(uid);
 
         const member = await bot.leyline_guild.members.fetch(uid);
-        if(!doc.data()?.metadata?.migrated_on && !member) return bot.logDiscord({ embed: new EmbedBase(bot, {
-            fields: [{
-                name: '⬆ User Level Up',
-                value: `Discord user <@${doc.data().uid}> just leveled up, but I could not find them in the server`
-            }],
-        }).Error()});
-        
-        !doc.data()?.metadata?.migrated_on && 
-            /*await*/ bot.msgBotChannel({embed: await this.generateLevelUpMsg({uid, level})});
+        if(!member) 
+            return bot.logDiscord({ embed: new EmbedBase(bot, {
+                fields: [{
+                    name: '⬆ User Level Up',
+                    value: `Discord user <@${doc.data().uid}> just leveled up, but I could not find them in the server`
+                }],
+            }).Error()});
+
+        /*await*/ bot.msgBotChannel({embed: await this.generateLevelUpMsg({uid, level})});
 
         //distribute awards
         for(const r of level.rewards) {

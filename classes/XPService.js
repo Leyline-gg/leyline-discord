@@ -6,7 +6,7 @@ const LeylineUser = require('./LeylineUser');
 class XPService {
     static LEVELS = require('../xplevels').LEVELS;
     static ROLES = require('../xplevels').ROLES;
-    static COLLECTION_PATH = 'discord/bot/xp';
+    static COLLECTION_PATH = 'discord/bot/xp_transactions';
     /**
      * Add an approved post to a Discord user's profile
      * @param {Object} args
@@ -14,16 +14,15 @@ class XPService {
      * @param {string} args.post_id ID of the post (discord msg) that was approved
      * @param {Object} [args.metadata] Optional metadata object to include in the firestore document
      */
-    static async addPost({uid, post_id, added = Date.now(), metadata} = {}) {
+    static async addPost({uid, post_id, timestamp = Date.now(), metadata} = {}) {
         return await admin.firestore()
             .collection(this.COLLECTION_PATH)
-            .doc(post_id)
-            .set({
-                added,
-                //added: Date.now(),
+            .add({
+                timestamp,
                 uid,
                 type: 'posts',
                 xp: 5,
+                msg: post_id,
                 ...metadata && { metadata },    //https://www.reddit.com/r/javascript/comments/mrzrty/the_shortest_way_to_conditionally_insert/
                 //if there's performance issues, this can be removed since it's notably slow
             });
@@ -31,6 +30,48 @@ class XPService {
 
     //if specific requirements are required for certain posts to be accepted
     //depending on the user's level, a handler function can be created for that
+
+    /**
+     * Add an approved poll vote to a Discord user's profile
+     * @param {Object} args
+     * @param {string} args.uid Discord UID
+     * @param {string} args.poll_id ID of the poll (discord msg) that was approved
+     * @param {Object} [args.metadata] Optional metadata object to include in the firestore document
+     */
+     static async addPollVote({uid, poll_id, timestamp = Date.now(), metadata} = {}) {
+        return await admin.firestore()
+            .collection(this.COLLECTION_PATH)
+            .add({
+                timestamp,
+                uid,
+                type: 'polls',
+                xp: 1,
+                msg: poll_id,
+                ...metadata && { metadata },    //https://www.reddit.com/r/javascript/comments/mrzrty/the_shortest_way_to_conditionally_insert/
+                //if there's performance issues, this can be removed since it's notably slow
+            });
+    }
+
+    /**
+     * Add an approved Kind Words submission to a Discord user's profile
+     * @param {Object} args
+     * @param {string} args.uid Discord UID
+     * @param {string} args.msg ID of the discord msg that was approved
+     * @param {Object} [args.metadata] Optional metadata object to include in the firestore document
+     */
+     static async addKindWord({uid, msg, timestamp = Date.now(), metadata} = {}) {
+        return await admin.firestore()
+            .collection(this.COLLECTION_PATH)
+            .add({
+                timestamp,
+                uid,
+                type: 'kind_words',
+                xp: 1,
+                msg,
+                ...metadata && { metadata },    //https://www.reddit.com/r/javascript/comments/mrzrty/the_shortest_way_to_conditionally_insert/
+                //if there's performance issues, this can be removed since it's notably slow
+            });
+    }
 
     /**
      * Increase a user's level in Firestore, or set it to 1
@@ -56,6 +97,16 @@ class XPService {
 			.get()).size;
     }
 
+    static async getUserPostsOld(uid) {
+        return (await admin
+			.firestore()
+			.collection('discord/bot/xp')
+			.where('uid', '==', uid)
+            .where('type', '==', 'posts')
+			//.where('created', '>', snapshotTime)
+			.get()).size;
+    }
+
     /**
      * 
      * @param {string} uid Discord UID
@@ -69,6 +120,13 @@ class XPService {
 			.get()).docs.reduce((acc, cur) => acc + (cur.data()?.xp || 0), 0);
     }
 
+    static async getUserStatsOld(uid) {
+        const posts = await this.getUserPostsOld(uid);
+        return {
+            posts,
+        };
+    }
+    
     /**
      * Get a user's XP stats for different metrics, excluding their level
      * @param {string} uid Discord UID 
@@ -99,6 +157,8 @@ class XPService {
      * @returns user level object (see `this.LEVELS`)
      */
     static async getUserLevel(uid) {
+        // I want to implement caching using a Collection<id, level> at some point
+        
         //check database to see if user has a level as part of their doc
         //note: this will ignore level 0 users. refactor later
         const db_lvl = (await admin.firestore().collection('discord/bot/users').doc(uid).get()).data()?.level;
@@ -107,6 +167,19 @@ class XPService {
         //no db lvl? get the user's stats and use that to determine their lvl
         const stats = await this.getUserStats(uid);
         return this.getUserLevelSync(stats);
+    }
+
+    static async getUserLevelOld(uid) {
+        const stats = await this.getUserStatsOld(uid);
+        return this.LEVELS.filter(l => {
+            //ALL metrics need to be at or above the minimum requirement
+            for(const metric of Object.keys(l.requirements))
+                //if the metric does not exist for the user, return false
+                if(!stats.hasOwnProperty(metric)) return false;
+                else if(stats[metric] < l.requirements[metric])
+                    return false;   //if any metric is less than requirement, all requirements fail
+            return true;
+        }).pop();
     }
 
     /**
@@ -165,7 +238,7 @@ class XPService {
                 bot.logDiscord({embed: new EmbedBase(bot, {
                     fields: [{
                         name: '❌ Reward Not Distributed',
-                        value: `I tried to give ${bot.formatUser(member.user)} the <@&${role_id}> role for reaching ${level.number}, but I encountered an error`
+                        value: `I tried to give ${bot.formatUser(member.user)} the <@&${role_id}> role for reaching level ${level.number}, but I encountered an error`
                     }],
                 }).Error()
             })});
@@ -189,6 +262,7 @@ class XPService {
                     },
                 ],	
             }).Error()});
+            return;
         }
         const lluser = await new LeylineUser(await Firebase.getLeylineUID(member.id));
 

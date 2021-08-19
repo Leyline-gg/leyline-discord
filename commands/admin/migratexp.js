@@ -19,20 +19,41 @@ class migratexp extends Command {
         // Command logic
         try {
             const xpdocs = await admin.firestore().collection('discord/bot/xp').get();
+
+            //convert current xp to current user level
+            //also add 5 xp to all the posts in the db
             const batch = admin.firestore().batch();
             for(const doc of xpdocs.docs) {
                 batch.set(doc.ref, {xp:5}, {merge: true});
                 const data = doc.data();
                 if(migrated.has(data.uid)) continue;
-                migrated.set(data.uid, (await XPService.getUserLevel(data.uid)).number);
+                migrated.set(data.uid, (await XPService.getUserLevelOld(data.uid)).number);
             }
-
             await batch.commit();
 
+            //update the level in the database for each user
             await admin.firestore().runTransaction(async t => {
                 migrated.forEach((val, key) => {
                     t.set(admin.firestore().collection('discord/bot/users').doc(key), { level: val }, { merge: true });
                 });
+                return;
+            });
+
+            //update all the posts stored under the xp collection
+            await admin.firestore().runTransaction(async t => {
+                for(const doc of xpdocs.docs) {
+                    const {added: timestamp, ...data} = doc.data();
+                    t.set(admin.firestore().collection(XPService.COLLECTION_PATH).doc(), {
+                        timestamp,
+                        ...data,
+                        xp: 5,
+                        msg: doc.id,
+                        metadata: {
+                            migrated_on: Date.now(),
+                        },
+                    });
+                }
+                return;
             });
 
             bot.intrReply({intr, embed: new EmbedBase(bot, {

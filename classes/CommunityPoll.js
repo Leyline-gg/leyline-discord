@@ -1,6 +1,7 @@
 const { Collection } = require('discord.js');
 const EmbedBase = require('./EmbedBase');
 const Firebase = require('./FirebaseAPI');
+const XPService = require('./XPService');
 
 class CommunityPoll {
     nums_unicode = ['0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];
@@ -52,14 +53,18 @@ class CommunityPoll {
 
     /**
      * Stores a vote interaction in the cloud & the local cache,
-     * and updates the Poll embed
+     * increases the user's XP, and updates the Poll embed
      * @param {ButtonInteraction} vote the vote interaction to store
      * @returns {Promise<void>} Resolves when vote has been stored and embed updated
      */
     async #storeVote(vote) {
-        //locally store whatever is in Firebase
+        //store the vote in firebase
         const data = await Firebase.storePollVote({poll: this, vote});
+        //locally store whatever was written to Firebase
         this.vote_cache.set(vote.user.id, data);
+
+        //add xp
+        await XPService.addPollVote({uid: vote.user.id, poll_id: this.id});
 
         //Update the embed field
         this.#updatePollEmbedVotes();
