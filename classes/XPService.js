@@ -23,6 +23,7 @@ class XPService {
                 //added: Date.now(),
                 uid,
                 type: 'posts',
+                xp: 5,
                 ...metadata && { metadata },    //https://www.reddit.com/r/javascript/comments/mrzrty/the_shortest_way_to_conditionally_insert/
                 //if there's performance issues, this can be removed since it's notably slow
             });
@@ -30,6 +31,16 @@ class XPService {
 
     //if specific requirements are required for certain posts to be accepted
     //depending on the user's level, a handler function can be created for that
+
+    /**
+     * Increase a user's level in Firestore, or set it to 1
+     * @param {string} uid Discord UID
+     */
+    static async userLevelUp(uid) {
+        return await admin.firestore().collection('discord/bot/users').doc(uid).update({
+            level: admin.firestore.FieldValue.increment(1),
+        });
+    }
 
     /**
      * 
@@ -46,12 +57,27 @@ class XPService {
     }
 
     /**
+     * 
+     * @param {string} uid Discord UID
+     */
+     static async getUserXP(uid) {
+        return (await admin
+			.firestore()
+			.collection(this.COLLECTION_PATH)
+			.where('uid', '==', uid)
+			//.where('created', '>', snapshotTime)
+			.get()).docs.reduce((acc, cur) => acc + (cur.data()?.xp || 0), 0);
+    }
+
+    /**
      * Get a user's XP stats for different metrics, excluding their level
      * @param {string} uid Discord UID 
      */
     static async getUserStats(uid) {
+        const posts = await this.getUserPosts(uid);
         return {
-            posts: await this.getUserPosts(uid),
+            posts,
+            xp: await this.getUserXP(uid),
         };
         /*
         return {
@@ -70,9 +96,26 @@ class XPService {
     /**
      * Asynchronously get a user's level by passing in their discord UID
      * @param {string} uid Discord UID
+     * @returns user level object (see `this.LEVELS`)
      */
     static async getUserLevel(uid) {
+        //check database to see if user has a level as part of their doc
+        //note: this will ignore level 0 users. refactor later
+        const db_lvl = (await admin.firestore().collection('discord/bot/users').doc(uid).get()).data()?.level;
+        if(!!db_lvl) return this.LEVELS.find(l => l.number === db_lvl);
+
+        //no db lvl? get the user's stats and use that to determine their lvl
         const stats = await this.getUserStats(uid);
+        return this.getUserLevelSync(stats);
+    }
+
+    /**
+     * Synchronously get a user's level by passing in their stats object
+     * @param {Object} stats User stats obj, retrieved from `getUserStats()`
+     * @returns user level object (see `this.LEVELS`)
+     */
+    static getUserLevelSync(stats) {
+        return this.LEVELS.filter(l => stats.xp >= l.xp).pop();
         return this.LEVELS.filter(l => {
             //ALL metrics need to be at or above the minimum requirement
             for(const metric of Object.keys(l.requirements))
@@ -85,21 +128,10 @@ class XPService {
     }
 
     /**
-     * Synchronously get a user's level by passing in their stats object
-     * @param {Object} stats User stats obj, retrieved from `getUserStats()`
+     * Get the level object with the given number; `undefined` if it doesn't exist
+     * @param {Number} number number of the level to get 
+     * @returns user level object (see `this.LEVELS`)
      */
-    static getUserLevelSync(stats) {
-        return this.LEVELS.filter(l => {
-            //ALL metrics need to be at or above the minimum requirement
-            for(const metric of Object.keys(l.requirements))
-                //if the metric does not exist for the user, return false
-                if(!stats.hasOwnProperty(metric)) return false;
-                else if(stats[metric] < l.requirements[metric])
-                    return false;   //if any metric is less than requirement, all requirements fail
-            return true;
-        }).pop();
-    }
-
     static getLevel(number) {
         return this.LEVELS.find(l => l.number === number);
     }
@@ -109,8 +141,6 @@ class XPService {
     // Methods called for distributing rewards
     // Referenced in xplevels.js
     // * All parameters need to be destructured *
-
-
     static awardRole({member, bot, level, role_id} = {}) {
         //remove old roles
         for(const id of this.ROLES)

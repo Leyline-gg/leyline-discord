@@ -7,7 +7,6 @@ class level extends Command {
         super(bot, {
             name: 'level',
             description: 'View your level or the level of another user',
-            usage: '[@discord-user]',
             options: [
                 {
                     type: 'USER',
@@ -39,7 +38,7 @@ class level extends Command {
             if(target_user.id === bot.user.id) return bot.intrReply({intr, content: '👀'});
 
             const stats = await XPService.getUserStats(target_user.id);
-            const level = XPService.getUserLevelSync(stats);
+            const level = await XPService.getUserLevel(target_user.id);
             const nextlevel = XPService.getLevel(level.number + 1);
             bot.intrReply({intr, embed: new EmbedBase(bot, {
                 author: {
@@ -47,13 +46,10 @@ class level extends Command {
                     icon_url: target_user.avatarURL(),
                 },
                 title: `**Level ${level.number}**`,
-                fields: Object.entries(nextlevel?.requirements || level.requirements).map(([name, req]) => {
-                    return {
-                        name: `${name[0].toUpperCase() + name.slice(1)}: ${stats[name] || 0}${!!nextlevel ? `/${req}` : ''}`,
-                        value: this.parseProgress({cur: stats[name] || 0, max: !!nextlevel ? req : null}),
-                        inline: false
-                    };
-                }),
+                fields: [{
+                    name: `XP: ${stats?.xp || 0}${!!nextlevel ? `/${nextlevel.xp}` : ''}`,
+                    value: this.parseProgress({cur: stats?.xp || 0, max: nextlevel?.xp || null}),
+                }],
             })});
         } catch(err) {
             bot.intrReply({intr, embed: new EmbedBase(bot, {

@@ -42,6 +42,8 @@ class LevelUp extends FirebaseEvent {
         // Distribute awards
         if(!this.didUserLevelUp({stats, level, stat_type: doc.data().type})) return;
 
+        await XPService.userLevelUp(uid);
+
         const member = await bot.leyline_guild.members.fetch(uid);
         if(!doc.data()?.metadata?.migrated_on && !member) return bot.logDiscord({ embed: new EmbedBase(bot, {
             fields: [{

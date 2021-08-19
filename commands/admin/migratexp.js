@@ -20,11 +20,15 @@ class migratexp extends Command {
         try {
             const xpdocs = await admin.firestore()
                 .collection('discord/bot/xp').get();
+            const batch = admin.firestore().batch();
             for(const doc of xpdocs.docs) {
-                const data = doc.data()
+                batch.set(doc.ref, {xp:5}, {merge: true});
+                const data = doc.data();
                 if(migrated.has(data.uid)) continue;
                 migrated.set(data.uid, (await XPService.getUserLevel(data.uid)).number);
             }
+
+            await batch.commit();
 
             await admin.firestore().runTransaction(async t => {
                 migrated.forEach((val, key) => {
