@@ -57,7 +57,7 @@ class migratexp extends Command {
                 fields: 
                     migrated.map((val, key) => ({
                         name: `Level ${val}`,
-                        value: `for ${bot.formatUser(bot.users.resolve(key))}`,
+                        value: `for <@!${key}>`,
                         inline: false
                     })),
             })});
