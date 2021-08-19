@@ -2,7 +2,6 @@
 module.exports = {
     get production() {
         return {
-            prefix: '!',
             leyline_guild_id: '751913089271726160',
             channels: {
                 private_log: '843892751276048394',
@@ -25,6 +24,7 @@ module.exports = {
             mod_roles: [
                 '784875278593818694',   //Admin
                 '752363863441145866',   //Mod
+                '751919243062411385',   //Leyline staff
             ],
             self_roles: [
                 '853414453206188063',   //do good alerts
@@ -34,7 +34,6 @@ module.exports = {
     },
     get development() {
         return {
-            prefix: '!!',
             leyline_guild_id: '857839180608307210',
             channels: {
                 private_log: '858141871788392448',
@@ -66,7 +65,6 @@ module.exports = {
     get staging() {
         return {
             ...this.development,
-            prefix: '$',
         }
     },
 }
