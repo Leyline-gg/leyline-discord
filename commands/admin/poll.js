@@ -85,6 +85,10 @@ class poll extends Command {
             return bot.intrReply({intr, embed: new EmbedBase(bot, {
                 description: `❌ **24 days is the maximum duration of the poll!**`,
             }).Error()});
+        if(opts.getNumber('duration') <= 0)
+            return bot.intrReply({intr, embed: new EmbedBase(bot, {
+                description: `❌ **The duration of the poll must be \`>\` 0 days**`,
+            }).Error()});
 
         //generate and send poll preview
         const com_pol = new CommunityPoll(bot, {
