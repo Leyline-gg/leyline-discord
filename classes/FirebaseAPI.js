@@ -142,7 +142,7 @@ class FirebaseAPI {
 			id: doc.id,
 			...doc.data(),
 		}));
-		return data;
+		return data.filter((doc) => Number(doc.id));
 	}
 
 	/**
@@ -160,9 +160,9 @@ class FirebaseAPI {
 		const items = await this.getAllItems();
 
 		return userInventory.docs
-			.map((d) => ({ ...d.data(), itemId: d.id }))
+			.map((d) => ({ ...d.data(), itemId: d.data().id, id: d.id }))
 			.map((item) => {
-				const baseItem = items.filter((i) => i.id == item.id)[0];
+				const baseItem = items.filter((i) => i.id == item.itemId)[0];
 				return {
 					isEquipped: false,
 					...item,
@@ -175,7 +175,9 @@ class FirebaseAPI {
 					rarity: baseItem.rarity,
 					rewardType: baseItem.rewardType,
 
-					transactionId: userIsOnKlaytn ? item.klaytn_tx_hash : item.tx_hash,
+					transactionId: userIsOnKlaytn
+						? item.klaytn_tx_hash
+						: item.tx_hash,
 					artistCredit: baseItem.artistCredit,
 					isKlaytn: userIsOnKlaytn,
 				};
