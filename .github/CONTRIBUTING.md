@@ -1,9 +1,9 @@
 # Contributing
 
-Please fork the repository and create a pull request that explain your changes. Pull requests can only be approved by repository administrators. Be mindful of the formatting used throughout the codebase, such as specified in the `.prettierrc` file.
+Please fork the repository and create a pull request that explains your changes. Pull requests can only be approved by repository administrators. Be mindful of the formatting used throughout the codebase, such as specified in the `.prettierrc` file.
 
 ## Setup
-1. Fork & clone the repository, and make sure you're on the **dev** branch
+1. Fork & clone the repository, and make sure you're working off the **dev** branch
 2. Run `npm ci`
 3. Code any changes you desire
 4. Create a pull request with a detailed description of what changes you made and why you made them

@@ -7,9 +7,15 @@ class level extends Command {
         super(bot, {
             name: 'level',
             description: 'View your level or the level of another user',
-            usage: '[@discord-user]',
-            aliases: [],
-            category: 'user'
+            options: [
+                {
+                    type: 'USER',
+                    name: 'user',
+                    description: "Which user's level you want to view",
+                    required: false,
+                },
+            ],
+            category: 'user',
         });
     }
 
@@ -21,46 +27,34 @@ class level extends Command {
         return `${'🟩'.repeat(progress)}${'⬛'.repeat(10 - progress)} **${percent}%**`;
     }
 
-    async run(msg, args) {
+    async run({intr, opts}) {
         const bot = this.bot;
-
         // Command logic
         try {
-            //break down args, look for a single user
-            let target_user = msg.author;   //assume user is checking their own level
-            if(args.length > 1) return msg.channel.send({embed: new EmbedBase(bot, {
-                    description: `❌ **Too many arguments**`,
-                }).Error()});
-            if(!!args[0]) target_user = await bot.users.fetch(args.shift().match(/\d+/g)?.shift()).catch(() => undefined);
-            if(!target_user?.id) return msg.channel.send({embed: new EmbedBase(bot, {
-                    description: `❌ **Argument must be a Discord user**`,
-                }).Error()});
+            //get the target from opts, otherwise user is checking their own profile
+            let target_user = opts.getUser('user') || intr.user;
 
             //easter egg if user tries to check the level of the bot
-            if(target_user.id === bot.user.id) return msg.channel.send('👀');
+            if(target_user.id === bot.user.id) return bot.intrReply({intr, content: '👀'});
 
             const stats = await XPService.getUserStats(target_user.id);
-            const level = XPService.getUserLevelSync(stats);
+            const level = await XPService.getUserLevel(target_user.id);
             const nextlevel = XPService.getLevel(level.number + 1);
-            msg.channel.send({embed: new EmbedBase(bot, {
+            bot.intrReply({intr, embed: new EmbedBase(bot, {
                 author: {
                     name: target_user.tag,
                     icon_url: target_user.avatarURL(),
                 },
                 title: `**Level ${level.number}**`,
-                fields: Object.entries(nextlevel?.requirements || level.requirements).map(([name, req]) => {
-                    return {
-                        name: `${name[0].toUpperCase() + name.slice(1)}: ${stats[name] || 0}${!!nextlevel ? `/${req}` : ''}`,
-                        value: this.parseProgress({cur: stats[name] || 0, max: !!nextlevel ? req : null}),
-                        inline: false
-                    };
-                }),
+                fields: [{
+                    name: `XP: ${stats?.xp || 0}${!!nextlevel ? `/${nextlevel.xp}` : ''}`,
+                    value: this.parseProgress({cur: stats?.xp || 0, max: nextlevel?.xp || null}),
+                }],
             })});
         } catch(err) {
-            msg.channel.send({embed: new EmbedBase(bot, {
+            bot.intrReply({intr, embed: new EmbedBase(bot, {
                 description: `❌ **Error while trying to run that command**`,
             }).Error()});
-                        
             bot.logger.error(err);
         }
     }

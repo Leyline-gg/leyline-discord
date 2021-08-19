@@ -2,25 +2,30 @@ class Command {
     constructor(bot, {
         name = null,
         description = "No description provided.",
-        category = "General",
-        usage = "No usage provided.",
-        cooldown = 0,
-        hidden = false,
-        aliases = [],
-        //perm level?
+        options = [],
+        category,
+        ...other
     }) {
-        this.bot        = bot;
-        this.name       = name;
+        this.bot = bot;
+        this.name = name;
         this.description = description;
-        this.category   = category;
-        this.usage      = usage;
-        this.cooldown   = cooldown;
-        this.hidden     = hidden;
-        this.aliases    = aliases;
+        this.options = options;
+        this.category = category;
+        this.defaultPermission = (this.category !== 'admin');   //lock admin cmds
+        Object.assign(this, other);
     }
 
-    async run(message, args) {
+    async run({intr, opts}) {
         throw new Error(`Command ${this.constructor.name} doesn't provide a run method.`);
+    }
+
+    /**
+     * Adds all the properties of a registered `ApplicationCommand` to this `Command`
+     * @param {ApplicationCommand} appcmd A registered `ApplicationCommand`
+     * @returns {Command} This command itself
+     */
+    setApplicationCommand(appcmd) {
+        return Object.assign(this, appcmd);
     }
 }
 module.exports = Command;

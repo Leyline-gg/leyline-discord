@@ -142,7 +142,7 @@ class FirebaseAPI {
 			id: doc.id,
 			...doc.data(),
 		}));
-		return data;
+		return data.filter((doc) => Number(doc.id));
 	}
 
 	/**
@@ -160,9 +160,9 @@ class FirebaseAPI {
 		const items = await this.getAllItems();
 
 		return userInventory.docs
-			.map((d) => ({ ...d.data(), itemId: d.id }))
+			.map((d) => ({ ...d.data(), itemId: d.data().id, id: d.id }))
 			.map((item) => {
-				const baseItem = items.filter((i) => i.id == item.id)[0];
+				const baseItem = items.filter((i) => i.id == item.itemId)[0];
 				return {
 					isEquipped: false,
 					...item,
@@ -175,7 +175,9 @@ class FirebaseAPI {
 					rarity: baseItem.rarity,
 					rewardType: baseItem.rewardType,
 
-					transactionId: userIsOnKlaytn ? item.klaytn_tx_hash : item.tx_hash,
+					transactionId: userIsOnKlaytn
+						? item.klaytn_tx_hash
+						: item.tx_hash,
 					artistCredit: baseItem.artistCredit,
 					isKlaytn: userIsOnKlaytn,
 				};
@@ -380,6 +382,148 @@ class FirebaseAPI {
 		if(!!rarity) q = q.where('rarity', '==', rarity);
 		const coll = await q.get();
 		return coll.empty ? null : coll.docs[Math.floor(Math.random() * coll.docs.length)].data();
+	}
+
+	// ---------------------------
+	//  ReactionCollector Methods
+	// ---------------------------
+	/**
+	 * Creates a collector in Firestore from the given `ReactionCollectorBase` object
+	 * Assumes collector is still pending mod approval
+	 * @param {ReactionCollectorBase} collector 
+	 */
+	 static async createCollector(collector) {
+		await admin.firestore()
+			.collection(`discord/bot/reaction_collectors/`)
+			.doc(collector.id)
+			.set({
+				type: collector.type,
+				channel: collector.msg.channel.id,
+				author: collector.msg.author.id,
+				approved: false,
+				expires: Date.now() + (collector.APPROVAL_WINDOW * 3600 * 1000),
+			});
+		return;
+	}
+
+	/**
+	 * Update an exisiting collector document to indicate its approval
+	 * @param {Object} args Destructured args
+	 * @param {ReactionCollectorBase} args.collector The collector to reject
+	 * @param {User} args.user The user that initiated the rejection
+	 * @param {Object} [args.metadata] Data to be included in the Firestore document
+	 * @returns {Promise<void>} Resolves when the write has been completed
+	 */
+	static async approveCollector({collector, user, metadata}) {
+		//set expiration time to right now, so collector does not get picked up during initialization
+		await admin.firestore()
+			.collection(`discord/bot/reaction_collectors/`)
+			.doc(collector.id)
+			.set({
+				...metadata,
+				expires: Date.now() + collector.REACTION_WINDOW * 3600 * 1000,
+				approved: true,
+				approved_by: user.id,
+				approved_on: Date.now(),
+			}, { merge: true });
+		return;	
+	}
+
+	/**
+	 * "Reject" a collector by setting its approval status to false, expiration time to `Date.now()`,
+	 * and storing the id of the user that initiated the rejection
+	 * @param {Object} args Destructured args
+	 * @param {ReactionCollectorBase} args.collector The collector to reject
+	 * @param {User} args.user The user that initiated the rejection
+	 * @returns {Promise<void>} Resolves when the write has been completed
+	 */
+	static async rejectCollector({collector, user}) {
+		//set expiration time to right now, so collector does not get picked up during initialization
+		await admin.firestore()
+            .collection(`discord/bot/reaction_collectors/`)
+            .doc(collector.id)
+            .set({
+                expires: Date.now(),
+                approved: false,
+				rejected_by: user.id,
+            }, { merge: true });
+		return;	
+	}
+	
+	/**
+	 * 
+	 * @param {Object} args Destructured args
+	 * @param {ReactionCollectorBase} args.collector The collector to store the reaction under
+	 * @param {User} args.user The user that reacted
+	 * @returns {Promise<void>} Resolves when the write has been completed
+	 */
+	static async storeUserReaction({collector, user}) {
+		await admin.firestore()
+			.collection(`discord/bot/reaction_collectors/`)
+			.doc(collector.id)
+			.collection('reacted_users')
+			.doc(user.id)
+			.set({
+				reacted: true,
+				timestamp: Date.now(),
+			}, { merge: true });
+		return;
+	}
+
+
+	// ----------------
+	//   Poll Methods
+	// ----------------
+	/**
+	 * Creates a poll in Firestore from the given `CommunityPoll` object
+	 * @param {CommunityPoll} poll 
+	 */
+	static async createPoll(poll) {
+		await admin.firestore()
+			.collection('discord/bot/polls')
+			.doc(poll.id)
+			.set({
+				expires: Date.now() + poll.duration,
+				created_on: poll?.msg?.createdTimestamp || Date.now(),
+				created_by: poll.author.id,
+				choices: poll.choices || [],
+			});
+		return;
+	}
+
+	/**
+	 * Retrieves the `DocumentSnapshot.data()` for a given poll
+	 * @param {String} id ID of the poll to retrieve
+	 * @param {boolean} [include_metadata] Whether or not to return the raw DocumentSnapshot if it exists (pass `true`), or an Object with the document's data (default)
+	 * @returns {Promise<Object | FirebaseFirestore.DocumentSnapshot | null>} `null` if document does not exist, else see `include_metadata`
+	 */
+	static async getPoll(id, include_metadata = false) {
+		const res = await admin.firestore()
+			.collection('discord/bot/polls')
+			.doc(id)
+			.get();
+		if (!res.exists) return null;
+		return include_metadata ? res : res.data();
+	}
+
+	/**
+	 * 
+	 * @param {Object} args Destructured args
+	 * @param {CommunityPoll} args.poll The poll to store the vote under
+	 * @param {ButtonInteraction} args.vote The interaction that represents the user's vote
+	 * @returns {Promise<Object>} The stored vote data that was written
+	 */
+	static async storePollVote({poll, vote}) {
+		const obj = {
+			voted: true,
+			timestamp: Date.now(),
+			choice: vote.customId.split('choice').pop(),
+		};
+		await admin.firestore()
+			.collection('discord/bot/polls').doc(poll.id)
+			.collection('votes').doc(vote.user.id)
+			.set(obj);
+		return obj;
 	}
 }
 

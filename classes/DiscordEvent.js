@@ -11,10 +11,12 @@ class DiscordEvent {
         this.name           = name;
         this.description    = description;
         this.event_type     = event_type;
+        //import event config from bot config
+		Object.assign(this, bot.config.events[this.name]);
     }
 
     run(data) {
-        throw new Error(`DiscordEvent ${this.constructor.name} doesn't provide a run method.`);
+        throw new Error(`DiscordEvent ${this.name} doesn't provide a run method.`);
     }
 }
 

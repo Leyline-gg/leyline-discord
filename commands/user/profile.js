@@ -9,13 +9,19 @@ class profile extends Command {
         super(bot, {
             name: 'profile',
             description: 'View your Leyline profile or the profile of another user',
-            usage: '[@discord-user]',
-            aliases: [],
-            category: 'user'
+            options: [
+                {
+                    type: 'USER',
+                    name: 'user',
+                    description: "Which user's profile you want to view",
+                    required: false,
+                },
+            ],
+            category: 'user',
         });
     }
 
-    async run(msg, args) {
+    async run({intr, opts}) {
         const bot = this.bot;
         // Functions
         /**
@@ -24,7 +30,7 @@ class profile extends Command {
         const getLeylineInfo = function (discord_uid) {
             return new Promise(async (resolve, reject) => {
                 if(!(await Firebase.isUserConnectedToLeyline(discord_uid)))
-                    return reject({code:msg.author.id === discord_uid ? 2 : 3});
+                    return reject({code:intr.user.id === discord_uid ? 2 : 3});
 
                 const user = await new LeylineUser(await Firebase.getLeylineUID(discord_uid));
                 resolve(user);
@@ -33,23 +39,16 @@ class profile extends Command {
 
         // Command logic
         try {
-            //break down args, look for a single user
-            let target_user = msg.author;   //assume user is checking their own profile
-            if(args.length > 1) return msg.channel.send({embed: new EmbedBase(bot, {
-                    description: `❌ **Too many arguments**`,
-                }).Error()});
-            if(!!args[0]) target_user = await bot.users.fetch(args.shift().match(/\d+/g)?.shift()).catch(() => undefined);
-            if(!target_user?.id) return msg.channel.send({embed: new EmbedBase(bot, {
-                    description: `❌ **Argument must be a Discord user**`,
-                }).Error()});
+            //get the target from opts, otherwise user is checking their own profile
+            const target_user = opts.getUser('user') || intr.user;
 
             //easter egg if user tries to check the profile of the bot
-            if(target_user.id === bot.user.id) return msg.channel.send('My Leyline profile is beyond your capacity of comprehension');
+            if(target_user.id === bot.user.id) return bot.intrReply({intr, content: 'My Leyline profile is beyond your capacity of comprehension'});
 
             msg.channel.startTyping();
 
             const user = await getLeylineInfo(target_user.id);
-            msg.channel.send({embed: new EmbedBase(bot, {
+            bot.intrReply({intr, embed: new EmbedBase(bot, {
                 //title: 'Leyline Profile',
                 url: user.profile_url,
                 author: {
@@ -137,7 +136,7 @@ class profile extends Command {
             if(!!err.code) 
                 switch(err.code) {
                     case 2: //user tried to view their own LL profile; it was not found
-                        msg.channel.send({embed: new EmbedBase(bot, {
+                        bot.intrReply({intr, embed: new EmbedBase(bot, {
                             fields: [
                                 {
                                     name: `❌ You need to Connect Your Leyline & Discord accounts!`,
@@ -147,13 +146,15 @@ class profile extends Command {
                         }).Error()});
                         break;
                     case 3:
-                        msg.channel.send({embed: new EmbedBase(bot, {
+                        bot.intrReply({intr, embed: new EmbedBase(bot, {
                             description: `❌ **That user has not connected their Leyline & Discord accounts**`,
                         }).Error()});
                         break;
                         
                     default:
-                        msg.channel.send('Error while trying to run that command');
+                        bot.intrReply({intr, embed: new EmbedBase(bot, {
+                            description: `❌ **Error trying to run that command**`,
+                        }).Error()});
                         break;
                 }
             bot.logger.error(err);
