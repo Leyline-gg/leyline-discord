@@ -10,11 +10,9 @@ class KindWordsReactionCollector extends ReactionCollectorBase {
 	MOD_EMOJIS = [
 		{
 			unicode: '✅',
-            add_on_msg: false,
 		},
 		{
 			unicode: '❌',
-            add_on_msg: false,
 		},
 	];
 
