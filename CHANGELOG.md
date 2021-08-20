@@ -1,3 +1,12 @@
+# [2.0.1](https://github.com/Leyline-gg/leyline-discord/releases/tag/v2.0.1) (2021-08-19)
+
+## Existing Feature Changes
+- Messages sent in #kind-words will immediately receive reactions from the bot, which can be used by mods to approve/reject the submission
+
+## Bug Fixes
+- Profile command not working properly
+
+
 # [2.0.0](https://github.com/Leyline-gg/leyline-discord/releases/tag/v2.0.0) (2021-08-19)
 
 ## Dev Notes
