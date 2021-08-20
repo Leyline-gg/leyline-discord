@@ -47,11 +47,6 @@ class EmbedBase extends MessageEmbed {
         this.color = 0x35de2f;
         return this;
     }
-
-    Success() {
-        this.color = 0x35de2f;
-        return this;
-    }
 }
 
 module.exports = EmbedBase;
