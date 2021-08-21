@@ -30,13 +30,19 @@ class awardnft extends Command {
                 },
                 {
                     type: 'SUB_COMMAND',
-                    name: 'ama',
-                    description: 'Award an NFT to all users in the AMA voice channel',
+                    name: 'channel',
+                    description: 'Award an NFT to all users in a specific voice channel',
                     options: [
                         {
                             type: 'INTEGER',
                             name: 'nft-id',
                             description: 'The ID of the NFT to be awarded',
+                            required: true,
+                        },
+                        {
+                            type: 'CHANNEL',
+                            name: 'channel',
+                            description: 'The voice channel where all members inside it will receive an NFT',
                             required: true,
                         },
                     ],
@@ -66,8 +72,15 @@ class awardnft extends Command {
                 await this.messageUser({user, nft});
             return;
         },
-        ama: ({intr, nft}) => {
-            this.ama({intr, nft});
+        channel: ({intr, nft, opts}) => {
+            const bot = this.bot;
+            const ch = opts.getChannel('channel');
+            //validate args
+            if(!ch.isVoice()) return bot.intrReply({intr, embed: new EmbedBase(bot, {
+                description: `❌ **That's not a voice channel!**`,
+            }).Error()});
+
+            this.nftDropVC({intr, nft, ch});
             return;
         },
     };
@@ -241,19 +254,23 @@ class awardnft extends Command {
     }
     
     /**
-     * Function specifically for awarding ama NFTs to every user in the Q&A VC
+     * Function specifically for awarding ama NFTs to every user in the specified voice channel
+     * @param {Object} params Desctructured params
+     * @param {CommandInteraction} params.intr The interaction that instantiated this command
+     * @param {Object} params.nft NFT object, retrieved from Firestore
+     * @param {BaseGuildVoiceChannel} params.ch The voice channel to pull users from
      * @returns {Promise<void>} promise that resolves when function execution is complete
      */
-    async ama({intr, nft} = {}) {
+    async nftDropVC({intr, nft, ch} = {}) {
         const bot = this.bot;
         const [connected, unconnected] = [[], []];
         //add a custom 'leyline' prop to each GuildMember in the vc
-        for(const member of (await bot.channels.fetch(bot.config.channels.ama_vc, {force: true})).members.values())
+        for(const member of (await bot.channels.fetch(ch.id, {force: true})).members.values())
             await Firebase.isUserConnectedToLeyline(member.id) ?
                 connected.push(member) :
                 unconnected.push(member);
         if(!connected.length && !unconnected.length) return bot.intrReply({intr, embed: new EmbedBase(bot, {
-            description: `❌ **There are no users in the <#${bot.config.channels.ama_vc}> voice channel!**`,
+            description: `❌ **There are no users in the ${ch.toString()} voice channel!**`,
         }).Error()});
 
         //send confirm prompt with some custom values
