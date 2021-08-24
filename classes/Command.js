@@ -4,6 +4,7 @@ class Command {
         description = "No description provided.",
         options = [],
         category,
+        deferResponse = false,  //for commands that take longer to run
         ...other
     }) {
         this.bot = bot;
@@ -12,6 +13,7 @@ class Command {
         this.options = options;
         this.category = category;
         this.defaultPermission = (this.category !== 'admin');   //lock admin cmds
+        this.deferResponse = deferResponse;
         Object.assign(this, other);
     }
 

@@ -16,6 +16,7 @@ class level extends Command {
                 },
             ],
             category: 'user',
+            deferResponse: true,
         });
     }
 

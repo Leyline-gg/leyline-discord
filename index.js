@@ -13,6 +13,7 @@ require('dotenv').config();
 // Custom bot class, based off the discord.js Client (bot)
 class LeylineBot extends Client {
     connection_tutorial = 'https://www.notion.so/leyline/How-to-Connect-Your-Discord-Leyline-Accounts-917dd19be57c4242878b73108e0cc2d1';
+    xp_doc              = 'https://www.notion.so/leyline/d0dc285583b7443cb315851bdbf09fb4';
 
     constructor(options) {
         super(options);
