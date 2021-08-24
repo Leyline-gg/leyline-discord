@@ -14,13 +14,13 @@ class XPService {
      * @param {string} args.post_id ID of the post (discord msg) that was approved
      * @param {Object} [args.metadata] Optional metadata object to include in the firestore document
      */
-    static async addPost({uid, post_id, timestamp = Date.now(), metadata} = {}) {
+    static async addGoodAct({uid, post_id, timestamp = Date.now(), metadata} = {}) {
         return await admin.firestore()
             .collection(this.COLLECTION_PATH)
             .add({
                 timestamp,
                 uid,
-                type: 'posts',
+                type: 'good_acts',
                 xp: 5,
                 msg: post_id,
                 ...metadata && { metadata },    //https://www.reddit.com/r/javascript/comments/mrzrty/the_shortest_way_to_conditionally_insert/
@@ -97,16 +97,6 @@ class XPService {
 			.get()).size;
     }
 
-    static async getUserPostsOld(uid) {
-        return (await admin
-			.firestore()
-			.collection('discord/bot/xp')
-			.where('uid', '==', uid)
-            .where('type', '==', 'posts')
-			//.where('created', '>', snapshotTime)
-			.get()).size;
-    }
-
     /**
      * 
      * @param {string} uid Discord UID
@@ -119,13 +109,6 @@ class XPService {
 			//.where('created', '>', snapshotTime)
 			.get()).docs.reduce((acc, cur) => acc + (cur.data()?.xp || 0), 0);
     }
-
-    static async getUserStatsOld(uid) {
-        const posts = await this.getUserPostsOld(uid);
-        return {
-            posts,
-        };
-    }
     
     /**
      * Get a user's XP stats for different metrics, excluding their level
@@ -137,18 +120,6 @@ class XPService {
             posts,
             xp: await this.getUserXP(uid),
         };
-        /*
-        return {
-            ...res,
-            level: this.LEVELS.filter(l => {
-                //ALL metrics need to be at or above the minimum requirement
-                for(const metric of Object.keys(res))
-                    if(res[metric] < l.requirements[metric])
-                        return false;   //if any metric is less than requirement, all requirements fail
-                return true;
-            }).pop(),
-        }
-        */
     }
 
     /**
@@ -165,39 +136,8 @@ class XPService {
         if(!!db_lvl) return this.LEVELS.find(l => l.number === db_lvl);
 
         //no db lvl? get the user's stats and use that to determine their lvl
-        const stats = await this.getUserStats(uid);
-        return this.getUserLevelSync(stats);
-    }
-
-    static async getUserLevelOld(uid) {
-        const stats = await this.getUserStatsOld(uid);
-        return this.LEVELS.filter(l => {
-            //ALL metrics need to be at or above the minimum requirement
-            for(const metric of Object.keys(l.requirements))
-                //if the metric does not exist for the user, return false
-                if(!stats.hasOwnProperty(metric)) return false;
-                else if(stats[metric] < l.requirements[metric])
-                    return false;   //if any metric is less than requirement, all requirements fail
-            return true;
-        }).pop();
-    }
-
-    /**
-     * Synchronously get a user's level by passing in their stats object
-     * @param {Object} stats User stats obj, retrieved from `getUserStats()`
-     * @returns user level object (see `this.LEVELS`)
-     */
-    static getUserLevelSync(stats) {
-        return this.LEVELS.filter(l => stats.xp >= l.xp).pop();
-        return this.LEVELS.filter(l => {
-            //ALL metrics need to be at or above the minimum requirement
-            for(const metric of Object.keys(l.requirements))
-                //if the metric does not exist for the user, return false
-                if(!stats.hasOwnProperty(metric)) return false;
-                else if(stats[metric] < l.requirements[metric])
-                    return false;   //if any metric is less than requirement, all requirements fail
-            return true;
-        }).pop();
+        const xp = await this.getUserXP(uid);
+        return this.LEVELS.filter(l => xp >= l.xp).pop()
     }
 
     /**

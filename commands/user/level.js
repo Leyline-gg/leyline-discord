@@ -37,7 +37,7 @@ class level extends Command {
             //easter egg if user tries to check the level of the bot
             if(target_user.id === bot.user.id) return bot.intrReply({intr, content: '👀'});
 
-            const stats = await XPService.getUserStats(target_user.id);
+            const xp = await XPService.getUserXP(target_user.id);
             const level = await XPService.getUserLevel(target_user.id);
             const nextlevel = XPService.getLevel(level.number + 1);
             bot.intrReply({intr, embed: new EmbedBase(bot, {
@@ -47,8 +47,8 @@ class level extends Command {
                 },
                 title: `**Level ${level.number}**`,
                 fields: [{
-                    name: `XP: ${stats?.xp || 0}${!!nextlevel ? `/${nextlevel.xp}` : ''}`,
-                    value: this.parseProgress({cur: stats?.xp || 0, max: nextlevel?.xp || null}),
+                    name: `XP: ${xp}${!!nextlevel ? `/${nextlevel.xp}` : ''}`,
+                    value: this.parseProgress({cur: xp, max: nextlevel?.xp || null}),
                 }],
             })});
         } catch(err) {
