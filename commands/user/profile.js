@@ -155,7 +155,7 @@ class profile extends Command {
                         }).Error()});
                         break;
                 }
-            bot.logger.error(err);
+            bot.logger.error(JSON.stringify(err));
         }
     }
 }

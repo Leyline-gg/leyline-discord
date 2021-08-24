@@ -21,7 +21,7 @@ class DiscordAcctLink extends FirebaseEvent {
         // Log a message in the #bot-log channel
         //doc was created in discord/webapp/users, this means they just connected their discord acct
         //if they're in the Leyline discord, give them the role
-        const member = await bot.leyline_guild.members.fetch(doc.data().discordUID);
+        const member = await bot.leyline_guild.members.fetch(doc.data().discordUID).catch(() => null);
         if(!member) return bot.logDiscord({ embed: new EmbedBase(bot, {
             fields: [{
                 name: '🔗 Leyline & Discord Accounts Linked',
@@ -41,7 +41,7 @@ class DiscordAcctLink extends FirebaseEvent {
                     name: '🔗 Leyline & Discord Accounts Linked',
                     value: 'You succesfully linked your Leyline & Discord accounts!'
                 }]
-            })}).catch(err => bot.logger.error(`${this.name} Error: ${err}`));
+            }).Success()}).catch(err => bot.logger.error(`${this.name} Error: ${err}`));
             return;
         }
         
@@ -57,7 +57,7 @@ class DiscordAcctLink extends FirebaseEvent {
                 name: '🔗 Leyline & Discord Accounts Linked',
                 value: 'You just linked your Leyline & Discord accounts and received the `Alpha Tester` role!'
             }]
-        })}).catch(err => bot.logger.error(`${this.name} Error: ${err}`));
+        }).Success()}).catch(err => bot.logger.error(`${this.name} Error: ${err}`));
     }
 
     /**
