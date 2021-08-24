@@ -49,6 +49,7 @@ class awardnft extends Command {
                 },
             ],
             category: 'admin',
+            deferResponse: true,
         });
     }
 
