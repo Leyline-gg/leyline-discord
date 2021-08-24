@@ -41,6 +41,9 @@ module.exports = {
                 kindWords: {
                     target_channel: '830163592803254352',
                 },
+                addAlphaTesterRole: {
+                    alpha_role: '751919744528941126',
+                },
             },
             emoji: {
                 leyline_logo: '<:LeylineLogo:846152082226282506>',
@@ -87,6 +90,9 @@ module.exports = {
                 },
                 kindWords: {
                     target_channel: '877229143786422323',
+                },
+                addAlphaTesterRole: {
+                    alpha_role: '879817566799925298',
                 },
             },
             emoji: {
