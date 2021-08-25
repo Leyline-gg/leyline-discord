@@ -97,7 +97,6 @@ class poll extends Command {
             author: intr.user,
             choices: opts.data.filter(o => o.name.startsWith('choice')),
         });
-        bot.intrReply({intr, embed: com_pol.embed});
 
         if(!(await bot.intrConfirm({intr, embed: com_pol.embed, content: `Confirm this is the poll that will be sent to <#${bot.config.channels.polls}>`})))
             return bot.intrReply({intr, embed: new EmbedBase(bot, {
