@@ -1,3 +1,25 @@
+# [2.1.0](https://github.com/Leyline-gg/leyline-discord/releases/tag/v2.1.0) (2021-08-24)
+
+## Dev Notes
+New features have been added to address the rapidly growing userbase of Leyline's Discord server.
+In particular, the new `tag` command will allow community moderators and veterans to quickly point new users to helpful resources.
+
+## New Features
+- New command: `tag`
+    - This command can be used to quickly reference a pre-typed message by inputting a tag name
+    - To view the list of tag names, run the command without any arguments
+- Users who now join the Leyline Discord **after** connecting their Leyline & Discord accounts will automatically receive the alpha tester role
+- Users who create a submission in #good-acts prior to connecting their Leyline & Discord accounts will be sent a DM with a tutorial link reminding them to do so before their submission is approved, to ensure they receive their LLP
+
+## Existing Feature Changes
+- The `awardnft` subcommand `ama` has been changed to `channel`
+    - This allows moderators to pick any voice channel when mass-awarding NFTs, rather than having the AMA channel as the only option
+
+## Bug Fixes
+- The bot would not log an error in #bot-log if a Leyline user connected a Discord account that was not in the Leyline server
+- After being approved, bot-added reactions on some posts in #good-acts would not be automatically removed 
+
+
 # [2.0.1](https://github.com/Leyline-gg/leyline-discord/releases/tag/v2.0.1) (2021-08-19)
 
 ## Existing Feature Changes

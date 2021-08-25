@@ -65,7 +65,7 @@ class LeylineBot extends Client {
     /**
      * Send a direct message to the target user, catches error if user has closed DMs
      * @param {Object} args
-     * @param {Message} args.user Discord.js `User` object; recipient of msg
+     * @param {User} args.user Discord.js `User` object; recipient of msg
      * @param {EmbedBase} args.embed Singular embed object to be sent as response
      * @returns {Promise<Message>}
      */
@@ -245,7 +245,7 @@ Message.prototype.awaitInteractionFromUser = function ({user, ...options}) {
  * @returns {Promise<Message>} Resolves to itself once the cache update is complete
  */
 Message.prototype.fetchReactions = async function () {
-    this.reactions.cache = (await this.fetch()).reactions.cache;
+    this.reactions.cache = (await this.fetch({force: true})).reactions.cache;
     return this;
 };
 
