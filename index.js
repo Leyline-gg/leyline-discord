@@ -245,7 +245,7 @@ Message.prototype.awaitInteractionFromUser = function ({user, ...options}) {
  * @returns {Promise<Message>} Resolves to itself once the cache update is complete
  */
 Message.prototype.fetchReactions = async function () {
-    this.reactions.cache = (await this.fetch()).reactions.cache;
+    this.reactions.cache = (await this.fetch({force: true})).reactions.cache;
     return this;
 };
 
