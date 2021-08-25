@@ -98,7 +98,7 @@ class GoodActsReactionCollector extends ReactionCollectorBase {
 			}});
 
 			//store the post for xp purposes
-			await XPService.addPost({
+			await XPService.addGoodAct({
 				uid: msg.author.id,
 				post_id: msg.id,
 			});
