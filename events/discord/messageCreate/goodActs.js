@@ -1,5 +1,7 @@
 const DiscordEvent = require("../../../classes/DiscordEvent");
+const EmbedBase = require("../../../classes/EmbedBase");
 const ReactionCollector = require('../../../classes/ReactionCollector');
+const Firebase = require('../../../classes/FirebaseAPI');
 
 module.exports = class extends DiscordEvent {
 	constructor(bot) {
@@ -37,6 +39,19 @@ module.exports = class extends DiscordEvent {
 			return bot.logger.debug(
 				`${this.name} event rejected msg ${msg.id} by ${msg.author.tag} because it did not contain valid attachments`
 			);
+
+		//If user has not connected Discord & Leyline accts, send DM before proceeding
+		if(!(await Firebase.isUserConnectedToLeyline(msg.author.id)))
+			bot.sendDM({
+				user: msg.author,
+				embed: new EmbedBase(bot, {
+					fields:[{
+						name: `Thank you for your submission!`,
+						value: `Please remember to connect your Leyline & Discord accounts so you can receive LLP if your [submission](${msg.url}) is approved!
+							[Click here](${bot.connection_tutorial} 'How to connect your accounts') to view the account connection tutorial.`,
+					}],
+				}),
+			});
 		
 		//create a specific instance for each approved message
 		new ReactionCollector(bot, {type:ReactionCollector.Collectors.GOOD_ACTS, msg}).setupModReactionCollector();
