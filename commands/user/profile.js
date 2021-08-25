@@ -46,8 +46,6 @@ class profile extends Command {
             //easter egg if user tries to check the profile of the bot
             if(target_user.id === bot.user.id) return bot.intrReply({intr, content: 'My Leyline profile is beyond your capacity of comprehension'});
 
-            msg.channel.startTyping();
-
             const user = await getLeylineInfo(target_user.id);
             bot.intrReply({intr, embed: new EmbedBase(bot, {
                 //title: 'Leyline Profile',
@@ -160,7 +158,6 @@ class profile extends Command {
                 }
             bot.logger.error(JSON.stringify(err));
         }
-        msg.channel.stopTyping(true);
     }
 }
 
