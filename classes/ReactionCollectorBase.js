@@ -336,7 +336,7 @@ class ReactionCollectorBase {
             if(user.bot) return true;
         
             //check the local custom cache first, because it's quicker than calling the API
-            bot.logger.debug(`Custom Reaction Cache (${msg.id}): ${msg._cache.reacted_users}`);	//debug added 1.1.0
+            //bot.logger.debug(`Custom Reaction Cache (${msg.id}): ${msg._cache.reacted_users}`);	//debug added 1.1.0
             if(msg._cache.reacted_users?.includes(user.id)) return true;
             
             //now check the Discord.js message reaction cache

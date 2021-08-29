@@ -148,8 +148,8 @@ class GoodActsReactionCollector extends ReactionCollectorBase {
 			// ---  Give LLP to the users that have already reacted   ---
 			// --- (this includes the mod that just approved the msg) ---
 			await msg.fetchReactions();
-			for (const old_reaction of [...msg.reactions.cache.values()]) {
-				for(const old_user of [...(await old_reaction.users.fetch()).values()]) {
+			for(const old_reaction of [...msg.reactions.cache.values()]) {
+				for(const old_user of [...old_reaction.users.cache.values()]) {
 					if(!(await this.hasUserPreviouslyReacted({reaction: old_reaction, user: old_user, checkMsgReactions: false}))) {
 						//store user's reaction right away, because we do the same in the approved collector
 						await this.storeUserReaction(old_user);
