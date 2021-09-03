@@ -1,3 +1,17 @@
+# [2.2.0](https://github.com/Leyline-gg/leyline-discord/releases/tag/v2.2.0) (2021-09-02)
+
+## Dev Notes
+The bot will now make use of threads to redirect discussion and encourage cleanliness of the server's channels.
+This feature may be expanded in the future.
+
+## New Features
+- Whenever a submission is created in #good-acts, a thread will automatically be created for that submission to discourage discussion in the main channel
+- All new polls will have a thread automatically created in the #polls channel for that poll, to enable discussion around the poll topic
+
+## Bug Fixes
+- Users with unconnected Leyline & Discord accounts could not level up past level 0
+- After being approved, bot-added reactions on some posts in #good-acts would not be automatically removed
+
 # [2.1.0](https://github.com/Leyline-gg/leyline-discord/releases/tag/v2.1.0) (2021-08-24)
 
 ## Dev Notes
