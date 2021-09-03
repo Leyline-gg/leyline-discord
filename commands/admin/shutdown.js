@@ -1,6 +1,5 @@
 const Command = require('../../classes/Command');
-const EmbedBase = require('../../classes/EmbedBase');
-const ConfirmInteraction = require('../../classes/ConfirmInteraction');
+const EmbedBase = require('../../classes/components/EmbedBase');
 
 class shutdown extends Command {
     constructor(bot) {

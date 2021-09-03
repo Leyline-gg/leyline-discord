@@ -1,6 +1,6 @@
 const { ActivityTypes } = require('discord.js').Constants;
 const Command = require('../../classes/Command');
-const EmbedBase = require('../../classes/EmbedBase');
+const EmbedBase = require('../../classes/components/EmbedBase');
 
 class setstatus extends Command {
     constructor(bot) {

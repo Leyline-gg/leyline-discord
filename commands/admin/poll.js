@@ -1,6 +1,6 @@
 const Command = require('../../classes/Command');
 const CommunityPoll = require('../../classes/CommunityPoll');
-const EmbedBase = require('../../classes/EmbedBase');
+const EmbedBase = require('../../classes/components/EmbedBase');
 
 class poll extends Command {
     constructor(bot) {

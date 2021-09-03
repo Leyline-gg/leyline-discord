@@ -1,5 +1,5 @@
-const DiscordEvent = require('../../../classes/DiscordEvent');
-const EmbedBase = require('../../../classes/EmbedBase');
+const DiscordEvent = require('../../../classes/events/DiscordEvent');
+const EmbedBase = require('../../../classes/components/EmbedBase');
 
 module.exports = class extends DiscordEvent {
     constructor(bot) {

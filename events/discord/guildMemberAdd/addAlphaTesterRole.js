@@ -1,4 +1,4 @@
-const DiscordEvent = require("../../../classes/DiscordEvent");
+const DiscordEvent = require("../../../classes/events/DiscordEvent");
 const Firebase = require('../../../classes/FirebaseAPI');
 
 module.exports = class extends DiscordEvent {

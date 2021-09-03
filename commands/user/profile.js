@@ -1,8 +1,8 @@
 const Command = require('../../classes/Command');
 const Firebase = require('../../classes/FirebaseAPI');
-const XPService = require('../../classes/XPService');
+const XPService = require('../../classes/services/XPService');
 const LeylineUser = require('../../classes/LeylineUser');
-const EmbedBase = require('../../classes/EmbedBase');
+const EmbedBase = require('../../classes/components/EmbedBase');
 
 class profile extends Command {
     constructor(bot) {

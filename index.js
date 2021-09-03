@@ -5,8 +5,8 @@ const { Client, Collection, Intents, Message, } = require('discord.js');
 const admin = require('firebase-admin');
 const klaw = require('klaw');
 const path = require('path');
-const ConfirmInteraction = require('./classes/ConfirmInteraction');
-const EmbedBase = require('./classes/EmbedBase');
+const ConfirmInteraction = require('./classes/components/ConfirmInteraction');
+const EmbedBase = require('./classes/components/EmbedBase');
 //formally, dotenv shouldn't be used in prod, but because staging and prod share a VM, it's an option I elected to go with for convenience
 require('dotenv').config();
 
@@ -394,7 +394,7 @@ const postInit = async function () {
     //import ReactionCollectors (this can be modified later to take a more generic approach)
     await (async function importReactionCollectors () {
         let succesfully_imported = 0; 
-        const ReactionCollector = require('./classes/ReactionCollector');
+        const ReactionCollector = require('./classes/collectors/ReactionCollector');
         const collectors = await admin
             .firestore()
 			.collection(`discord/bot/reaction_collectors/`)

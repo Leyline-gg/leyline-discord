@@ -1,5 +1,5 @@
 const Command = require('../../classes/Command');
-const EmbedBase = require('../../classes/EmbedBase');
+const EmbedBase = require('../../classes/components/EmbedBase');
 
 class restart extends Command {
     constructor(bot) {
