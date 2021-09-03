@@ -1,4 +1,4 @@
-# [2.2.0](https://github.com/Leyline-gg/leyline-discord/releases/tag/v2.2.0) (2021-09-02)
+# [2.2.0](https://github.com/Leyline-gg/leyline-discord/releases/tag/v2.2.0) (2021-09-03)
 
 ## Dev Notes
 The bot will now make use of threads to redirect discussion and encourage cleanliness of the server's channels.
