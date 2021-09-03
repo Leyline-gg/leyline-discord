@@ -1,6 +1,6 @@
 const Command = require('../../classes/Command');
-const XPService = require('../../classes/XPService');
-const EmbedBase = require('../../classes/EmbedBase');
+const XPService = require('../../classes/services/XPService');
+const EmbedBase = require('../../classes/components/EmbedBase');
 
 class level extends Command {
     constructor(bot) {

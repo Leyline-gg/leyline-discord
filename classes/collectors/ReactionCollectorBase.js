@@ -1,5 +1,5 @@
-const Firebase = require('./FirebaseAPI');
-const EmbedBase = require('./EmbedBase');
+const Firebase = require('../FirebaseAPI');
+const EmbedBase = require('../components/EmbedBase');
 
 class ReactionCollectorBase {
     APPROVAL_WINDOW     = 24 * 7;	//(hours) how long the mods have to approve a photo

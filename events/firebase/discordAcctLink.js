@@ -1,5 +1,5 @@
-const EmbedBase = require('../../classes/EmbedBase');
-const FirebaseEvent = require('../../classes/FirebaseEvent');
+const EmbedBase = require('../../classes/components/EmbedBase');
+const FirebaseEvent = require('../../classes/events/FirebaseEvent');
 
 class DiscordAcctLink extends FirebaseEvent {
     alpha_role = '751919744528941126';

@@ -1,7 +1,7 @@
 const { Collection } = require('discord.js');
-const EmbedBase = require('./EmbedBase');
+const EmbedBase = require('./components/EmbedBase');
 const Firebase = require('./FirebaseAPI');
-const XPService = require('./XPService');
+const XPService = require('./services/XPService');
 
 class CommunityPoll {
     nums_unicode = ['0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];

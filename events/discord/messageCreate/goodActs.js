@@ -1,6 +1,6 @@
-const DiscordEvent = require("../../../classes/DiscordEvent");
-const EmbedBase = require("../../../classes/EmbedBase");
-const ReactionCollector = require('../../../classes/ReactionCollector');
+const DiscordEvent = require("../../../classes/events/DiscordEvent");
+const EmbedBase = require("../../../classes/components/EmbedBase");
+const ReactionCollector = require('../../../classes/collectors/ReactionCollector');
 const Firebase = require('../../../classes/FirebaseAPI');
 
 module.exports = class extends DiscordEvent {

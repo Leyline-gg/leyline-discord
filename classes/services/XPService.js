@@ -1,11 +1,11 @@
 const admin = require('firebase-admin');
-const Firebase = require('./FirebaseAPI');
-const EmbedBase = require('./EmbedBase');
-const LeylineUser = require('./LeylineUser');
+const Firebase = require('../FirebaseAPI');
+const EmbedBase = require('../components/EmbedBase');
+const LeylineUser = require('../LeylineUser');
 
 class XPService {
-    static LEVELS = require('../xplevels').LEVELS;
-    static ROLES = require('../xplevels').ROLES;
+    static LEVELS = require('../../xplevels').LEVELS;
+    static ROLES = require('../../xplevels').ROLES;
     static COLLECTION_PATH = 'discord/bot/xp_transactions';
     /**
      * Add an approved post to a Discord user's profile
