@@ -52,8 +52,7 @@ class ReactionCollectorBase {
 	}
 
 	setupModReactionCollector({from_firestore = false, duration = this.APPROVAL_WINDOW * 3600 * 1000} = {}) {
-		const bot = this.bot;
-		const msg = this.msg;
+		const { bot, msg } = this;
 
 		//create Firestore doc only if it we aren't already loading one from cache
         !from_firestore && /*await*/ Firebase.createCollector(this);
@@ -72,6 +71,7 @@ class ReactionCollectorBase {
 				time: duration,
 			})
 			.once('collect', async (reaction, user) => {
+				await msg.fetchReactions();
 				//submission was rejected
 				if(reaction.emoji.name === '❌') {
 					reaction.remove();	//remove all X's (for anti-degregation purposes)
@@ -90,8 +90,7 @@ class ReactionCollectorBase {
 	 * @returns {ReactionCollectorBase} This class itself
 	 */
 	setupApprovedCollector({duration = this.REACTION_WINDOW * 3600 * 1000} = {}) {
-		const bot = this.bot;
-		const msg = this.msg;
+		const { bot, msg } = this;
         //create collector to watch for user reactions
 		msg.createReactionCollector({ 
 			filter: async (reaction, user) => !(await this.hasUserPreviouslyReacted({reaction, user})),
@@ -125,8 +124,7 @@ class ReactionCollectorBase {
 	 * @param {User} [args.user] Discord.js `User` that rejected the submission
 	 */
 	rejectSubmission({user}) {
-		const bot = this.bot;
-		const msg = this.msg;
+		const { bot, msg } = this;
 
 		//update cloud
 		/*await*/ Firebase.rejectCollector({user, collector: this});
@@ -176,7 +174,7 @@ class ReactionCollectorBase {
 	 * @returns 
 	 */
 	 handleUnconnectedAccount(user, {dm, log} = {}) {
-		const bot = this.bot;
+		const { bot } = this;
 		bot.sendDM({user, embed: new EmbedBase(bot, {
 			fields: [
 				{
@@ -207,8 +205,7 @@ class ReactionCollectorBase {
      * @param {string} args.pog "Proof of good" - message to display in LLP history
 	 */
 	async awardApprovalLLP({user, pog}) {
-		const bot = this.bot;
-        const msg = this.msg;
+		const { bot, msg } = this;
 
 		await Firebase.awardLLP(await Firebase.getLeylineUID(user.id), this.APPROVAL_LLP, {
 			category: pog,
@@ -247,8 +244,7 @@ class ReactionCollectorBase {
      * @param {string} [args.pog] "Proof of good" - message to display in LLP history
 	 */
 	async awardReactionLLP({user, pog='Discord Moral Support'}) {
-		const bot = this.bot;
-		const msg = this.msg;
+		const { bot, msg } = this;
 
 		//new user reacted, award LLP
 		await Firebase.awardLLP(await Firebase.getLeylineUID(user.id), this.REACTION_LLP, {
@@ -286,8 +282,7 @@ class ReactionCollectorBase {
      * @param {string} args.pog "Proof of good" - message to display in LLP history
 	 */
 	async awardAuthorReactionLLP({user, pog}) {
-		const bot = this.bot;
-        const msg = this.msg;
+		const { bot, msg } = this;
 		//new user reacted, award LLP
 		await Firebase.awardLLP(await Firebase.getLeylineUID(msg.author.id), this.REACTION_LLP, {
 			category: pog,

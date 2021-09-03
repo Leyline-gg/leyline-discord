@@ -20,7 +20,7 @@ class inspect extends Command {
     }
 
     async run({intr, opts}) {
-        const bot = this.bot;
+        const { bot } = this;
 
         const user = opts.getUser('user') || intr.user;
         const member = await bot.leyline_guild.members.fetch(user);

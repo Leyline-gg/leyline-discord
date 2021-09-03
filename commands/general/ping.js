@@ -11,7 +11,7 @@ class ping extends Command {
     }
 
     async run({intr}) {
-        const bot = this.bot;
+        const { bot } = this;
         //TODO: implement Leyline API/Firebase API latency (choose a user-friendly label)
         const response = await bot.intrReply({intr, embed: new EmbedBase(bot, {
             description: 'Pinging...',

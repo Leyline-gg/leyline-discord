@@ -16,7 +16,7 @@ class DiscordAcctLink extends FirebaseEvent {
      * @param {FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>} doc 
      */
     async onAdd(doc) {
-        const bot = this.bot;
+        const { bot } = this;
         // Apply the Alpha Tester role to the user that linked their acct
         // Log a message in the #bot-log channel
         //doc was created in discord/webapp/users, this means they just connected their discord acct

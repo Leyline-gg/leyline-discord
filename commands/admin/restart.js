@@ -11,7 +11,7 @@ class restart extends Command {
     }
 
     async run({intr, opts}) {
-        const bot = this.bot;
+        const { bot } = this;
         if(process.env.NODE_ENV === 'development')
             return bot.intrReply({intr, embed: new EmbedBase(bot, {
                 description: '❌ **That command does not work in the `dev` environment**',

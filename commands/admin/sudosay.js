@@ -25,7 +25,7 @@ class sudosay extends Command {
     }
 
     async run({intr, opts}) {
-        const bot = this.bot;
+        const { bot } = this;
         const ch = opts.getChannel('channel');
 
         //validate args

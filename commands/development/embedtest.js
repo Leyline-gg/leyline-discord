@@ -11,7 +11,7 @@ class embedtest extends Command {
     }
 
     async run({intr, opts}) {
-        const bot = this.bot;
+        const { bot } = this;
         //bot.intrReply({intr, embed: new EmbedBase(this.bot, {
         //    fields: [{
         //        name: '⬆  User Leveled Up',

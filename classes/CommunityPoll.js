@@ -38,7 +38,7 @@ class CommunityPoll {
     };
 
     end() {
-        const bot = this.bot;
+        const { bot } = this;
         //log poll closure
         bot.logDiscord({embed: new EmbedBase(bot, {
             fields: [{
@@ -154,7 +154,7 @@ class CommunityPoll {
     }
 
     createCollector(msg) {
-        const bot = this.bot;
+        const { bot } = this;
         this.msg ||= msg;
         this.id ||= msg.id;
 
@@ -224,7 +224,7 @@ class CommunityPoll {
      * @returns {Promise<Message>} the poll `Message` that was sent
      */
     async publish() {
-        const bot = this.bot;
+        const { bot } = this;
         //send and store message
         const msg = await bot.channels.resolve(bot.config.channels.polls).send({
             embeds: [this.embed],

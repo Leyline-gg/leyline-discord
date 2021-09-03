@@ -78,7 +78,7 @@ class poll extends Command {
     }
 
     async run({intr, opts}) {
-        const bot = this.bot;
+        const { bot } = this;
         
         //validate args
         if(opts.getNumber('duration') > 24)

@@ -52,7 +52,7 @@ class role extends Command {
 
     subcommands = {
         add: ({intr, mem, role}) => {
-            const bot = this.bot;
+            const { bot } = this;
             mem.roles.add(role, `Requested by ${intr.user.tag}`)
                 .then(() => bot.intrReply({intr, embed: new EmbedBase(bot, {
                     description: `✅ **The ${role.toString()} role has been added to ${mem.toString()}**`,
@@ -62,7 +62,7 @@ class role extends Command {
                 }).Error()}));
         },
         remove: ({intr, mem, role}) => {
-            const bot = this.bot;
+            const { bot } = this;
             mem.roles.remove(role, `Requested by ${intr.user.tag}`)
                 .then(() => bot.intrReply({intr, embed: new EmbedBase(bot, {
                     description: `✅ **The ${role.toString()} role has been removed from ${mem.toString()}**`,
@@ -74,7 +74,7 @@ class role extends Command {
     };
 
     async run({intr, opts}) {
-        const bot = this.bot;
+        const { bot } = this;
         const mem = (await bot.leyline_guild.members.fetch()).get(opts.getUser('user').id);
         if(!mem) return bot.intrReply({intr, embed: new EmbedBase(bot, {
             description: `❌ **I couldn't find that user**`,

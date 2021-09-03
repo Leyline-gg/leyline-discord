@@ -12,7 +12,7 @@ class shutdown extends Command {
     }
 
     async run({intr}) {
-        const bot = this.bot;
+        const { bot } = this;
 
         // Get user confirmation first
         const confirm = await bot.intrConfirm({intr, embed: new EmbedBase(bot, {

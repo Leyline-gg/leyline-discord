@@ -11,7 +11,7 @@ class selfrole extends Command {
     }
     
     async run({intr}) {
-        const bot = this.bot;
+        const { bot } = this;
         try {
             
             //obtain and filter Role objects

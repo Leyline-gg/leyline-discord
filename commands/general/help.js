@@ -11,7 +11,7 @@ class help extends Command {
     }
 
     run({intr}) {
-        const bot = this.bot;
+        const { bot } = this;
 
         //get each category from all the commands and put them into an array where each category appears only once
         //remove all development cmds

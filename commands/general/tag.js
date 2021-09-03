@@ -116,7 +116,7 @@ class tag extends Command {
     }
 
     async run({intr, opts}) {
-        const bot = this.bot;
+        const { bot } = this;
         const tagname = opts.getString('tagname');
         if(!tagname) return bot.intrReply({
             intr, 

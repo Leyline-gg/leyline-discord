@@ -30,7 +30,7 @@ class level extends Command {
     }
 
     async run({intr, opts}) {
-        const bot = this.bot;
+        const { bot } = this;
         // Command logic
         try {
             //get the target from opts, otherwise user is checking their own profile

@@ -68,8 +68,7 @@ class GoodActsReactionCollector extends ReactionCollectorBase {
 
 	// Callback specific to this Collector class
 	async reactionReceived({reaction, user}) {
-		const bot = this.bot;
-		const msg = this.msg;
+		const { bot, msg } = this;
 
 		//check if user who reacted is msg author
 		if(user.id === msg.author.id) return;
@@ -88,8 +87,7 @@ class GoodActsReactionCollector extends ReactionCollectorBase {
 	}
 
 	async approveSubmission({user, reaction}) {
-		const bot = this.bot;
-		const msg = this.msg;
+		const { bot, msg } = this;
 		try {
 			//store the activity type for LLP award text both locally and in the cloud
 			msg._activityType = this.MOD_EMOJIS.find(e => e.unicode === reaction.emoji.name)?.keyword || 'Good Act';
