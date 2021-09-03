@@ -319,6 +319,26 @@ class ReactionCollectorBase {
 	}
 
 	/**
+	 * Synchronously create a thread for this submission from a template format
+	 * @param {Object} args Destructured args
+	 * @param {number} [args.duration] Duration of the thread, in days
+	 * @returns {Promise<ThreadChannel>} The thread that was created
+	 */
+	createThread({duration = 1} = {}) {
+		duration *= 24 * 60;	//convert days to minutes
+		const { bot, msg, media_type } = this;
+		return msg.startThread({
+			name: `${media_type[0].toUpperCase() + media_type.slice(1)} from ${msg.member.displayName}`,
+			autoArchiveDuration: duration,
+		}).then(thread => {
+			bot.sendEmbed({msg:thread.lastMessage, embed: new EmbedBase(bot, {
+				description: `⚠ **Please keep all discussion about ${msg.member.toString()}'s ${media_type} inside this thread to avoid cluttering the main channel.** Thank you!`
+			}).Warn()});
+			return thread;
+		});
+	}
+
+	/**
      * Check if a user has previously reacted to the class's `msg`; designed to be used as a filter for a ReactionCollector
      * @param {Object} args
 	 * @param {MessageReaction} args.reaction Discord.js MessageReaction
@@ -327,7 +347,6 @@ class ReactionCollectorBase {
      * @returns {Promise<boolean>} Promise that resolves to boolean
      */
 	async hasUserPreviouslyReacted({reaction, user, checkMsgReactions = true} = {}) {
-        const bot = this.bot;
         const msg = this.msg;
 
         //allow any reactions, but only allow users who have not previously reacted
