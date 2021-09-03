@@ -78,9 +78,9 @@ class XPService {
      * @param {string} uid Discord UID
      */
     static async userLevelUp(uid) {
-        return await admin.firestore().collection('discord/bot/users').doc(uid).update({
+        return await admin.firestore().collection('discord/bot/users').doc(uid).set({
             level: admin.firestore.FieldValue.increment(1),
-        });
+        }, {merge: true});
     }
 
     /**
@@ -131,9 +131,8 @@ class XPService {
         // I want to implement caching using a Collection<id, level> at some point
         
         //check database to see if user has a level as part of their doc
-        //note: this will ignore level 0 users. refactor later
-        const db_lvl = (await admin.firestore().collection('discord/bot/users').doc(uid).get()).data()?.level;
-        if(!!db_lvl) return this.LEVELS.find(l => l.number === db_lvl);
+        const db_lvl = (await admin.firestore().collection('discord/bot/users').doc(uid).get()).data()?.level || 0;
+        return this.LEVELS.find(l => l.number === db_lvl);
 
         //no db lvl? get the user's stats and use that to determine their lvl
         const xp = await this.getUserXP(uid);
