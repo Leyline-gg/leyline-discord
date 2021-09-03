@@ -193,6 +193,21 @@ class CommunityPoll {
     }
 
     /**
+	 * Synchronously create a thread for this poll from a template format
+	 * @param {Object} args Destructured args
+	 * @param {number} [args.duration] Duration of the thread, in days
+	 * @returns {Promise<ThreadChannel>} The thread that was created
+	 */
+    createThread({duration = 1} = {}) {
+        duration *= 24 * 60;	//convert days to minutes
+		const { msg, question } = this;
+		return msg.startThread({
+			name: question,
+			autoArchiveDuration: duration,
+		});
+    }
+
+    /**
      * Load information into the local cache from the Firestore doc for this poll
      * @param {FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>} doc 
      * @returns {Promise<CommunityPoll>} the current class, for chaining
@@ -245,6 +260,8 @@ class CommunityPoll {
                 value: `${bot.formatUser(this.author)} created a new [poll](${this.msg.url}) with the question \`${this.question}\`, set to expire on ${bot.formatTimestamp(Date.now() + this.duration, 'F')}`,
             }],
         })});
+
+        this.createThread();
 
         return this.msg;
     }

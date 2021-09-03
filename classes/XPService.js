@@ -78,9 +78,9 @@ class XPService {
      * @param {string} uid Discord UID
      */
     static async userLevelUp(uid) {
-        return await admin.firestore().collection('discord/bot/users').doc(uid).update({
+        return await admin.firestore().collection('discord/bot/users').doc(uid).set({
             level: admin.firestore.FieldValue.increment(1),
-        });
+        }, {merge: true});
     }
 
     /**

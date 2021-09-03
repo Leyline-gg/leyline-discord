@@ -24,7 +24,8 @@ class level extends Command {
     parseProgress({cur, max} = {}) {
         if(!max) return `${'🟩'.repeat(9)}⭐ **(MAX)**`;
         const percent = Math.round((cur / max) * 100);
-        const progress = Math.floor(percent/10);
+        let progress = Math.floor(percent/10);
+        if(progress > 10) progress = 10;    // user will appear to have the maximum value
         return `${'🟩'.repeat(progress)}${'⬛'.repeat(10 - progress)} **${percent}%**`;
     }
 
