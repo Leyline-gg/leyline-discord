@@ -54,7 +54,7 @@ module.exports = class extends DiscordEvent {
 			});
 		
 		//create a specific instance for each approved message
-		new ReactionCollector(bot, {type:ReactionCollector.Collectors.GOOD_ACTS, msg}).setupModReactionCollector();
+		new ReactionCollector(bot, {type:ReactionCollector.Collectors.GOOD_ACTS, msg}).setupModReactionCollector().createThread();
 		return;
 	}
 };
