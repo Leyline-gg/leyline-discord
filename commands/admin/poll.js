@@ -113,4 +113,4 @@ class poll extends Command {
     }
 }
 
-module.exports = poll;
+export default poll;

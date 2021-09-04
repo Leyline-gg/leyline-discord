@@ -63,4 +63,4 @@ class selfrole extends Command {
     }
 }
 
-module.exports = selfrole;
+export default selfrole;

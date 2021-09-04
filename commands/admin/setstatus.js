@@ -50,4 +50,4 @@ class setstatus extends Command {
     }
 }
 
-module.exports = setstatus;
+export default setstatus;

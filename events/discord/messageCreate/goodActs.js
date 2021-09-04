@@ -3,7 +3,7 @@ const EmbedBase = require("../../../classes/components/EmbedBase");
 const ReactionCollector = require('../../../classes/collectors/ReactionCollector');
 import * as Firebase from '../../../api';
 
-module.exports = class extends DiscordEvent {
+export default class extends DiscordEvent {
 	constructor(bot) {
 		super(bot, {
 			name: 'goodActs',

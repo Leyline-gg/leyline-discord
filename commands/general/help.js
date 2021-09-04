@@ -30,4 +30,4 @@ class help extends Command {
     }
 }
 
-module.exports = help;
+export default help;

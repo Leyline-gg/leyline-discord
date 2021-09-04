@@ -354,4 +354,4 @@ class awardnft extends Command {
     }
 }
 
-module.exports = awardnft;
+export default awardnft;

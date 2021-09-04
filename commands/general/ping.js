@@ -32,4 +32,4 @@ class ping extends Command {
     }
 }
 
-module.exports = ping;
+export default ping;

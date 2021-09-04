@@ -26,4 +26,4 @@ class embedtest extends Command {
     }
 }
 
-module.exports = embedtest;
+export default embedtest;

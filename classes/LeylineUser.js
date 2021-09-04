@@ -1,6 +1,6 @@
 import * as Firebase from '../api';
 
-class LeylineUser {
+export class LeylineUser {
     // hours donated, blood donated, llp balance, days slept/exercised
     // leaderboard positions? for all time
     // avatar, total items in inventory
@@ -40,4 +40,4 @@ class LeylineUser {
     }
 }
 
-module.exports = LeylineUser;
+

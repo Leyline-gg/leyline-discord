@@ -1,5 +1,5 @@
 const { MessageActionRow } = require('discord.js');
-class ConfirmInteraction extends MessageActionRow {
+export class ConfirmInteraction extends MessageActionRow {
     constructor({
         custom_id_suffix = '',
     } = {}) {
@@ -24,4 +24,4 @@ class ConfirmInteraction extends MessageActionRow {
     }
 }
 
-module.exports = ConfirmInteraction;
+

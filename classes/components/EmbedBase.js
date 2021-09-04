@@ -1,6 +1,6 @@
 const { MessageEmbed } = require('discord.js');
 //base Embed object, customized for Leyline
-class EmbedBase extends MessageEmbed {
+export class EmbedBase extends MessageEmbed {
     constructor(bot, {
         color = 0x2EA2E0,
         title,
@@ -49,4 +49,4 @@ class EmbedBase extends MessageEmbed {
     }
 }
 
-module.exports = EmbedBase;
+

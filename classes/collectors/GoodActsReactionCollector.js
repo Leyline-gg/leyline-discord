@@ -5,7 +5,7 @@ const ReactionCollectorBase = require('./ReactionCollectorBase');
 
 const CTA_ROLE 			= '853414453206188063'; //role to ping when photo is approved
 
-class GoodActsReactionCollector extends ReactionCollectorBase {
+export class GoodActsReactionCollector extends ReactionCollectorBase {
 	//override parent properties
 	REACTION_LLP = 5;		//LLP awarded for reacting
 	APPROVAL_LLP = 100 	//LLP awarded for approved post
@@ -193,4 +193,4 @@ class GoodActsReactionCollector extends ReactionCollectorBase {
     }
 };
 
-module.exports = GoodActsReactionCollector;
+

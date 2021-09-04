@@ -1,14 +1,19 @@
 if (process.version.slice(1).split(".")[0] < 16)
   throw new Error("Node 16.6.0 or higher is required.");
 
-const { Client, Collection, Intents, Message, } = require('discord.js');
-const admin = require('firebase-admin');
-const klaw = require('klaw');
-const path = require('path');
-const ConfirmInteraction = require('./classes/components/ConfirmInteraction');
-const EmbedBase = require('./classes/components/EmbedBase');
+import { Client, Collection, Intents, Message, } from 'discord.js';
+import admin from 'firebase-admin';
+import klaw from 'klaw';
+import path from 'path';
+import config from './config.js'
+import ConfirmInteraction from './classes/components/ConfirmInteraction';
+import EmbedBase from './classes/components/EmbedBase';
+import Logger from './classes/Logger';
+import CommunityPoll from './classes/CommunityPoll';
+import ReactionCollector from './classes/collectors/ReactionCollector';
 //formally, dotenv shouldn't be used in prod, but because staging and prod share a VM, it's an option I elected to go with for convenience
-require('dotenv').config();
+import { config as dotenv_config} from 'dotenv';
+dotenv_config();
 
 // Custom bot class, based off the discord.js Client (bot)
 class LeylineBot extends Client {
@@ -20,8 +25,8 @@ class LeylineBot extends Client {
 
         // Custom properties for our bot
         this.CURRENT_VERSION    = process.env.npm_package_version || require('./package.json').version;
-        this.logger             = require('./classes/Logger');
-        this.config             = require('./config')[process.env.NODE_ENV || 'development'];
+        this.logger             = Logger;
+        this.config             = config[process.env.NODE_ENV || 'development'];
         this.commands           = new Collection();
         this.events             = new Collection();
         this.firebase_events    = new Collection();
@@ -288,18 +293,18 @@ const init = function () {
 
     //import commands - general import syntax adapted from github user @mcao
     klaw('./commands')
-        .on('data', item => {
+        .on('data', async item => {
             const cmdFile = path.parse(item.path);
             if (!cmdFile.ext || cmdFile.ext !== '.js') return;
             const cmdName = cmdFile.name.split('.')[0];
             try {
-                const cmd = new (require(`${cmdFile.dir}${path.sep}${cmdFile.name}${cmdFile.ext}`))(bot);
+                const cmd = new (await import(`${cmdFile.dir}${path.sep}${cmdFile.name}${cmdFile.ext}`))(bot);
                 process.env.NODE_ENV === 'development' ?
                      bot.commands.set(cmdName, cmd) :
                      cmd.category !== 'development' &&
                         bot.commands.set(cmdName, cmd);
                 
-                delete require.cache[require.resolve(`${cmdFile.dir}${path.sep}${cmdFile.name}${cmdFile.ext}`)];
+                //delete require.cache[require.resolve(`${cmdFile.dir}${path.sep}${cmdFile.name}${cmdFile.ext}`)];
             } catch(error) {
                 bot.logger.error(`Error loading command file ${cmdFile.name}: ${error}`);
             }
@@ -308,16 +313,16 @@ const init = function () {
         .on('error', error => bot.logger.error(error));
     //import discord events
     klaw('./events/discord')
-        .on('data', item => {
+        .on('data', async item => {
             const eventFile = path.parse(item.path);
             if (!eventFile.ext || eventFile.ext !== '.js') return;
             const eventName = eventFile.name.split('.')[0];
             try {
-                const event = new (require(`${eventFile.dir}${path.sep}${eventFile.name}${eventFile.ext}`))(bot);
+                const event = new (await import(`${eventFile.dir}${path.sep}${eventFile.name}${eventFile.ext}`))(bot);
                 bot.events.set(eventName, event);
                 bot.on(event.event_type, (...args) => event.run(...args));
                 
-                delete require.cache[require.resolve(`${eventFile.dir}${path.sep}${eventFile.name}${eventFile.ext}`)];
+                //delete require.cache[require.resolve(`${eventFile.dir}${path.sep}${eventFile.name}${eventFile.ext}`)];
             } catch(error) {
                 bot.logger.error(`Error loading Discord event ${eventFile.name}: ${error}`);
             }
@@ -326,11 +331,11 @@ const init = function () {
         .on('error', bot.logger.error);
     //import firebase events
     klaw('./events/firebase')
-        .on('data', item => {
+        .on('data', async item => {
             const eventFile = path.parse(item.path);
             if (!eventFile.ext || eventFile.ext !== '.js') return;
             try {
-                const firebase_event = new (require(`${eventFile.dir}${path.sep}${eventFile.name}${eventFile.ext}`))(bot);
+                const firebase_event = new (await import(`${eventFile.dir}${path.sep}${eventFile.name}${eventFile.ext}`))(bot);
                 admin.firestore().collection(firebase_event.collection).onSnapshot((snapshot) => {
                     if(!bot.readyAt) return;    //ensure bot is initialized before event is fired
                     if(snapshot.empty) return;
@@ -352,7 +357,7 @@ const init = function () {
                 }, (err) => bot.logger.error(`FirebaseEvent error with ${firebase_event.name}: ${err}`));
                 bot.firebase_events.set(firebase_event.name, firebase_event);
 
-                delete require.cache[require.resolve(`${eventFile.dir}${path.sep}${eventFile.name}${eventFile.ext}`)];
+                //delete require.cache[require.resolve(`${eventFile.dir}${path.sep}${eventFile.name}${eventFile.ext}`)];
             } catch(error) {
                 bot.logger.error(`Error loading Firebase event ${eventFile.name}: ${error}`);
             }
@@ -393,8 +398,7 @@ const postInit = async function () {
 
     //import ReactionCollectors (this can be modified later to take a more generic approach)
     await (async function importReactionCollectors () {
-        let succesfully_imported = 0; 
-        const ReactionCollector = require('./classes/collectors/ReactionCollector');
+        let succesfully_imported = 0;
         const collectors = await admin
             .firestore()
 			.collection(`discord/bot/reaction_collectors/`)
@@ -423,7 +427,6 @@ const postInit = async function () {
     //import active polls
     await (async function importPolls () {
         let succesfully_imported = 0; 
-        const CommunityPoll = require('./classes/CommunityPoll');
         const polls = await admin
             .firestore()
 			.collection(`discord/bot/polls/`)

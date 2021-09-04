@@ -2,10 +2,11 @@ const admin = require('firebase-admin');
 import * as Firebase from '../../api';
 const EmbedBase = require('../components/EmbedBase');
 const LeylineUser = require('../LeylineUser');
+import xplevels from '../../xplevels.js'
 
-class XPService {
-    static LEVELS = require('../../xplevels').LEVELS;
-    static ROLES = require('../../xplevels').ROLES;
+export class XPService {
+    static LEVELS =xplevels.LEVELS;
+    static ROLES = xplevels.ROLES;
     static COLLECTION_PATH = 'discord/bot/xp_transactions';
     /**
      * Add an approved post to a Discord user's profile
@@ -289,4 +290,4 @@ class XPService {
     }
 }
 
-module.exports = XPService;
+

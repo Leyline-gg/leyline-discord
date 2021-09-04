@@ -41,4 +41,4 @@ class restart extends Command {
     }
 }
 
-module.exports = restart;
+export default restart;

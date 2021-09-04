@@ -63,4 +63,4 @@ class inspect extends Command {
     }
 }
 
-module.exports = inspect;
+export default inspect;

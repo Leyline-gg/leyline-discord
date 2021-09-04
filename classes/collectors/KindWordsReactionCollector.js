@@ -3,7 +3,7 @@ import * as Firebase from '../../api';
 const XPService = require('../services/XPService');
 const ReactionCollectorBase = require('./ReactionCollectorBase');
 
-class KindWordsReactionCollector extends ReactionCollectorBase {
+export class KindWordsReactionCollector extends ReactionCollectorBase {
 	//override parent properties
 	REACTION_LLP = 1;		//LLP awarded for reacting
 	APPROVAL_LLP = 10 	//LLP awarded for approved post
@@ -107,4 +107,4 @@ class KindWordsReactionCollector extends ReactionCollectorBase {
 	}
 };
 
-module.exports = KindWordsReactionCollector;
+

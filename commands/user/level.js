@@ -62,4 +62,4 @@ class level extends Command {
     }
 }
 
-module.exports = level;
+export default level;

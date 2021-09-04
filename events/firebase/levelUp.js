@@ -65,4 +65,4 @@ class LevelUp extends FirebaseEvent {
     }
 }
 
-module.exports = LevelUp;
+export default LevelUp;

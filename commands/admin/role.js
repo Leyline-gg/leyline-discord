@@ -86,4 +86,4 @@ class role extends Command {
     }
 }
 
-module.exports = role;
+export default role;

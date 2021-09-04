@@ -161,4 +161,4 @@ class profile extends Command {
     }
 }
 
-module.exports = profile;
+export default profile;

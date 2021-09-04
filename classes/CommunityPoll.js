@@ -3,7 +3,7 @@ const EmbedBase = require('./components/EmbedBase');
 import * as Firebase from '../api';
 const XPService = require('./services/XPService');
 
-class CommunityPoll {
+export class CommunityPoll {
     nums_unicode = ['0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];
     constructor(bot, {
         question = '',
@@ -267,4 +267,4 @@ class CommunityPoll {
     }
 }
 
-module.exports = CommunityPoll;
+

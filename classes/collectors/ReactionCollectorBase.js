@@ -1,7 +1,7 @@
 import * as Firebase from '../../api';
 const EmbedBase = require('../components/EmbedBase');
 
-class ReactionCollectorBase {
+export class ReactionCollectorBase {
     APPROVAL_WINDOW     = 24 * 7;	//(hours) how long the mods have to approve a photo
     REACTION_WINDOW   	= 24;   //(hours) how long users have to react after collector approval
     APPROVAL_LLP        = 10; 	//LLP awarded for approved post
@@ -394,4 +394,4 @@ class ReactionCollectorBase {
     }
 }
 
-module.exports = ReactionCollectorBase;
+

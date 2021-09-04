@@ -69,4 +69,4 @@ class DiscordAcctLink extends FirebaseEvent {
     }
 }
 
-module.exports = DiscordAcctLink;
+export default DiscordAcctLink;

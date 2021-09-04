@@ -1,7 +1,7 @@
 const GoodActsReactionCollector = require('./GoodActsReactionCollector');
 const KindWordsReactionCollector = require('./KindWordsReactionCollector');
 
-class ReactionCollector {
+export class ReactionCollector {
     static Collectors = {
         GOOD_ACTS: GoodActsReactionCollector,
         KIND_WORDS: KindWordsReactionCollector,
@@ -22,4 +22,4 @@ class ReactionCollector {
     }
 }
 
-module.exports = ReactionCollector;
+

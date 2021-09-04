@@ -137,4 +137,4 @@ class tag extends Command {
     }
 }
 
-module.exports = tag;
+export default tag;

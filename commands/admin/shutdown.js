@@ -35,4 +35,4 @@ class shutdown extends Command {
     }
 }
 
-module.exports = shutdown;
+export default shutdown;

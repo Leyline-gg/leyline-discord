@@ -42,4 +42,4 @@ class sudosay extends Command {
     }
 }
 
-module.exports = sudosay;
+export default sudosay;

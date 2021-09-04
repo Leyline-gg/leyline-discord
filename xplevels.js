@@ -12,7 +12,7 @@ const roles = [
 	'869252759482929263',
 ];
 
-module.exports = {
+export default {
 	ROLES: roles,
 	LEVELS: [
 		{
