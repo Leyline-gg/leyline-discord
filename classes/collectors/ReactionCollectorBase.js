@@ -1,4 +1,4 @@
-const Firebase = require('../FirebaseAPI');
+import * as Firebase from '../../api';
 const EmbedBase = require('../components/EmbedBase');
 
 class ReactionCollectorBase {

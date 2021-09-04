@@ -1,7 +1,7 @@
 const DiscordEvent = require("../../../classes/events/DiscordEvent");
 const EmbedBase = require("../../../classes/components/EmbedBase");
 const ReactionCollector = require('../../../classes/collectors/ReactionCollector');
-const Firebase = require('../../../classes/FirebaseAPI');
+import * as Firebase from '../../../api';
 
 module.exports = class extends DiscordEvent {
 	constructor(bot) {

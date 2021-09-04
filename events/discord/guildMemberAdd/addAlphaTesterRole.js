@@ -1,5 +1,5 @@
 const DiscordEvent = require("../../../classes/events/DiscordEvent");
-const Firebase = require('../../../classes/FirebaseAPI');
+import * as Firebase from '../../../api';
 
 module.exports = class extends DiscordEvent {
     constructor(bot) {

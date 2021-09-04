@@ -1,5 +1,5 @@
 const EmbedBase = require('../components/EmbedBase');
-const Firebase	= require('../FirebaseAPI');
+import * as Firebase from '../../api';
 const XPService = require('../services/XPService');
 const ReactionCollectorBase = require('./ReactionCollectorBase');
 

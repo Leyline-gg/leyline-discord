@@ -1,5 +1,5 @@
 const admin = require('firebase-admin');
-const Firebase = require('../FirebaseAPI');
+import * as Firebase from '../../api';
 const EmbedBase = require('../components/EmbedBase');
 const LeylineUser = require('../LeylineUser');
 
@@ -38,7 +38,7 @@ class XPService {
      * @param {string} args.poll_id ID of the poll (discord msg) that was approved
      * @param {Object} [args.metadata] Optional metadata object to include in the firestore document
      */
-     static async addPollVote({uid, poll_id, timestamp = Date.now(), metadata} = {}) {
+    static async addPollVote({uid, poll_id, timestamp = Date.now(), metadata} = {}) {
         return await admin.firestore()
             .collection(this.COLLECTION_PATH)
             .add({
@@ -59,7 +59,7 @@ class XPService {
      * @param {string} args.msg ID of the discord msg that was approved
      * @param {Object} [args.metadata] Optional metadata object to include in the firestore document
      */
-     static async addKindWord({uid, msg, timestamp = Date.now(), metadata} = {}) {
+    static async addKindWord({uid, msg, timestamp = Date.now(), metadata} = {}) {
         return await admin.firestore()
             .collection(this.COLLECTION_PATH)
             .add({

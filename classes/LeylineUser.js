@@ -1,4 +1,4 @@
-const Firebase = require('../classes/FirebaseAPI');
+import * as Firebase from '../api';
 
 class LeylineUser {
     // hours donated, blood donated, llp balance, days slept/exercised

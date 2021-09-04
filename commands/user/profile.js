@@ -1,5 +1,5 @@
 const Command = require('../../classes/Command');
-const Firebase = require('../../classes/FirebaseAPI');
+import * as Firebase from '../../api';
 const XPService = require('../../classes/services/XPService');
 const LeylineUser = require('../../classes/LeylineUser');
 const EmbedBase = require('../../classes/components/EmbedBase');
