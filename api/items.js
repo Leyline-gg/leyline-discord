@@ -1,4 +1,4 @@
-import { firestore } from "firebase-admin";
+import admin from 'firebase-admin';
 
 /**
  * Add an item to a LL user's inventory and return the inventory id
@@ -15,7 +15,7 @@ export const addInventoryItem = async function (uid, item, klaytn_tx_hash) {
     if (klaytn_tx_hash) {
         itemData.klaytn_tx_hash = klaytn_tx_hash;
     }
-    await firestore().runTransaction(async (t) => {
+    await admin.firestore().runTransaction(async (t) => {
         const userDoc = firestore().doc(`users/${uid}`);
         var newInventoryItem = await userDoc.collection('inventory').add(itemData);
         inventoryItemId = newInventoryItem.id;
@@ -30,7 +30,7 @@ export const addInventoryItem = async function (uid, item, klaytn_tx_hash) {
  * @returns Array of items
  */
 export const getAllItems = async function (limit = 1000) {
-    const snapshot = await firestore().collection('items').orderBy('name', 'asc').limit(limit).get();
+    const snapshot = await admin.firestore().collection('items').orderBy('name', 'asc').limit(limit).get();
 
     const data = snapshot.docs.map((doc) => ({
         id: doc.id,
@@ -46,10 +46,10 @@ export const getAllItems = async function (limit = 1000) {
  * @returns Array of items
  */
 export const getInventoryItems = async function (uid) {
-    const user = await firestore().doc(`users/${uid}`).get();
+    const user = await admin.firestore().doc(`users/${uid}`).get();
     const userIsOnKlaytn = user.data()?.isKlaytnEnabled;
 
-    const userInventory = await firestore().collection('users').doc(uid).collection('inventory').get();
+    const userInventory = await admin.firestore().collection('users').doc(uid).collection('inventory').get();
 
     const items = await getAllItems();
 

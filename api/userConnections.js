@@ -1,4 +1,4 @@
-import { firestore } from "firebase-admin";
+import admin from 'firebase-admin';
 
 // Leyline-Discord user connections
 
@@ -8,7 +8,7 @@ import { firestore } from "firebase-admin";
  * @returns {Promise<boolean>} `true` if connected, `false` if not
  */
 export const isUserConnectedToLeyline = async function (discord_uid) {
-    const discord_doc = await firestore().doc(`discord/bot/users/${discord_uid}`).get();
+    const discord_doc = await admin.firestore().doc(`discord/bot/users/${discord_uid}`).get();
     if (!discord_doc.exists) return false;
     if (!discord_doc.data()?.leylineUID) return false;
     return true;
@@ -20,7 +20,7 @@ export const isUserConnectedToLeyline = async function (discord_uid) {
  * @returns {Promise<String | null>} Leyline UID if it exists, else `null`
  */
 export const getLeylineUID = async function (discord_uid) {
-    const discord_doc = await firestore().doc(`discord/bot/users/${discord_uid}`).get();
+    const discord_doc = await admin.firestore().doc(`discord/bot/users/${discord_uid}`).get();
     if (!discord_doc.exists || !discord_doc.data()?.leylineUID) return null;
     return discord_doc.data().leylineUID;
 }
@@ -32,7 +32,7 @@ export const getLeylineUID = async function (discord_uid) {
  * @returns {Promise<Object | FirebaseFirestore.DocumentSnapshot | null>} `null` if document does not exist, else see `include_metadata`
  */
 export const getDiscordDoc = async function (discord_uid, include_metadata = false) {
-    const res = await firestore().doc(`discord/bot/users/${discord_uid}`).get();
+    const res = await admin.firestore().doc(`discord/bot/users/${discord_uid}`).get();
     if (!res.exists) return null;
     return include_metadata ? res : res.data();
 }
@@ -58,7 +58,7 @@ export const createDiscordUser = async function (discord_uid) {
  * @returns {Promise<Object | FirebaseFirestore.DocumentSnapshot | null>} `null` if document does not exist, else see `include_metadata`
  */
 export const getLeylineDoc = async function (leyline_uid, include_metadata = false) {
-    const res = await firestore().doc(`users/${leyline_uid}`).get();
+    const res = await admin.firestore().doc(`users/${leyline_uid}`).get();
     if (!res.exists) return null;
     return include_metadata ? res : res.data();
 }

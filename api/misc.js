@@ -1,4 +1,4 @@
-import { firestore } from "firebase-admin";
+import admin from 'firebase-admin';
 
 // Methods I couldn't categorize in other files
 
@@ -10,7 +10,7 @@ import { firestore } from "firebase-admin";
  */
 export const getUserRankings = async function (uid) {
     // get latest leaderboard snapshot
-    const snapshotRef = await firestore()
+    const snapshotRef = await admin.firestore()
         .collection('leaderboards')
         .orderBy('snapshot_time', 'desc')
         .limit(1)
@@ -19,7 +19,7 @@ export const getUserRankings = async function (uid) {
     // function to query the latest snapshot for the doc count in the provided category
     const getCategoryRankings = async (category) => {
         const rankingDocsRef = 
-            await firestore()
+            await admin.firestore()
             .collection(`${'leaderboards'}/${snapshotRef.docs[0].id}/timeframes/all/categories/${category}/ranking`)
             .get();
 

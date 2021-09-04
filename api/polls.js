@@ -1,11 +1,11 @@
-import { firestore } from 'firebase-admin';
+import admin from 'firebase-admin';
 
 /**
  * Creates a poll in Firestore from the given `CommunityPoll` object
  * @param {CommunityPoll} poll
  */
 export const createPoll = async function (poll) {
-	await firestore()
+	await admin.firestore()
 		.collection('discord/bot/polls')
 		.doc(poll.id)
 		.set({
@@ -24,7 +24,7 @@ export const createPoll = async function (poll) {
  * @returns {Promise<Object | FirebaseFirestore.DocumentSnapshot | null>} `null` if document does not exist, else see `include_metadata`
  */
 export const getPoll = async function (id, include_metadata = false) {
-	const res = await firestore().collection('discord/bot/polls').doc(id).get();
+	const res = await admin.firestore().collection('discord/bot/polls').doc(id).get();
 	if (!res.exists) return null;
 	return include_metadata ? res : res.data();
 };
@@ -42,7 +42,7 @@ export const storePollVote = async function ({ poll, vote }) {
 		timestamp: Date.now(),
 		choice: vote.customId.split('choice').pop(),
 	};
-	await firestore()
+	await admin.firestore()
         .collection('discord/bot/polls').doc(poll.id)
         .collection('votes').doc(vote.user.id)
         .set(obj);

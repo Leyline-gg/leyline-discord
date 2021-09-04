@@ -1,4 +1,4 @@
-import { firestore } from 'firebase-admin'
+import admin from 'firebase-admin';
 
 /**
  * Get the latest LLP balance of a Leyline user
@@ -7,7 +7,7 @@ import { firestore } from 'firebase-admin'
  * @returns {Promise<Number>} User's most up-to-date LLP balance
  */
 export const getLLPBalance = async function (uid) {
-    const userDoc = await firestore().doc(`users/${uid}`).get();
+    const userDoc = await admin.firestore().doc(`users/${uid}`).get();
     const userData = userDoc.data();
 
     // get balance last snapshot
@@ -15,7 +15,7 @@ export const getLLPBalance = async function (uid) {
     const snapshotTime = userData?.balance_snapshot?.snapshot_time?.toMillis() || 0;
 
     // get points since last snapshot
-    const pointsDoc = await firestore()
+    const pointsDoc = await admin.firestore()
         .collection('leyline_points')
         .where('uid', '==', uid)
         .where('created', '>', snapshotTime)
@@ -34,14 +34,14 @@ export const getLLPBalance = async function (uid) {
  * @returns {Promise<Number>} Total LLP earned up until this point
  */
 export const getTotalEarnedLLP = async function (uid) {
-    const snapshotRef = await firestore()
+    const snapshotRef = await admin.firestore()
         .collection('leaderboards')
         .orderBy('snapshot_time', 'desc')
         .limit(1)
         .get();
 
     const userRankingRef = 
-        await firestore()
+        await admin.firestore()
         .collection(`${'leaderboards'}/${snapshotRef.docs[0].id}/timeframes/all/categories/earned_llp/ranking`)
         .get();
 
@@ -56,7 +56,7 @@ export const getTotalEarnedLLP = async function (uid) {
  * @returns {Promise<Number>} Approximate total LLP earned for volunteering
  */
 export const getVolunteerLLP = async function (uid) {
-    const snapshot = await firestore()
+    const snapshot = await admin.firestore()
         .collection('leyline_points')
         .where('uid', '==', uid)
         .where('metadata.category', '==', 'Leyline Volunteer Program')
@@ -72,7 +72,7 @@ export const getVolunteerLLP = async function (uid) {
  * @param {Object} [metadata] Metadata for transaction. Should contain a `category` property
  */
 export const awardLLP = async function (uid, amount, metadata = {}) {
-    return await firestore().collection('leyline_points').add({
+    return await admin.firestore().collection('leyline_points').add({
         uid: uid,
         leyline_points: amount,
         created: Date.now(),

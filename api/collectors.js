@@ -1,4 +1,4 @@
-import { firestore } from "firebase-admin";
+import admin from 'firebase-admin';
 
 /**
  * Creates a collector in Firestore from the given `ReactionCollectorBase` object
@@ -6,7 +6,7 @@ import { firestore } from "firebase-admin";
  * @param {ReactionCollectorBase} collector 
 */
 export const createCollector = async function (collector) {
-    await firestore()
+    await admin.firestore()
         .collection(`discord/bot/reaction_collectors/`)
         .doc(collector.id)
         .set({
@@ -29,7 +29,7 @@ export const createCollector = async function (collector) {
  */
 export const approveCollector = async function ({collector, user, metadata}) {
     //set expiration time to right now, so collector does not get picked up during initialization
-    await firestore()
+    await admin.firestore()
         .collection(`discord/bot/reaction_collectors/`)
         .doc(collector.id)
         .set({
@@ -52,7 +52,7 @@ export const approveCollector = async function ({collector, user, metadata}) {
  */
 export const rejectCollector = async function ({collector, user}) {
     //set expiration time to right now, so collector does not get picked up during initialization
-    await firestore()
+    await admin.firestore()
         .collection(`discord/bot/reaction_collectors/`)
         .doc(collector.id)
         .set({
@@ -71,7 +71,7 @@ export const rejectCollector = async function ({collector, user}) {
  * @returns {Promise<void>} Resolves when the write has been completed
  */
 export const storeUserReaction = async function ({collector, user}) {
-    await firestore()
+    await admin.firestore()
         .collection(`discord/bot/reaction_collectors/`)
         .doc(collector.id)
         .collection('reacted_users')

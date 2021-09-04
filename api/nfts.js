@@ -1,7 +1,7 @@
-import { firestore } from "firebase-admin";
+import admin from 'firebase-admin';
 import { PubSub } from "@google-cloud/pubsub";
 const pubsub = new PubSub();
-import { addInventoryItem } from "./items";
+import { addInventoryItem } from "./items.js";
 
 /**
  * 
@@ -11,7 +11,7 @@ import { addInventoryItem } from "./items";
  * @returns {Promise<Boolean>}
  */
 export const rewardNFT = async function (uid, itemId) {
-    const userDoc = await firestore().doc(`users/${uid}`).get();
+    const userDoc = await admin.firestore().doc(`users/${uid}`).get();
 
     const newInventoryItem = await addInventoryItem(uid, {
         id: itemId,
@@ -28,7 +28,7 @@ export const rewardNFT = async function (uid, itemId) {
         return true;
     } else {
         console.log(`Minting item ${itemId} for user ${uid} on VeChain`);
-        const walletDoc = await firestore().doc(`wallets/${uid}`).get();
+        const walletDoc = await admin.firestore().doc(`wallets/${uid}`).get();
         const userWalletAddress = JSON.parse(walletDoc.data()?.wallet).address;
 
         await pubsub.topic('mint-rewards').publishJSON({
@@ -48,7 +48,7 @@ export const rewardNFT = async function (uid, itemId) {
  * @returns {Promise<Object | null>} NFT information if it exists, else `null`
  */
 export const getNFT = async function (id) {
-    const doc = (await firestore()
+    const doc = (await admin.firestore()
         .collection('items')
         .where('id', '==', id)
         .limit(1)
