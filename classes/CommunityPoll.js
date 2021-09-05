@@ -1,9 +1,8 @@
-const { Collection } = require('discord.js');
-const EmbedBase = require('./components/EmbedBase');
-const Firebase = require('./FirebaseAPI');
-const XPService = require('./services/XPService');
+import { Collection } from 'discord.js';
+import * as Firebase from '../api';
+import { EmbedBase, XPService } from '.';
 
-class CommunityPoll {
+export class CommunityPoll {
     nums_unicode = ['0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];
     constructor(bot, {
         question = '',
@@ -267,4 +266,4 @@ class CommunityPoll {
     }
 }
 
-module.exports = CommunityPoll;
+

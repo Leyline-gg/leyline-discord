@@ -1,5 +1,4 @@
-const Command = require('../../classes/Command');
-const EmbedBase = require('../../classes/components/EmbedBase');
+import { Command, EmbedBase } from '../../classes';
 
 class embedtest extends Command {
     constructor(bot) {
@@ -26,4 +25,4 @@ class embedtest extends Command {
     }
 }
 
-module.exports = embedtest;
+export default embedtest;

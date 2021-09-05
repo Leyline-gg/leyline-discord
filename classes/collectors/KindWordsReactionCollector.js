@@ -1,9 +1,7 @@
-const EmbedBase = require('../components/EmbedBase');
-const Firebase	= require('../FirebaseAPI');
-const XPService = require('../services/XPService');
-const ReactionCollectorBase = require('./ReactionCollectorBase');
+import * as Firebase from '../../api';
+import { EmbedBase, XPService, ReactionCollectorBase } from '..';
 
-class KindWordsReactionCollector extends ReactionCollectorBase {
+export class KindWordsReactionCollector extends ReactionCollectorBase {
 	//override parent properties
 	REACTION_LLP = 1;		//LLP awarded for reacting
 	APPROVAL_LLP = 10 	//LLP awarded for approved post
@@ -105,6 +103,6 @@ class KindWordsReactionCollector extends ReactionCollectorBase {
 			return;
 		} catch(err) { return bot.logger.error(err); }
 	}
-};
+}
 
-module.exports = KindWordsReactionCollector;
+

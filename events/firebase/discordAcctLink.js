@@ -1,5 +1,4 @@
-const EmbedBase = require('../../classes/components/EmbedBase');
-const FirebaseEvent = require('../../classes/events/FirebaseEvent');
+import { FirebaseEvent, EmbedBase } from '../../classes';
 
 class DiscordAcctLink extends FirebaseEvent {
     alpha_role = '751919744528941126';
@@ -69,4 +68,4 @@ class DiscordAcctLink extends FirebaseEvent {
     }
 }
 
-module.exports = DiscordAcctLink;
+export default DiscordAcctLink;

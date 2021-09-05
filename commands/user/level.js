@@ -1,6 +1,4 @@
-const Command = require('../../classes/Command');
-const XPService = require('../../classes/services/XPService');
-const EmbedBase = require('../../classes/components/EmbedBase');
+import { Command, EmbedBase, XPService } from '../../classes';
 
 class level extends Command {
     constructor(bot) {
@@ -62,4 +60,4 @@ class level extends Command {
     }
 }
 
-module.exports = level;
+export default level;

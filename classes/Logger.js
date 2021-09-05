@@ -1,10 +1,10 @@
 /*
 Logger class for easy and aesthetically pleasing console logging | Credit to York
 */
-const chalk = require("chalk");
-const moment = require("moment");
+import chalk from "chalk";
+import moment from "moment";
 
-class Logger {
+export class Logger {
   static log(content, type = "log") {
     const timestamp = `[${chalk.white(moment().format("YYYY-MM-DD HH:mm:ss"))}]`;
     switch (type) {
@@ -73,5 +73,3 @@ class Logger {
     return this.log(content, "ready");
   }
 }
-
-module.exports = Logger;

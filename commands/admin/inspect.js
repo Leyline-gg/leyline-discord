@@ -1,6 +1,5 @@
-const Command = require('../../classes/Command');
-const EmbedBase = require('../../classes/components/EmbedBase');
-const Firebase = require('../../classes/FirebaseAPI');
+import { Command, EmbedBase } from '../../classes';
+import * as Firebase from '../../api';
 
 class inspect extends Command {
     constructor(bot) {
@@ -63,4 +62,4 @@ class inspect extends Command {
     }
 }
 
-module.exports = inspect;
+export default inspect;

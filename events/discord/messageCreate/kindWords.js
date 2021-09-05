@@ -1,7 +1,6 @@
-const DiscordEvent = require("../../../classes/events/DiscordEvent");
-const ReactionCollector = require('../../../classes/collectors/ReactionCollector');
+import { DiscordEvent, ReactionCollector } from '../../../classes';
 
-module.exports = class extends DiscordEvent {
+export default class extends DiscordEvent {
 	constructor(bot) {
 		super(bot, {
 			name: 'kindWords',

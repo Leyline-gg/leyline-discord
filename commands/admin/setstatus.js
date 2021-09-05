@@ -1,6 +1,6 @@
-const { ActivityTypes } = require('discord.js').Constants;
-const Command = require('../../classes/Command');
-const EmbedBase = require('../../classes/components/EmbedBase');
+import { Constants } from 'discord.js';
+const { ActivityTypes } = Constants;
+import { Command, EmbedBase } from '../../classes';
 
 class setstatus extends Command {
     constructor(bot) {
@@ -50,4 +50,4 @@ class setstatus extends Command {
     }
 }
 
-module.exports = setstatus;
+export default setstatus;

@@ -1,9 +1,7 @@
-const DiscordEvent = require("../../../classes/events/DiscordEvent");
-const EmbedBase = require("../../../classes/components/EmbedBase");
-const ReactionCollector = require('../../../classes/collectors/ReactionCollector');
-const Firebase = require('../../../classes/FirebaseAPI');
+import { DiscordEvent, EmbedBase, ReactionCollector } from '../../../classes';
+import * as Firebase from '../../../api';
 
-module.exports = class extends DiscordEvent {
+export default class extends DiscordEvent {
 	constructor(bot) {
 		super(bot, {
 			name: 'goodActs',

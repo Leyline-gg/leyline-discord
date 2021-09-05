@@ -1,5 +1,5 @@
-const dedent = require('dedent');
-const Command = require('../../classes/Command');
+import dedent from 'dedent';
+import { Command } from '../../classes';
 
 class tag extends Command {
     constructor(bot) {
@@ -76,7 +76,7 @@ class tag extends Command {
 
                     Please do not send resumes or applications in this Discord server. The scholarship submission process is outlined in the guide linked above.
                 `,
-                aliases: [],
+                aliases: ['scholar'],
             },
             {
                 name: 'llp',
@@ -137,4 +137,4 @@ class tag extends Command {
     }
 }
 
-module.exports = tag;
+export default tag;

@@ -1,5 +1,4 @@
-const Command = require('../../classes/Command');
-const EmbedBase = require('../../classes/components/EmbedBase');
+import { Command, EmbedBase } from '../../classes';
 
 class ping extends Command {
     constructor(bot) {
@@ -32,4 +31,4 @@ class ping extends Command {
     }
 }
 
-module.exports = ping;
+export default ping;

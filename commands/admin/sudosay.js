@@ -1,5 +1,4 @@
-const Command = require('../../classes/Command');
-const EmbedBase = require('../../classes/components/EmbedBase');
+import { Command, EmbedBase } from '../../classes';
 
 class sudosay extends Command {
     constructor(bot) {
@@ -42,4 +41,4 @@ class sudosay extends Command {
     }
 }
 
-module.exports = sudosay;
+export default sudosay;

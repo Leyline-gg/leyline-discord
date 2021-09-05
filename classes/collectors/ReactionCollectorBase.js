@@ -1,7 +1,7 @@
-const Firebase = require('../FirebaseAPI');
-const EmbedBase = require('../components/EmbedBase');
+import * as Firebase from '../../api';
+import { EmbedBase } from '../';
 
-class ReactionCollectorBase {
+export class ReactionCollectorBase {
     APPROVAL_WINDOW     = 24 * 7;	//(hours) how long the mods have to approve a photo
     REACTION_WINDOW   	= 24;   //(hours) how long users have to react after collector approval
     APPROVAL_LLP        = 10; 	//LLP awarded for approved post
@@ -37,7 +37,7 @@ class ReactionCollectorBase {
 	 * @param {User} args.user The user associated with the incoming reaction
 	 */
 	reactionReceived({reaction, user}) {
-		throw new Error(`${this.constructor.name} doesn't provide a ${arguments.callee.name} method`);
+		throw new Error(`${this.constructor.name} doesn't provide a ${this.reactionReceived.name} method`);
 	}
 
 	/**
@@ -48,7 +48,7 @@ class ReactionCollectorBase {
 	 * @param {User} args.user The user that approved the submission
 	 */
 	approveSubmission({reaction, user}) {
-		throw new Error(`${this.constructor.name} doesn't provide a ${arguments.callee.name} method`);
+		throw new Error(`${this.constructor.name} doesn't provide a ${this.reactionReceived.name} method`);
 	}
 
 	setupModReactionCollector({from_firestore = false, duration = this.APPROVAL_WINDOW * 3600 * 1000} = {}) {
@@ -394,4 +394,4 @@ class ReactionCollectorBase {
     }
 }
 
-module.exports = ReactionCollectorBase;
+
