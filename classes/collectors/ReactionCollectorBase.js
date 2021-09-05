@@ -66,17 +66,22 @@ export class ReactionCollectorBase {
 		//setup collector
 		this.collector = msg
 			.createReactionCollector({
-				filter: (r, u) =>
-					bot.checkMod(u.id) && this.MOD_EMOJIS.some(e => e.unicode === r.emoji.name),
+				filter: (r, u) => !u.bot,
 				time: duration,
 			})
-			.once('collect', async (reaction, user) => {
+			.on('collect', async (reaction, user) => {
+				//remove ❌'s added by non-moderators
+				if(reaction.emoji.name === '❌' && !bot.checkMod(user.id))
+					return reaction.users.remove(user);
+					
+				//this takes the place of the reactioncollector filter
+				if(!(bot.checkMod(user.id) && this.MOD_EMOJIS.some(e => e.unicode === reaction.emoji.name)))
+					return;
+
 				await msg.fetchReactions();
 				//submission was rejected
-				if(reaction.emoji.name === '❌') {
-					reaction.remove();	//remove all X's (for anti-degregation purposes)
+				if(reaction.emoji.name === '❌') 
 					return this.rejectSubmission({user});
-				}
 
 				this.approveSubmission({reaction, user});
 			});
