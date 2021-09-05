@@ -1,7 +1,5 @@
-const EmbedBase = require('../components/EmbedBase');
 import * as Firebase from '../../api';
-const XPService = require('../services/XPService');
-const ReactionCollectorBase = require('./ReactionCollectorBase');
+import { EmbedBase, XPService, ReactionCollectorBase } from '..';
 
 const CTA_ROLE 			= '853414453206188063'; //role to ping when photo is approved
 

@@ -1,4 +1,5 @@
-const { MessageEmbed } = require('discord.js');
+import { MessageEmbed } from "discord.js";
+
 //base Embed object, customized for Leyline
 export class EmbedBase extends MessageEmbed {
     constructor(bot, {

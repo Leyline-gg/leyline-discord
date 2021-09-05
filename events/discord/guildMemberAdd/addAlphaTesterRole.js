@@ -1,4 +1,4 @@
-const DiscordEvent = require("../../../classes/events/DiscordEvent");
+import { DiscordEvent } from '../../../classes';
 import * as Firebase from '../../../api';
 
 export default class extends DiscordEvent {

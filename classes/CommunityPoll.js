@@ -1,7 +1,6 @@
-const { Collection } = require('discord.js');
-const EmbedBase = require('./components/EmbedBase');
+import { Collection } from 'discord.js';
 import * as Firebase from '../api';
-const XPService = require('./services/XPService');
+import { EmbedBase, XPService } from '.';
 
 export class CommunityPoll {
     nums_unicode = ['0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];

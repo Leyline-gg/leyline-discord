@@ -1,6 +1,4 @@
-const EmbedBase = require('../../classes/components/EmbedBase');
-const FirebaseEvent = require('../../classes/events/FirebaseEvent');
-const XPService = require('../../classes/services/XPService');
+import { FirebaseEvent, EmbedBase, XPService } from '../../classes';
 
 class LevelUp extends FirebaseEvent {
     constructor(bot) {

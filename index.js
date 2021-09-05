@@ -1,16 +1,14 @@
+'use strict';
+
 if (process.version.slice(1).split(".")[0] < 16)
   throw new Error("Node 16.6.0 or higher is required.");
 
-import { Client, Collection, Intents, Message, } from 'discord.js';
+import { Client, Collection, Intents, Message } from 'discord.js';
 import admin from 'firebase-admin';
 import klaw from 'klaw';
 import path from 'path';
 import config from './config.js'
-import ConfirmInteraction from './classes/components/ConfirmInteraction';
-import EmbedBase from './classes/components/EmbedBase';
-import Logger from './classes/Logger';
-import CommunityPoll from './classes/CommunityPoll';
-import ReactionCollector from './classes/collectors/ReactionCollector';
+import { ConfirmInteraction, EmbedBase, Logger, CommunityPoll, ReactionCollector } from './classes';
 //formally, dotenv shouldn't be used in prod, but because staging and prod share a VM, it's an option I elected to go with for convenience
 import { config as dotenv_config} from 'dotenv';
 dotenv_config();
@@ -24,7 +22,7 @@ class LeylineBot extends Client {
         super(options);
 
         // Custom properties for our bot
-        this.CURRENT_VERSION    = process.env.npm_package_version || require('./package.json').version;
+        this.CURRENT_VERSION    = process.env.npm_package_version || '0.0.0-unknown';
         this.logger             = Logger;
         this.config             = config[process.env.NODE_ENV || 'development'];
         this.commands           = new Collection();
@@ -252,7 +250,7 @@ Message.prototype.awaitInteractionFromUser = function ({user, ...options}) {
 Message.prototype.fetchReactions = async function () {
     //deep fetch - fetch the msg, then each reaction, then each reaction's users
     for (const reaction of (await this.fetch()).reactions.cache.values())
-        this.reactions.resolve(reaction).users.cache = await reaction.users.fetch();
+        await this.reactions.resolve(reaction).users.fetch();
     return this;
 };
 
@@ -285,85 +283,81 @@ const bot = new LeylineBot({
 });
 
 // Initialization process
-const init = function () {
+const init = async function () {
     //initialize firebase
     admin.initializeApp({});
-    if(admin.apps.length == 0) bot.logger.error('Error initializing firebase app');
+    if(admin.apps.length === 0) bot.logger.error('Error initializing firebase app');
     else bot.logger.log('Firebase succesfully initialized'); 
 
-    //import commands - general import syntax adapted from github user @mcao
-    klaw('./commands')
-        .on('data', async item => {
-            const cmdFile = path.parse(item.path);
-            if (!cmdFile.ext || cmdFile.ext !== '.js') return;
-            const cmdName = cmdFile.name.split('.')[0];
-            try {
-                const cmd = new (await import(`${cmdFile.dir}${path.sep}${cmdFile.name}${cmdFile.ext}`))(bot);
-                process.env.NODE_ENV === 'development' ?
-                     bot.commands.set(cmdName, cmd) :
-                     cmd.category !== 'development' &&
-                        bot.commands.set(cmdName, cmd);
-                
-                //delete require.cache[require.resolve(`${cmdFile.dir}${path.sep}${cmdFile.name}${cmdFile.ext}`)];
-            } catch(error) {
-                bot.logger.error(`Error loading command file ${cmdFile.name}: ${error}`);
-            }
-        })
-        .on('end', () => bot.logger.log(`Loaded ${bot.commands.size} command files`))
-        .on('error', error => bot.logger.error(error));
-    //import discord events
-    klaw('./events/discord')
-        .on('data', async item => {
-            const eventFile = path.parse(item.path);
-            if (!eventFile.ext || eventFile.ext !== '.js') return;
-            const eventName = eventFile.name.split('.')[0];
-            try {
-                const event = new (await import(`${eventFile.dir}${path.sep}${eventFile.name}${eventFile.ext}`))(bot);
-                bot.events.set(eventName, event);
-                bot.on(event.event_type, (...args) => event.run(...args));
-                
-                //delete require.cache[require.resolve(`${eventFile.dir}${path.sep}${eventFile.name}${eventFile.ext}`)];
-            } catch(error) {
-                bot.logger.error(`Error loading Discord event ${eventFile.name}: ${error}`);
-            }
-        })
-        .on('end', () => bot.logger.log(`Loaded ${bot.events.size} Discord events`))
-        .on('error', bot.logger.error);
-    //import firebase events
-    klaw('./events/firebase')
-        .on('data', async item => {
-            const eventFile = path.parse(item.path);
-            if (!eventFile.ext || eventFile.ext !== '.js') return;
-            try {
-                const firebase_event = new (await import(`${eventFile.dir}${path.sep}${eventFile.name}${eventFile.ext}`))(bot);
-                admin.firestore().collection(firebase_event.collection).onSnapshot((snapshot) => {
-                    if(!bot.readyAt) return;    //ensure bot is initialized before event is fired
-                    if(snapshot.empty) return;
-                    for(const docChange of snapshot.docChanges()) {
-                        //if doc was created before bot came online, ignore it
-                        if(docChange.doc.createTime.toDate() < bot.readyAt) continue;
-                        switch(docChange.type) {
-                            case 'added':
-                                firebase_event.onAdd(docChange.doc);
-                                break;
-                            case 'modified':
-                                firebase_event.onModify(docChange.doc);
-                                break;
-                            case 'removed':
-                                firebase_event.onRemove(docChange.doc);
-                                break;
-                        }
-                    }
-                }, (err) => bot.logger.error(`FirebaseEvent error with ${firebase_event.name}: ${err}`));
-                bot.firebase_events.set(firebase_event.name, firebase_event);
+    //import commands
+    for await (const item of klaw('./commands')) {
+        const cmdFile = path.parse(item.path);
+        if (!cmdFile.ext || cmdFile.ext !== '.js') continue;
+        const cmdName = cmdFile.name.split('.')[0];
+        try {
+            const cmd = new (await import('./' + path.relative(process.cwd(), `${cmdFile.dir}${path.sep}${cmdFile.name}${cmdFile.ext}`))).default(bot);
+            process.env.NODE_ENV === 'development' ?
+                    bot.commands.set(cmdName, cmd) :
+                    cmd.category !== 'development' &&
+                    bot.commands.set(cmdName, cmd);
+            
+            //delete require.cache[require.resolve(`${cmdFile.dir}${path.sep}${cmdFile.name}${cmdFile.ext}`)];
+        } catch(error) {
+            bot.logger.error(`Error loading command file ${cmdFile.name}: ${error}`);
+        }
+    }
+    bot.logger.log(`Loaded ${bot.commands.size} command files`);
 
-                //delete require.cache[require.resolve(`${eventFile.dir}${path.sep}${eventFile.name}${eventFile.ext}`)];
-            } catch(error) {
-                bot.logger.error(`Error loading Firebase event ${eventFile.name}: ${error}`);
-            }
-        })
-        .on('end', () => bot.logger.log(`Loaded ${bot.firebase_events.size} Firebase events`))
-        .on('error', bot.logger.error);
+    //import discord events
+    for await (const item of klaw('./events/discord')) {
+        const eventFile = path.parse(item.path);
+        if (!eventFile.ext || eventFile.ext !== '.js') continue;
+        const eventName = eventFile.name.split('.')[0];
+        try {
+            const event = new (await import('./' + path.relative(process.cwd(), `${eventFile.dir}${path.sep}${eventFile.name}${eventFile.ext}`))).default(bot);
+            bot.events.set(eventName, event);
+            bot.on(event.event_type, (...args) => event.run(...args));
+            
+            //delete require.cache[require.resolve(`${eventFile.dir}${path.sep}${eventFile.name}${eventFile.ext}`)];
+        } catch(error) {
+            bot.logger.error(`Error loading Discord event ${eventFile.name}: ${error}`);
+        }
+    }
+    bot.logger.log(`Loaded ${bot.events.size} Discord events`)
+
+    //import firebase events
+    for await (const item of klaw('./events/firebase')){
+        const eventFile = path.parse(item.path);
+        if (!eventFile.ext || eventFile.ext !== '.js') continue;
+        try {
+            const firebase_event = new (await import('./' + path.relative(process.cwd(), `${eventFile.dir}${path.sep}${eventFile.name}${eventFile.ext}`))).default(bot);
+            admin.firestore().collection(firebase_event.collection).onSnapshot((snapshot) => {
+                if(!bot.readyAt) return;    //ensure bot is initialized before event is fired
+                if(snapshot.empty) return;
+                for(const docChange of snapshot.docChanges()) {
+                    //if doc was created before bot came online, ignore it
+                    if(docChange.doc.createTime.toDate() < bot.readyAt) continue;
+                    switch(docChange.type) {
+                        case 'added':
+                            firebase_event.onAdd(docChange.doc);
+                            break;
+                        case 'modified':
+                            firebase_event.onModify(docChange.doc);
+                            break;
+                        case 'removed':
+                            firebase_event.onRemove(docChange.doc);
+                            break;
+                    }
+                }
+            }, (err) => bot.logger.error(`FirebaseEvent error with ${firebase_event.name}: ${err}`));
+            bot.firebase_events.set(firebase_event.name, firebase_event);
+
+            //delete require.cache[require.resolve(`${eventFile.dir}${path.sep}${eventFile.name}${eventFile.ext}`)];
+        } catch(error) {
+            bot.logger.error(`Error loading Firebase event ${eventFile.name}: ${error}`);
+        }
+    }
+    bot.logger.log(`Loaded ${bot.firebase_events.size} Firebase events`);
 
     bot.logger.log('Connecting to Discord...');
     bot.login(process.env.BOT_TOKEN).then(() => {

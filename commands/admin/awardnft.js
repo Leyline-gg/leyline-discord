@@ -1,7 +1,5 @@
-const Command = require('../../classes/Command');
-const EmbedBase = require('../../classes/components/EmbedBase');
+import { Command, EmbedBase, LeylineUser, } from '../../classes';
 import * as Firebase from '../../api';
-const LeylineUser = require('../../classes/LeylineUser');
 
 class awardnft extends Command {
     constructor(bot) {

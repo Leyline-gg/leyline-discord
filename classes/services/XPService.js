@@ -1,7 +1,6 @@
-const admin = require('firebase-admin');
+import admin from 'firebase-admin';
 import * as Firebase from '../../api';
-const EmbedBase = require('../components/EmbedBase');
-const LeylineUser = require('../LeylineUser');
+import { EmbedBase, LeylineUser } from '..';
 import xplevels from '../../xplevels.js'
 
 export class XPService {

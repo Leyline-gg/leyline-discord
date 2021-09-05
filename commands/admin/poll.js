@@ -1,6 +1,4 @@
-const Command = require('../../classes/Command');
-const CommunityPoll = require('../../classes/CommunityPoll');
-const EmbedBase = require('../../classes/components/EmbedBase');
+import { Command, EmbedBase, CommunityPoll, } from '../../classes';;
 
 class poll extends Command {
     constructor(bot) {

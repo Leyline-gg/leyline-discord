@@ -1,8 +1,5 @@
-const Command = require('../../classes/Command');
+import { Command, EmbedBase, LeylineUser, XPService } from '../../classes';
 import * as Firebase from '../../api';
-const XPService = require('../../classes/services/XPService');
-const LeylineUser = require('../../classes/LeylineUser');
-const EmbedBase = require('../../classes/components/EmbedBase');
 
 class profile extends Command {
     constructor(bot) {

@@ -1,5 +1,4 @@
-const DiscordEvent = require('../../../classes/events/DiscordEvent');
-const EmbedBase = require('../../../classes/components/EmbedBase');
+import { DiscordEvent, EmbedBase } from "../../../classes";
 
 export default class extends DiscordEvent {
     constructor(bot) {

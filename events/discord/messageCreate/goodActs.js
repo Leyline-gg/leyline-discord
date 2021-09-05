@@ -1,6 +1,4 @@
-const DiscordEvent = require("../../../classes/events/DiscordEvent");
-const EmbedBase = require("../../../classes/components/EmbedBase");
-const ReactionCollector = require('../../../classes/collectors/ReactionCollector');
+import { DiscordEvent, EmbedBase, ReactionCollector } from '../../../classes';
 import * as Firebase from '../../../api';
 
 export default class extends DiscordEvent {

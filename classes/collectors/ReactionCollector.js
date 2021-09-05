@@ -1,7 +1,7 @@
-const GoodActsReactionCollector = require('./GoodActsReactionCollector');
-const KindWordsReactionCollector = require('./KindWordsReactionCollector');
+import { GoodActsReactionCollector, KindWordsReactionCollector } from "..";
 
 export class ReactionCollector {
+    // A knockoff enum
     static Collectors = {
         GOOD_ACTS: GoodActsReactionCollector,
         KIND_WORDS: KindWordsReactionCollector,
