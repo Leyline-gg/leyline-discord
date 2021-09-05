@@ -92,7 +92,7 @@ export class XPService {
 			.firestore()
 			.collection(this.COLLECTION_PATH)
 			.where('uid', '==', uid)
-            .where('type', '==', 'posts')
+            .where('type', '==', 'good_acts')
 			//.where('created', '>', snapshotTime)
 			.get()).size;
     }
