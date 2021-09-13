@@ -328,7 +328,7 @@ export class ReactionCollectorBase {
 		duration *= 24 * 60;	//convert days to minutes
 		const { bot, msg, media_type } = this;
 		return msg.startThread({
-			name: `${media_type[0].toUpperCase() + media_type.slice(1)} from ${msg.member.displayName}`,
+			name: `${media_type[0].toUpperCase() + media_type.slice(1)} from ${msg.member.displayName}`.substr(0, 100),
 			autoArchiveDuration: duration,
 		}).then(thread => {
 			bot.sendEmbed({msg:thread.lastMessage, embed: new EmbedBase(bot, {
