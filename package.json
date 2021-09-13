@@ -1,6 +1,6 @@
 {
   "name": "leyline-discord",
-  "version": "2.3.0-dev",
+  "version": "2.3.0",
   "description": "Leyline Discord bot",
   "main": "index.js",
   "type": "module",
