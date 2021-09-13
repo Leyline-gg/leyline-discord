@@ -1,8 +1,7 @@
 # [2.3.0](https://github.com/Leyline-gg/leyline-discord/releases/tag/v2.3.0) (2021-09-12)
 
 ## Dev Notes
-The bot will now make use of threads to redirect discussion and encourage cleanliness of the server's channels.
-This feature may be expanded in the future.
+Minor changes and bug fixes with particular attention to user-submitted submissions
 
 ## New Features
 - Good acts submissions posted without a description will be automatically rejected
