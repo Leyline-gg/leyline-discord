@@ -2,7 +2,7 @@
 
 if (process.version.slice(1).split(".")[0] < 16)
   throw new Error("Node 16.6.0 or higher is required.");
-
+  
 import { Client, Collection, Intents, Message } from 'discord.js';
 import admin from 'firebase-admin';
 import klaw from 'klaw';
@@ -287,7 +287,7 @@ const init = async function () {
     //initialize firebase
     admin.initializeApp({});
     if(admin.apps.length === 0) bot.logger.error('Error initializing firebase app');
-    else bot.logger.log('Firebase succesfully initialized'); 
+    else bot.logger.log('Firebase succesfully initialized');
 
     //import commands
     for await (const item of klaw('./commands')) {

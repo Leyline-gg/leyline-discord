@@ -30,4 +30,3 @@ export class Command {
         return Object.assign(this, appcmd);
     }
 }
-
