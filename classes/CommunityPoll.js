@@ -1,9 +1,8 @@
-const { Collection } = require('discord.js');
-const EmbedBase = require('./EmbedBase');
-const Firebase = require('./FirebaseAPI');
-const XPService = require('./XPService');
+import { Collection } from 'discord.js';
+import * as Firebase from '../api';
+import { EmbedBase, XPService } from '.';
 
-class CommunityPoll {
+export class CommunityPoll {
     nums_unicode = ['0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];
     constructor(bot, {
         question = '',
@@ -38,7 +37,7 @@ class CommunityPoll {
     };
 
     end() {
-        const bot = this.bot;
+        const { bot } = this;
         //log poll closure
         bot.logDiscord({embed: new EmbedBase(bot, {
             fields: [{
@@ -154,7 +153,7 @@ class CommunityPoll {
     }
 
     createCollector(msg) {
-        const bot = this.bot;
+        const { bot } = this;
         this.msg ||= msg;
         this.id ||= msg.id;
 
@@ -202,7 +201,7 @@ class CommunityPoll {
         duration *= 24 * 60;	//convert days to minutes
 		const { msg, question } = this;
 		return msg.startThread({
-			name: question,
+			name: question.substr(0, 100),
 			autoArchiveDuration: duration,
 		});
     }
@@ -224,7 +223,7 @@ class CommunityPoll {
      * @returns {Promise<Message>} the poll `Message` that was sent
      */
     async publish() {
-        const bot = this.bot;
+        const { bot } = this;
         //send and store message
         const msg = await bot.channels.resolve(bot.config.channels.polls).send({
             embeds: [this.embed],
@@ -267,4 +266,4 @@ class CommunityPoll {
     }
 }
 
-module.exports = CommunityPoll;
+

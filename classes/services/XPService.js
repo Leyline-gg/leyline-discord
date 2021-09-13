@@ -1,11 +1,11 @@
-const admin = require('firebase-admin');
-const Firebase = require('./FirebaseAPI');
-const EmbedBase = require('./EmbedBase');
-const LeylineUser = require('./LeylineUser');
+import admin from 'firebase-admin';
+import * as Firebase from '../../api';
+import { EmbedBase, LeylineUser } from '..';
+import xplevels from '../../xplevels.js'
 
-class XPService {
-    static LEVELS = require('../xplevels').LEVELS;
-    static ROLES = require('../xplevels').ROLES;
+export class XPService {
+    static LEVELS =xplevels.LEVELS;
+    static ROLES = xplevels.ROLES;
     static COLLECTION_PATH = 'discord/bot/xp_transactions';
     /**
      * Add an approved post to a Discord user's profile
@@ -38,7 +38,7 @@ class XPService {
      * @param {string} args.poll_id ID of the poll (discord msg) that was approved
      * @param {Object} [args.metadata] Optional metadata object to include in the firestore document
      */
-     static async addPollVote({uid, poll_id, timestamp = Date.now(), metadata} = {}) {
+    static async addPollVote({uid, poll_id, timestamp = Date.now(), metadata} = {}) {
         return await admin.firestore()
             .collection(this.COLLECTION_PATH)
             .add({
@@ -59,7 +59,7 @@ class XPService {
      * @param {string} args.msg ID of the discord msg that was approved
      * @param {Object} [args.metadata] Optional metadata object to include in the firestore document
      */
-     static async addKindWord({uid, msg, timestamp = Date.now(), metadata} = {}) {
+    static async addKindWord({uid, msg, timestamp = Date.now(), metadata} = {}) {
         return await admin.firestore()
             .collection(this.COLLECTION_PATH)
             .add({
@@ -92,7 +92,7 @@ class XPService {
 			.firestore()
 			.collection(this.COLLECTION_PATH)
 			.where('uid', '==', uid)
-            .where('type', '==', 'posts')
+            .where('type', '==', 'good_acts')
 			//.where('created', '>', snapshotTime)
 			.get()).size;
     }
@@ -289,4 +289,4 @@ class XPService {
     }
 }
 
-module.exports = XPService;
+

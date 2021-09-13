@@ -1,7 +1,6 @@
-const DiscordEvent = require('../../../classes/DiscordEvent');
-const EmbedBase = require('../../../classes/EmbedBase');
+import { DiscordEvent, EmbedBase } from "../../../classes";
 
-module.exports = class extends DiscordEvent {
+export default class extends DiscordEvent {
     constructor(bot) {
         super(bot, {
             name: 'slashCommand',
@@ -11,7 +10,7 @@ module.exports = class extends DiscordEvent {
     }
     
     async run(intr) {
-        const bot = this.bot;
+        const { bot } = this;
 
         if(!intr.isCommand()) return;
         // Ignore commands sent by other bots or sent in DM

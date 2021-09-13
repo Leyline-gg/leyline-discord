@@ -1,4 +1,4 @@
-class FirebaseEvent {
+export class FirebaseEvent {
     constructor(bot, {
         name = null,
         description = 'No description provided',
@@ -16,4 +16,4 @@ class FirebaseEvent {
     onRemove(doc) { return; }
 }
 
-module.exports = FirebaseEvent;
+

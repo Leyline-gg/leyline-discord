@@ -1,18 +1,12 @@
-const roles = [
-    rookie_role, 
-    leylite_role, 
-    veteran_role, 
-    epic_role, 
-    supreme_role
-] = [
-    '865769192896462909',
-	'869252641736253440',
-	'869252677996015666',
-	'869252715316932628',
-	'869252759482929263',
-];
+const roles = {
+	rookie_role: '865769192896462909',
+	leylite_role: '869252641736253440',
+	veteran_role: '869252677996015666',
+	epic_role: '869252715316932628',
+	supreme_role: '869252759482929263',
+};
 
-module.exports = {
+export default {
 	ROLES: roles,
 	LEVELS: [
 		{
@@ -32,7 +26,7 @@ module.exports = {
 				{
 					function: 'awardRole',
 					args: {
-						role_id: rookie_role,
+						role_id: roles.rookie_role,
 					},
 				},
 				{
@@ -84,7 +78,7 @@ module.exports = {
 				{
 					function: 'awardRole',
 					args: {
-						role_id: leylite_role,
+						role_id: roles.leylite_role,
 					},
 				},
 				{
@@ -144,7 +138,7 @@ module.exports = {
 				{
 					function: 'awardRole',
 					args: {
-						role_id: veteran_role,
+						role_id: roles.veteran_role,
 					},
 				},
 				{
@@ -204,7 +198,7 @@ module.exports = {
 				{
 					function: 'awardRole',
 					args: {
-						role_id: epic_role,
+						role_id: roles.epic_role,
 					},
 				},
 				{
@@ -268,7 +262,7 @@ module.exports = {
                 {
                     function: 'awardRole',
                     args: {
-                        role_id: supreme_role,
+                        role_id: roles.supreme_role,
                     },
                 },
                 {

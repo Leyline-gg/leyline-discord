@@ -1,5 +1,4 @@
-const Command = require('../../classes/Command');
-const EmbedBase = require('../../classes/EmbedBase');
+import { Command, EmbedBase } from '../../classes';
 
 class sudosay extends Command {
     constructor(bot) {
@@ -25,7 +24,7 @@ class sudosay extends Command {
     }
 
     async run({intr, opts}) {
-        const bot = this.bot;
+        const { bot } = this;
         const ch = opts.getChannel('channel');
 
         //validate args
@@ -42,4 +41,4 @@ class sudosay extends Command {
     }
 }
 
-module.exports = sudosay;
+export default sudosay;

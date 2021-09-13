@@ -1,7 +1,7 @@
 /**
  * Custom class for implementing Discord events. The `run()` method will be called whenever the event `name` is fired
  */
-class DiscordEvent {
+export class DiscordEvent {
     constructor(bot, {
         name        = null,
         description = null,
@@ -20,4 +20,4 @@ class DiscordEvent {
     }
 }
 
-module.exports = DiscordEvent;
+

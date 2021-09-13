@@ -1,5 +1,4 @@
-const Command = require('../../classes/Command');
-const EmbedBase = require('../../classes/EmbedBase');
+import { Command, EmbedBase } from '../../classes';
 
 class selfrole extends Command {
     constructor(bot) {
@@ -11,7 +10,7 @@ class selfrole extends Command {
     }
     
     async run({intr}) {
-        const bot = this.bot;
+        const { bot } = this;
         try {
             
             //obtain and filter Role objects
@@ -63,4 +62,4 @@ class selfrole extends Command {
     }
 }
 
-module.exports = selfrole;
+export default selfrole;

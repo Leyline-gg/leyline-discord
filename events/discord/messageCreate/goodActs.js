@@ -1,9 +1,7 @@
-const DiscordEvent = require("../../../classes/DiscordEvent");
-const EmbedBase = require("../../../classes/EmbedBase");
-const ReactionCollector = require('../../../classes/ReactionCollector');
-const Firebase = require('../../../classes/FirebaseAPI');
+import { DiscordEvent, EmbedBase, ReactionCollector } from '../../../classes';
+import * as Firebase from '../../../api';
 
-module.exports = class extends DiscordEvent {
+export default class extends DiscordEvent {
 	constructor(bot) {
 		super(bot, {
 			name: 'goodActs',
@@ -25,8 +23,30 @@ module.exports = class extends DiscordEvent {
 		return false;
 	}
 
+	rejectSubmission(msg) {
+		const { bot } = this;
+		bot.logDiscord({embed: new EmbedBase(bot, {
+			fields:[{
+				name: `Submission Auto-Rejected`,
+				value: `The [submission](${msg.url} 'click to view message') posted in <#${msg.channel.id}> by ${bot.formatUser(msg.author)} was automatically rejected because it did not contain a description.`,
+			}],
+			thumbnail: { url: msg.attachments.first().url },
+		}).Error()});
+
+		bot.sendDM({
+			user: msg.author,
+			embed: new EmbedBase(bot, {
+				fields:[{
+					name: `❌ Your submission was rejected`,
+					value: `Thank you for uploading a submission to <#${this.target_channel}>! Unfortunately, any submissions without a description are automatically rejected, \
+							to maintain a quick approval process. You are welcome to reupload your submission with a description after the cooldown has expired.`,
+				}],
+			}).Error(),
+		});
+	}
+
 	async run(msg) {
-		const bot = this.bot;
+		const { bot } = this;
 		// Ignore messages sent by other bots or sent in DM
 		if (msg.author.bot || !msg.guild) return;
 
@@ -39,6 +59,9 @@ module.exports = class extends DiscordEvent {
 			return bot.logger.debug(
 				`${this.name} event rejected msg ${msg.id} by ${msg.author.tag} because it did not contain valid attachments`
 			);
+
+		//msg needs to contain a description for the attachments
+		if(!msg.content) return this.rejectSubmission(msg);
 
 		//If user has not connected Discord & Leyline accts, send DM before proceeding
 		if(!(await Firebase.isUserConnectedToLeyline(msg.author.id)))

@@ -1,11 +1,9 @@
-const EmbedBase = require('./EmbedBase');
-const Firebase	= require('./FirebaseAPI');
-const XPService = require('./XPService');
-const ReactionCollectorBase = require('./ReactionCollectorBase');
+import * as Firebase from '../../api';
+import { EmbedBase, XPService, ReactionCollectorBase } from '..';
 
 const CTA_ROLE 			= '853414453206188063'; //role to ping when photo is approved
 
-class GoodActsReactionCollector extends ReactionCollectorBase {
+export class GoodActsReactionCollector extends ReactionCollectorBase {
 	//override parent properties
 	REACTION_LLP = 5;		//LLP awarded for reacting
 	APPROVAL_LLP = 100 	//LLP awarded for approved post
@@ -68,8 +66,7 @@ class GoodActsReactionCollector extends ReactionCollectorBase {
 
 	// Callback specific to this Collector class
 	async reactionReceived({reaction, user}) {
-		const bot = this.bot;
-		const msg = this.msg;
+		const { bot, msg } = this;
 
 		//check if user who reacted is msg author
 		if(user.id === msg.author.id) return;
@@ -88,8 +85,7 @@ class GoodActsReactionCollector extends ReactionCollectorBase {
 	}
 
 	async approveSubmission({user, reaction}) {
-		const bot = this.bot;
-		const msg = this.msg;
+		const { bot, msg } = this;
 		try {
 			//store the activity type for LLP award text both locally and in the cloud
 			msg._activityType = this.MOD_EMOJIS.find(e => e.unicode === reaction.emoji.name)?.keyword || 'Good Act';
@@ -195,4 +191,4 @@ class GoodActsReactionCollector extends ReactionCollectorBase {
     }
 };
 
-module.exports = GoodActsReactionCollector;
+

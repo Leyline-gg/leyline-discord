@@ -1,5 +1,4 @@
-const Command = require('../../classes/Command');
-const EmbedBase = require('../../classes/EmbedBase');
+import { Command, EmbedBase } from '../../classes';
 
 class ping extends Command {
     constructor(bot) {
@@ -11,7 +10,7 @@ class ping extends Command {
     }
 
     async run({intr}) {
-        const bot = this.bot;
+        const { bot } = this;
         //TODO: implement Leyline API/Firebase API latency (choose a user-friendly label)
         const response = await bot.intrReply({intr, embed: new EmbedBase(bot, {
             description: 'Pinging...',
@@ -32,4 +31,4 @@ class ping extends Command {
     }
 }
 
-module.exports = ping;
+export default ping;

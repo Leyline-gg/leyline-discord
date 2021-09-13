@@ -1,6 +1,5 @@
-const Command = require('../../classes/Command');
-const EmbedBase = require('../../classes/EmbedBase');
-const Firebase = require('../../classes/FirebaseAPI');
+import { Command, EmbedBase } from '../../classes';
+import * as Firebase from '../../api';
 
 class inspect extends Command {
     constructor(bot) {
@@ -20,7 +19,7 @@ class inspect extends Command {
     }
 
     async run({intr, opts}) {
-        const bot = this.bot;
+        const { bot } = this;
 
         const user = opts.getUser('user') || intr.user;
         const member = await bot.leyline_guild.members.fetch(user);
@@ -63,4 +62,4 @@ class inspect extends Command {
     }
 }
 
-module.exports = inspect;
+export default inspect;

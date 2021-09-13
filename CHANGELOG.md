@@ -1,4 +1,25 @@
-# [2.2.0](https://github.com/Leyline-gg/leyline-discord/releases/tag/v2.2.0) (2021-09-02)
+# [2.3.0](https://github.com/Leyline-gg/leyline-discord/releases/tag/v2.3.0) (2021-09-12)
+
+## Dev Notes
+The bot will now make use of threads to redirect discussion and encourage cleanliness of the server's channels.
+This feature may be expanded in the future.
+
+## New Features
+- Good acts submissions posted without a description will be automatically rejected
+    - The author will be DM'd with an explanation
+
+## Existing Feature Changes
+- Any non-moderators that attempt to react with an ❌ to an unapproved submission will have their reaction automatically removed
+- When a submission is rejected by a moderator, the ❌ reaction will stay on that submission
+    - Previously all ❌ reactions would be removed when a submission was rejected
+- Responses for the `tag` command now pull from a database and can be dynamically updated
+- Significant internal code cleanup
+
+## Bug Fixes
+- `profile` command displaying Good Acts stat as zero for all users
+- In certain situations, threads were not being auto-created by the bot due to the large length of the thread title
+
+# [2.2.0](https://github.com/Leyline-gg/leyline-discord/releases/tag/v2.2.0) (2021-09-03)
 
 ## Dev Notes
 The bot will now make use of threads to redirect discussion and encourage cleanliness of the server's channels.

@@ -1,7 +1,6 @@
-const DiscordEvent = require("../../../classes/DiscordEvent");
-const ReactionCollector = require('../../../classes/ReactionCollector');
+import { DiscordEvent, ReactionCollector } from '../../../classes';
 
-module.exports = class extends DiscordEvent {
+export default class extends DiscordEvent {
 	constructor(bot) {
 		super(bot, {
 			name: 'kindWords',
@@ -11,7 +10,7 @@ module.exports = class extends DiscordEvent {
 	}
 
 	async run(msg) {
-		const bot = this.bot;
+		const { bot } = this;
 		// Ignore messages sent by other bots or sent in DM
 		if (msg.author.bot || !msg.guild) return;
 

@@ -1,5 +1,5 @@
 // Bot configuration settings
-module.exports = {
+export default {
     get production() {
         return {
             // Which users/roles get access to all commands

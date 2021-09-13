@@ -1,7 +1,7 @@
-const Firebase = require('./FirebaseAPI');
-const EmbedBase = require('./EmbedBase');
+import * as Firebase from '../../api';
+import { EmbedBase } from '../';
 
-class ReactionCollectorBase {
+export class ReactionCollectorBase {
     APPROVAL_WINDOW     = 24 * 7;	//(hours) how long the mods have to approve a photo
     REACTION_WINDOW   	= 24;   //(hours) how long users have to react after collector approval
     APPROVAL_LLP        = 10; 	//LLP awarded for approved post
@@ -37,7 +37,7 @@ class ReactionCollectorBase {
 	 * @param {User} args.user The user associated with the incoming reaction
 	 */
 	reactionReceived({reaction, user}) {
-		throw new Error(`${this.constructor.name} doesn't provide a ${arguments.callee.name} method`);
+		throw new Error(`${this.constructor.name} doesn't provide a ${this.reactionReceived.name} method`);
 	}
 
 	/**
@@ -48,12 +48,11 @@ class ReactionCollectorBase {
 	 * @param {User} args.user The user that approved the submission
 	 */
 	approveSubmission({reaction, user}) {
-		throw new Error(`${this.constructor.name} doesn't provide a ${arguments.callee.name} method`);
+		throw new Error(`${this.constructor.name} doesn't provide a ${this.reactionReceived.name} method`);
 	}
 
 	setupModReactionCollector({from_firestore = false, duration = this.APPROVAL_WINDOW * 3600 * 1000} = {}) {
-		const bot = this.bot;
-		const msg = this.msg;
+		const { bot, msg } = this;
 
 		//create Firestore doc only if it we aren't already loading one from cache
         !from_firestore && /*await*/ Firebase.createCollector(this);
@@ -67,16 +66,22 @@ class ReactionCollectorBase {
 		//setup collector
 		this.collector = msg
 			.createReactionCollector({
-				filter: (r, u) =>
-					bot.checkMod(u.id) && this.MOD_EMOJIS.some(e => e.unicode === r.emoji.name),
+				filter: (r, u) => !u.bot,
 				time: duration,
 			})
-			.once('collect', async (reaction, user) => {
+			.on('collect', async (reaction, user) => {
+				//remove ❌'s added by non-moderators
+				if(reaction.emoji.name === '❌' && !bot.checkMod(user.id))
+					return reaction.users.remove(user);
+					
+				//this takes the place of the reactioncollector filter
+				if(!(bot.checkMod(user.id) && this.MOD_EMOJIS.some(e => e.unicode === reaction.emoji.name)))
+					return;
+
+				await msg.fetchReactions();
 				//submission was rejected
-				if(reaction.emoji.name === '❌') {
-					reaction.remove();	//remove all X's (for anti-degregation purposes)
+				if(reaction.emoji.name === '❌') 
 					return this.rejectSubmission({user});
-				}
 
 				this.approveSubmission({reaction, user});
 			});
@@ -90,8 +95,7 @@ class ReactionCollectorBase {
 	 * @returns {ReactionCollectorBase} This class itself
 	 */
 	setupApprovedCollector({duration = this.REACTION_WINDOW * 3600 * 1000} = {}) {
-		const bot = this.bot;
-		const msg = this.msg;
+		const { bot, msg } = this;
         //create collector to watch for user reactions
 		msg.createReactionCollector({ 
 			filter: async (reaction, user) => !(await this.hasUserPreviouslyReacted({reaction, user})),
@@ -125,8 +129,7 @@ class ReactionCollectorBase {
 	 * @param {User} [args.user] Discord.js `User` that rejected the submission
 	 */
 	rejectSubmission({user}) {
-		const bot = this.bot;
-		const msg = this.msg;
+		const { bot, msg } = this;
 
 		//update cloud
 		/*await*/ Firebase.rejectCollector({user, collector: this});
@@ -176,7 +179,7 @@ class ReactionCollectorBase {
 	 * @returns 
 	 */
 	 handleUnconnectedAccount(user, {dm, log} = {}) {
-		const bot = this.bot;
+		const { bot } = this;
 		bot.sendDM({user, embed: new EmbedBase(bot, {
 			fields: [
 				{
@@ -207,8 +210,7 @@ class ReactionCollectorBase {
      * @param {string} args.pog "Proof of good" - message to display in LLP history
 	 */
 	async awardApprovalLLP({user, pog}) {
-		const bot = this.bot;
-        const msg = this.msg;
+		const { bot, msg } = this;
 
 		await Firebase.awardLLP(await Firebase.getLeylineUID(user.id), this.APPROVAL_LLP, {
 			category: pog,
@@ -247,8 +249,7 @@ class ReactionCollectorBase {
      * @param {string} [args.pog] "Proof of good" - message to display in LLP history
 	 */
 	async awardReactionLLP({user, pog='Discord Moral Support'}) {
-		const bot = this.bot;
-		const msg = this.msg;
+		const { bot, msg } = this;
 
 		//new user reacted, award LLP
 		await Firebase.awardLLP(await Firebase.getLeylineUID(user.id), this.REACTION_LLP, {
@@ -286,8 +287,7 @@ class ReactionCollectorBase {
      * @param {string} args.pog "Proof of good" - message to display in LLP history
 	 */
 	async awardAuthorReactionLLP({user, pog}) {
-		const bot = this.bot;
-        const msg = this.msg;
+		const { bot, msg } = this;
 		//new user reacted, award LLP
 		await Firebase.awardLLP(await Firebase.getLeylineUID(msg.author.id), this.REACTION_LLP, {
 			category: pog,
@@ -328,7 +328,7 @@ class ReactionCollectorBase {
 		duration *= 24 * 60;	//convert days to minutes
 		const { bot, msg, media_type } = this;
 		return msg.startThread({
-			name: `${media_type[0].toUpperCase() + media_type.slice(1)} from ${msg.member.displayName}`,
+			name: `${media_type[0].toUpperCase() + media_type.slice(1)} from ${msg.member.displayName}`.substr(0, 100),
 			autoArchiveDuration: duration,
 		}).then(thread => {
 			bot.sendEmbed({msg:thread.lastMessage, embed: new EmbedBase(bot, {
@@ -399,4 +399,4 @@ class ReactionCollectorBase {
     }
 }
 
-module.exports = ReactionCollectorBase;
+

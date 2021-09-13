@@ -1,8 +1,5 @@
-const Command = require('../../classes/Command');
-const Firebase = require('../../classes/FirebaseAPI');
-const XPService = require('../../classes/XPService');
-const LeylineUser = require('../../classes/LeylineUser');
-const EmbedBase = require('../../classes/EmbedBase');
+import { Command, EmbedBase, LeylineUser, XPService } from '../../classes';
+import * as Firebase from '../../api';
 
 class profile extends Command {
     constructor(bot) {
@@ -23,7 +20,7 @@ class profile extends Command {
     }
 
     async run({intr, opts}) {
-        const bot = this.bot;
+        const { bot } = this;
         // Functions
         /**
          * @returns {Promise<LeylineUser>}
@@ -161,4 +158,4 @@ class profile extends Command {
     }
 }
 
-module.exports = profile;
+export default profile;
