@@ -131,6 +131,9 @@ export class ReactionCollectorBase {
 	rejectSubmission({user}) {
 		const { bot, msg } = this;
 
+		//update local
+		this.collector.stop();
+
 		//update cloud
 		/*await*/ Firebase.rejectCollector({user, collector: this});
 
