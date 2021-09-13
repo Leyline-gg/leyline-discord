@@ -1,5 +1,4 @@
-const Command = require('../../classes/Command');
-const EmbedBase = require('../../classes/EmbedBase');
+import { Command, EmbedBase } from '../../classes';
 
 class help extends Command {
     constructor(bot) {
@@ -11,7 +10,7 @@ class help extends Command {
     }
 
     run({intr}) {
-        const bot = this.bot;
+        const { bot } = this;
 
         //get each category from all the commands and put them into an array where each category appears only once
         //remove all development cmds
@@ -30,4 +29,4 @@ class help extends Command {
     }
 }
 
-module.exports = help;
+export default help;

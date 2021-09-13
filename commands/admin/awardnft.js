@@ -1,7 +1,5 @@
-const Command = require('../../classes/Command');
-const EmbedBase = require('../../classes/EmbedBase');
-const Firebase = require('../../classes/FirebaseAPI');
-const LeylineUser = require('../../classes/LeylineUser');
+import { Command, EmbedBase, LeylineUser, } from '../../classes';
+import * as Firebase from '../../api';
 
 class awardnft extends Command {
     constructor(bot) {
@@ -55,7 +53,7 @@ class awardnft extends Command {
 
     subcommands = {
         user: async ({intr, nft, opts}) => {
-            const bot = this.bot;
+            const { bot } = this;
             const user = opts.getUser('user');
             if(!(await Firebase.isUserConnectedToLeyline(user.id))) return bot.intrReply({intr, embed: new EmbedBase(bot, {
                 description: `❌ **That user has not connected their Leyline & Discord accounts**`,
@@ -74,7 +72,7 @@ class awardnft extends Command {
             return;
         },
         channel: ({intr, nft, opts}) => {
-            const bot = this.bot;
+            const { bot } = this;
             const ch = opts.getChannel('channel');
             //validate args
             if(!ch.isVoice()) return bot.intrReply({intr, embed: new EmbedBase(bot, {
@@ -96,7 +94,7 @@ class awardnft extends Command {
      * @returns {Promise<boolean>} `true` if the prompt was confirmed by the user, `false` otherwise
      */
     sendConfirmPrompt({intr, nft, lluser, ama=false, ...other} = {}) {
-        const bot = this.bot;
+        const { bot } = this;
         return bot.intrConfirm({intr, embed: new EmbedBase(bot, {
             title: 'Confirm NFT Award',
             thumbnail: {
@@ -155,7 +153,7 @@ class awardnft extends Command {
      * @returns {Promise<boolean>} `true` if NFT was awarded and logs succesfully issued, `false` otherwise
      */
     async awardNFT({intr, nft, user, lluser, update_intr: update_intr=true} = {}) {
-        const bot = this.bot;
+        const { bot } = this;
         try {
             //Award NFT to LL user
             await Firebase.rewardNFT(lluser.uid, nft.id);
@@ -241,7 +239,7 @@ class awardnft extends Command {
      * @returns {Promise<true>} Promise that resolves to true after message has been sent (not delivered) 
      */
     async messageUser({user, nft} = {}) {
-        const bot = this.bot;
+        const { bot } = this;
         bot.sendDM({user, embed: new EmbedBase(bot, {
             thumbnail: { url: nft.thumbnailUrl },
             fields: [
@@ -263,7 +261,7 @@ class awardnft extends Command {
      * @returns {Promise<void>} promise that resolves when function execution is complete
      */
     async nftDropVC({intr, nft, ch} = {}) {
-        const bot = this.bot;
+        const { bot } = this;
         const [connected, unconnected] = [[], []];
         //add a custom 'leyline' prop to each GuildMember in the vc
         for(const member of (await bot.channels.fetch(ch.id, {force: true})).members.values())
@@ -342,7 +340,7 @@ class awardnft extends Command {
     }
 
     async run({intr, opts}) {
-        const bot = this.bot;
+        const { bot } = this;
 
         //Filter out args
         const nft = await Firebase.getNFT(opts.getInteger('nft-id').toString());
@@ -354,4 +352,4 @@ class awardnft extends Command {
     }
 }
 
-module.exports = awardnft;
+export default awardnft;

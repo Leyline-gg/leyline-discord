@@ -1,5 +1,4 @@
-const Command = require('../../classes/Command');
-const EmbedBase = require('../../classes/EmbedBase');
+import { Command, EmbedBase } from '../../classes';
 
 class embedtest extends Command {
     constructor(bot) {
@@ -11,7 +10,7 @@ class embedtest extends Command {
     }
 
     async run({intr, opts}) {
-        const bot = this.bot;
+        const { bot } = this;
         //bot.intrReply({intr, embed: new EmbedBase(this.bot, {
         //    fields: [{
         //        name: '⬆  User Leveled Up',
@@ -26,4 +25,4 @@ class embedtest extends Command {
     }
 }
 
-module.exports = embedtest;
+export default embedtest;

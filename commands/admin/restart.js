@@ -1,5 +1,4 @@
-const Command = require('../../classes/Command');
-const EmbedBase = require('../../classes/EmbedBase');
+import { Command, EmbedBase } from '../../classes';
 
 class restart extends Command {
     constructor(bot) {
@@ -11,7 +10,7 @@ class restart extends Command {
     }
 
     async run({intr, opts}) {
-        const bot = this.bot;
+        const { bot } = this;
         if(process.env.NODE_ENV === 'development')
             return bot.intrReply({intr, embed: new EmbedBase(bot, {
                 description: '❌ **That command does not work in the `dev` environment**',
@@ -41,4 +40,4 @@ class restart extends Command {
     }
 }
 
-module.exports = restart;
+export default restart;

@@ -1,5 +1,4 @@
-const EmbedBase = require('../../classes/EmbedBase');
-const FirebaseEvent = require('../../classes/FirebaseEvent');
+import { FirebaseEvent, EmbedBase } from '../../classes';
 
 class DiscordAcctLink extends FirebaseEvent {
     alpha_role = '751919744528941126';
@@ -16,7 +15,7 @@ class DiscordAcctLink extends FirebaseEvent {
      * @param {FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>} doc 
      */
     async onAdd(doc) {
-        const bot = this.bot;
+        const { bot } = this;
         // Apply the Alpha Tester role to the user that linked their acct
         // Log a message in the #bot-log channel
         //doc was created in discord/webapp/users, this means they just connected their discord acct
@@ -69,4 +68,4 @@ class DiscordAcctLink extends FirebaseEvent {
     }
 }
 
-module.exports = DiscordAcctLink;
+export default DiscordAcctLink;

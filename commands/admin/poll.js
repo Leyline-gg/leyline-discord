@@ -1,6 +1,4 @@
-const Command = require('../../classes/Command');
-const CommunityPoll = require('../../classes/CommunityPoll');
-const EmbedBase = require('../../classes/EmbedBase');
+import { Command, EmbedBase, CommunityPoll, } from '../../classes';;
 
 class poll extends Command {
     constructor(bot) {
@@ -78,7 +76,7 @@ class poll extends Command {
     }
 
     async run({intr, opts}) {
-        const bot = this.bot;
+        const { bot } = this;
         
         //validate args
         if(opts.getNumber('duration') > 24)
@@ -113,4 +111,4 @@ class poll extends Command {
     }
 }
 
-module.exports = poll;
+export default poll;

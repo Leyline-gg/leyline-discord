@@ -1,6 +1,4 @@
-const EmbedBase = require('../../classes/EmbedBase');
-const FirebaseEvent = require('../../classes/FirebaseEvent');
-const XPService = require('../../classes/XPService');
+import { FirebaseEvent, EmbedBase, XPService } from '../../classes';
 
 class LevelUp extends FirebaseEvent {
     constructor(bot) {
@@ -33,7 +31,7 @@ class LevelUp extends FirebaseEvent {
      * @param {FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>} doc 
      */
     async onAdd(doc) {
-        const bot = this.bot;
+        const { bot } = this;
         const uid = doc.data().uid;
         if(!uid) return bot.logger.error(`${this.name} onAdd() could not find a uid for doc ${doc.ref.path}`);
         const xp = await XPService.getUserXP(uid);
@@ -65,4 +63,4 @@ class LevelUp extends FirebaseEvent {
     }
 }
 
-module.exports = LevelUp;
+export default LevelUp;

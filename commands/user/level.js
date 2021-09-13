@@ -1,6 +1,4 @@
-const Command = require('../../classes/Command');
-const XPService = require('../../classes/XPService');
-const EmbedBase = require('../../classes/EmbedBase');
+import { Command, EmbedBase, XPService } from '../../classes';
 
 class level extends Command {
     constructor(bot) {
@@ -30,7 +28,7 @@ class level extends Command {
     }
 
     async run({intr, opts}) {
-        const bot = this.bot;
+        const { bot } = this;
         // Command logic
         try {
             //get the target from opts, otherwise user is checking their own profile
@@ -62,4 +60,4 @@ class level extends Command {
     }
 }
 
-module.exports = level;
+export default level;

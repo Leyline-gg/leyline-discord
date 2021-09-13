@@ -1,6 +1,4 @@
-const Command = require('../../classes/Command');
-const EmbedBase = require('../../classes/EmbedBase');
-const ConfirmInteraction = require('../../classes/ConfirmInteraction');
+import { Command, EmbedBase } from '../../classes';
 
 class shutdown extends Command {
     constructor(bot) {
@@ -12,7 +10,7 @@ class shutdown extends Command {
     }
 
     async run({intr}) {
-        const bot = this.bot;
+        const { bot } = this;
 
         // Get user confirmation first
         const confirm = await bot.intrConfirm({intr, embed: new EmbedBase(bot, {
@@ -36,4 +34,4 @@ class shutdown extends Command {
     }
 }
 
-module.exports = shutdown;
+export default shutdown;

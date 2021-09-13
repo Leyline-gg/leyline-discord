@@ -1,4 +1,4 @@
-class Command {
+export class Command {
     constructor(bot, {
         name = null,
         description = "No description provided.",
@@ -30,4 +30,3 @@ class Command {
         return Object.assign(this, appcmd);
     }
 }
-module.exports = Command;
