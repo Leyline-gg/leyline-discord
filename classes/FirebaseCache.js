@@ -1,7 +1,8 @@
+//A local cache that stays in sync with Firestore but can be queried synchronously
 import admin from 'firebase-admin';
 
 export class FirebaseCache {
-    cache = new Map();
+    _cache = new Map(); //immutablity implies that local changes do not sync w database
     ready = false;  //true when initialization is complete
     constructor({
         path=null,   //firebase path to watch
@@ -19,10 +20,10 @@ export class FirebaseCache {
                 switch(docChange.type) {
                     case 'added':
                     case 'modified':
-                        this.cache.set(docChange.doc.id, docChange.doc.data());
+                        this._cache.set(docChange.doc.id, docChange.doc.data());
                         break;
                     case 'removed':
-                        this.cache.delete(docChange.doc.id);
+                        this._cache.delete(docChange.doc.id);
                         break;
                 }
             }
@@ -32,15 +33,15 @@ export class FirebaseCache {
 
     get(id) {
         //if(this.cache.has(id)) throw new Error(`Could not find ${id} in ${this.constructor.name}`);
-        return this.cache.get(id);
+        return this._cache.get(id);
     }
 
     keys() {
-        return [...this.cache.keys()];
+        return [...this._cache.keys()];
     }
     
     values() {
-        return [...this.cache.values()];
+        return [...this._cache.values()];
     }
 
     // Implement setter that updates local & cloud?
