@@ -201,7 +201,7 @@ export class CommunityPoll {
         duration *= 24 * 60;	//convert days to minutes
 		const { msg, question } = this;
 		return msg.startThread({
-			name: question,
+			name: question.substr(0, 100),
 			autoArchiveDuration: duration,
 		});
     }
