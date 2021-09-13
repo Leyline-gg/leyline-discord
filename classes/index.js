@@ -2,6 +2,7 @@ export * from './Command.js';
 export * from './CommunityPoll.js';
 export * from './LeylineUser.js';
 export * from './Logger.js';
+export * from './FirebaseCache';
 export * from './collectors/ReactionCollectorBase.js';
 export * from './collectors/GoodActsReactionCollector.js';
 export * from './collectors/KindWordsReactionCollector.js';
