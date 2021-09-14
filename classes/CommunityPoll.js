@@ -1,4 +1,5 @@
 import { Collection } from 'discord.js';
+import truncate from 'truncate';
 import * as Firebase from '../api';
 import { EmbedBase, XPService } from '.';
 
@@ -111,7 +112,7 @@ export class CommunityPoll {
                 type: 2,
                 style: 2,
                 custom_id: ch.name,
-                label: ch.value,
+                label: truncate(ch.value, 79),
                 emoji: {
                     name: this.nums_unicode[ch.name],
                 },
@@ -201,7 +202,7 @@ export class CommunityPoll {
         duration *= 24 * 60;	//convert days to minutes
 		const { msg, question } = this;
 		return msg.startThread({
-			name: question.substr(0, 100),
+			name: truncate(question.substr, 99),
 			autoArchiveDuration: duration,
 		});
     }
