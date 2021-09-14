@@ -1,3 +1,16 @@
+# [2.3.1](https://github.com/Leyline-gg/leyline-discord/releases/tag/v2.3.1) (2021-09-13)
+
+## Dev Notes
+Patch to address an LLP/XP glitch introduced with the last update
+
+## Existing Feature Changes
+- Moderators can no longer approve their own submissions
+    - Any reactions they add to their own submission will have no effect, except for the rejection reaction
+
+## Bug Fixes
+- A submission could be approved multiple times and the author would receive additional LLP/XP
+    - The users that were affected by this will keep the extra LLP/XP that they received
+
 # [2.3.0](https://github.com/Leyline-gg/leyline-discord/releases/tag/v2.3.0) (2021-09-12)
 
 ## Dev Notes
