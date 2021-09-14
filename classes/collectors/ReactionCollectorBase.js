@@ -77,14 +77,16 @@ export class ReactionCollectorBase {
 				//this takes the place of the reactioncollector filter
 				if(!(bot.checkMod(user.id) && this.MOD_EMOJIS.some(e => e.unicode === reaction.emoji.name)))
 					return;
-
-				//end this modReactionCollector
-				this.collector.stop();
+				
 				await msg.fetchReactions();
 				//submission was rejected
 				if(reaction.emoji.name === '❌') 
 					return this.rejectSubmission({user});
+				//a moderator cannot approve their own submission
+				if(user.id === msg.author.id) return;
 
+				//end this modReactionCollector
+				this.collector.stop();
 				this.approveSubmission({reaction, user});
 			});
 		return this;
@@ -132,6 +134,9 @@ export class ReactionCollectorBase {
 	 */
 	rejectSubmission({user}) {
 		const { bot, msg } = this;
+
+		//end the modReactionCollector
+		this.collector.stop();
 
 		//update cloud
 		/*await*/ Firebase.rejectCollector({user, collector: this});
