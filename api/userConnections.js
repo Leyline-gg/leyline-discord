@@ -43,7 +43,7 @@ export const getDiscordDoc = async function (discord_uid, include_metadata = fal
  * @returns {Promise<boolean>} `true` if succesfully created, `false` if not
  */
 export const createDiscordUser = async function (discord_uid) {
-    return firestore()
+    return admin.firestore()
         .collection('discord/bot/users')
         .doc(discord_uid)
         .create()

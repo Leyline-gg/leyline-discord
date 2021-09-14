@@ -65,7 +65,7 @@ export const getNFT = async function (id) {
  * @returns {Promise<Object | null>} Random NFT information if one was found, else `null` 
  */
 export const getRandomNFT = async function ({rarity=null, reward_type='MYSTERY_BOX'} = {}) {
-    let q = firestore()
+    let q = admin.firestore()
         .collection('items')
         .where('rewardType', '==', reward_type);
     if(!!rarity) q = q.where('rarity', '==', rarity);
