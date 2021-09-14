@@ -16,7 +16,7 @@ export const addInventoryItem = async function (uid, item, klaytn_tx_hash) {
         itemData.klaytn_tx_hash = klaytn_tx_hash;
     }
     await admin.firestore().runTransaction(async (t) => {
-        const userDoc = firestore().doc(`users/${uid}`);
+        const userDoc = admin.firestore().doc(`users/${uid}`);
         var newInventoryItem = await userDoc.collection('inventory').add(itemData);
         inventoryItemId = newInventoryItem.id;
     });
