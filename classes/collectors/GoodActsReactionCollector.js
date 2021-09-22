@@ -79,7 +79,8 @@ export class GoodActsReactionCollector extends ReactionCollectorBase {
 			});
 		else await this.awardAuthorReactionLLP({
 			user: user,
-			pog: `Discord ${msg._activityType} ${this.media_type[0].toUpperCase() + this.media_type.slice(1)} Received Reaction`,
+			pog: `Discord <a href="${msg.url}">\
+				${msg._activityType} ${this.media_type[0].toUpperCase() + this.media_type.slice(1)}</a> Received Reaction`,
 		});
 		return;
 	}
@@ -138,7 +139,8 @@ export class GoodActsReactionCollector extends ReactionCollectorBase {
 			//award LLP to msg author
 			else await this.awardApprovalLLP({
 				user: msg.author,
-				pog: `Discord ${msg._activityType} ${this.media_type[0].toUpperCase() + this.media_type.slice(1)} Approved`,
+				pog: `Discord <a href="${msg.url}">\
+					${msg._activityType} ${this.media_type[0].toUpperCase() + this.media_type.slice(1)}</a> Approved`,
 			});
 
 			// ---  Give LLP to the users that have already reacted   ---
@@ -156,7 +158,8 @@ export class GoodActsReactionCollector extends ReactionCollectorBase {
 							old_user.id !== msg.author.id &&
 							await this.awardAuthorReactionLLP({
 								user: old_user,
-								pog: `Discord ${msg._activityType} ${this.media_type[0].toUpperCase() + this.media_type.slice(1)} Received Reaction`,
+								pog: `Discord <a href="${msg.url}">\
+									${msg._activityType} ${this.media_type[0].toUpperCase() + this.media_type.slice(1)}</a> Received Reaction`,
 							});
 
 						//exit if user is not connected to Leyline
