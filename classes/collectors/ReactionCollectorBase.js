@@ -255,7 +255,7 @@ export class ReactionCollectorBase {
      * @param {User} args.user Discord user
      * @param {string} [args.pog] "Proof of good" - message to display in LLP history
 	 */
-	async awardReactionLLP({user, pog='Discord Moral Support'}) {
+	async awardReactionLLP({user, pog=`Discord <a href="${this.msg.url}">Moral Support</a>`}) {
 		const { bot, msg } = this;
 
 		//new user reacted, award LLP
