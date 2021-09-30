@@ -47,7 +47,7 @@ class tag extends Command {
 
         //Parse a tag's response
         const parseResponse = function (res) {
-            return res.replace('\\n', '\n');
+            return res.replaceAll('\\n', '\n');
         };
 
         const target = opts.getUser('target');
