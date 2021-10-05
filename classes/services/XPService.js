@@ -4,7 +4,7 @@ import { EmbedBase, LeylineUser } from '..';
 import xplevels from '../../xplevels.js'
 
 export class XPService {
-    static LEVELS =xplevels.LEVELS;
+    static LEVELS = xplevels.LEVELS;
     static ROLES = xplevels.ROLES;
     static COLLECTION_PATH = 'discord/bot/xp_transactions';
     /**
@@ -288,5 +288,3 @@ export class XPService {
         }
     }
 }
-
-
