@@ -82,13 +82,26 @@ class punish extends Command {
     }
 
     subcommands = {
-        warn: ({intr, type, user, reason}) => {
-            PunishmentService.recordPunishment({
-                uid: user.id,
+        warn: async ({intr, type, user, reason}) => {
+            const { bot } = this;
+            //issue punishment
+            await PunishmentService.warnUser({
+                bot,
+                mod: intr.user,
+                user,
+                reason,
+            });
+            //log punishment
+            /*await*/ PunishmentService.logPunishment({
+                bot,
+                user,
                 mod: intr.user,
                 type,
                 reason,
             });
+            return bot.intrReply({intr, embed: new EmbedBase(bot, {
+                description: `⚖ **Punishment Successfully Issued**`,
+            }).Punish(), ephemeral: true});
         },
         channel: ({intr, nft, opts}) => {
             const { bot } = this;
@@ -106,7 +119,7 @@ class punish extends Command {
     async run({intr, opts}) {
         const { bot } = this;
 
-        //gotta store `type` separately, thanks 'use strict' :/
+        //gotta store `type` separately to pass into subcmd, thanks 'use strict' :/
         const [type, user, duration, reason] = [
             opts.getSubcommand(),
             opts.getUser('target'),
@@ -122,7 +135,22 @@ class punish extends Command {
         //parse duration to epoch timestamp
         const expires = duration && Date.now() + Math.round(duration * 24 * 3600 * 1000);
 
-        this.subcommands[type]({intr, type: PunishmentService.PUNISHMENT_TYPES[type.toUpperCase()], user, expires, reason});
+        //easter egg
+        //if(user.id === '139120967208271872')
+        //    return bot.intrReply({intr, embed: new EmbedBase(bot, {
+        //        title: 'Nice try!',
+        //        image: {
+        //            url: '',
+        //        },
+        //    }).Warn()});
+
+        this.subcommands[type]({
+            intr, 
+            user, 
+            expires, 
+            reason,
+            type: PunishmentService.PUNISHMENT_TYPES[type.toUpperCase()], 
+        });
     }
 }
 

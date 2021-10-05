@@ -37,7 +37,7 @@ class embedtest extends Command {
                     inline: true,
                 },
             ],
-        }).Punish()});
+        }).Punish(), files: ['./images/avatar-default.png']});
     }
 }
 

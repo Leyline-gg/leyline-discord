@@ -50,12 +50,11 @@ export class PunishmentService {
      * @param {number} [args.expires] Unix timestamp for when punishment should expire. `null` if no expiration
      * @param {string} [args.reason] Mod-provided reason for why punishment was issued. `null` if no reason
      * @param {number} [args.timestamp] Unix timestamp of when punishment was issued. Defaults to `Date.now()`
-     * @param {Object} [args.metadata] Metadata to be included in Firestore doc
      * @returns Resolves to added doc
      */
-    static async logPunishment({bot, user, mod, type, expires=null, reason=null, timestamp=Date.now(), metadata=null} = {}) {
+    static async logPunishment({bot, user, mod, type, expires=null, reason=null, timestamp=Date.now()} = {}) {
         const { PUNISHMENT_TYPES } = this;
-        const public_embed = new EmbedBase(bot, {
+        const embed = new EmbedBase(bot, {
             title: 'Punishment Issued',
             fields: [
                 {
@@ -81,17 +80,32 @@ export class PunishmentService {
                 },
                 { name: '\u200b', value: '\u200b', inline: true },
             ],
+            timestamp,
         }).Punish();
-
+        
         //Message user
-        bot.sendDM({send_disabled_msg: false, user, embed: public_embed});
+        await bot.sendDM({send_disabled_msg: false, user, embed});
 
         //log publicly
         if(type === PUNISHMENT_TYPES.BAN || type === PUNISHMENT_TYPES.KICK)
-            bot.logPunishment({embed});
+            await bot.logPunishment({embed});
         
+        //generate private embed
+        embed.fields.push(...[
+            {
+                name: 'Target',
+                value: bot.formatUser(user),
+                inline: true,
+            },
+            {
+                name: 'Warnings',
+                value: '0',
+                inline: true,
+            },
+            { name: '\u200b', value: '\u200b', inline: true },
+        ]);
         //log privately
-        bot.logDiscord({});
+        await bot.logDiscord({embed});
     }
 
     /**
@@ -210,7 +224,7 @@ export class PunishmentService {
         if(!member) throw new Error('I could not find that member in the server!');
 
         //issue punishment
-        member.ban({
+        await member.ban({
             reason: `Punishment issued by ${mod.tag}`,
         });
 
