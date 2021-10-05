@@ -12,3 +12,4 @@ export * from './components/EmbedBase.js';
 export * from './events/DiscordEvent.js';
 export * from './events/FirebaseEvent.js';
 export * from './services/XPService.js';
+export * from './services/PunishmentService';

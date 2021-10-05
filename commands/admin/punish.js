@@ -1,4 +1,4 @@
-import { Command, EmbedBase, LeylineUser, } from '../../classes';
+import { Command, EmbedBase, PunishmentService } from '../../classes';
 import * as Firebase from '../../api';
 
 class PunishmentSubCommand {
@@ -82,6 +82,14 @@ class punish extends Command {
     }
 
     subcommands = {
+        warn: ({intr, type, user, reason}) => {
+            PunishmentService.recordPunishment({
+                uid: user.id,
+                mod: intr.user,
+                type,
+                reason,
+            });
+        },
         channel: ({intr, nft, opts}) => {
             const { bot } = this;
             const ch = opts.getChannel('channel');
@@ -98,13 +106,23 @@ class punish extends Command {
     async run({intr, opts}) {
         const { bot } = this;
 
-        const [user, duration, reason] = [
+        //gotta store `type` separately, thanks 'use strict' :/
+        const [type, user, duration, reason] = [
+            opts.getSubcommand(),
             opts.getUser('target'),
             opts.getNumber('duration'),
             opts.getString('reason'),
         ];
 
-        this.subcommands[opts.getSubcommand()]({user, duration, reason});
+        if(!!duration && duration <= 0)
+            return bot.intrReply({intr, embed: new EmbedBase(bot, {
+                description: `❌ **The duration of the punishment must be \`>\` 0 days**`,
+            }).Error()});
+
+        //parse duration to epoch timestamp
+        const expires = duration && Date.now() + Math.round(duration * 24 * 3600 * 1000);
+
+        this.subcommands[type]({intr, type: PunishmentService.PUNISHMENT_TYPES[type.toUpperCase()], user, expires, reason});
     }
 }
 

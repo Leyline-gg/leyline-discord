@@ -70,13 +70,14 @@ class LeylineBot extends Client {
      * @param {Object} args
      * @param {User} args.user Discord.js `User` object; recipient of msg
      * @param {EmbedBase} args.embed Singular embed object to be sent as response
+     * @param {boolean} [args.send_disabled_msg] Whether or not to send a public message prompting the user to enable messages from server members
      * @returns {Promise<Message>}
      */
-    sendDM({user, embed, ...options}) {
+    sendDM({user, embed, send_disabled_msg=true, ...options} = {}) {
         return user.send({
             embeds: [embed],
             ...options,
-        }).catch(() => this.sendDisabledDmMessage(user));
+        }).catch(() => send_disabled_msg && this.sendDisabledDmMessage(user));
     }
 
     /**
@@ -113,6 +114,19 @@ class LeylineBot extends Client {
      */
     async logReward({embed, ...options}) {
         return (await bot.channels.fetch(this.config.channels.reward_log)).send({
+            embeds: [embed],
+            ...options,
+        });
+    }
+
+    /**
+     * Sends a discord message on the bot's behalf to a public log channel, specific for punishments
+     * @param {Object} args
+     * @param {EmbedBase} args.embed Singular embed object to be sent in message
+     * @returns {Promise<Message>} Promise which resolves to the sent message
+     */
+     async logPunishment({embed, ...options}) {
+        return (await bot.channels.fetch(this.config.channels.punishment_log)).send({
             embeds: [embed],
             ...options,
         });
@@ -392,7 +406,7 @@ const postInit = async function () {
     })();
 
     //import ReactionCollectors (this can be modified later to take a more generic approach)
-    await (async function importReactionCollectors () {
+    await (async function importReactionCollectors() {
         let succesfully_imported = 0;
         const collectors = await admin
             .firestore()
@@ -420,7 +434,7 @@ const postInit = async function () {
     })();
 
     //import active polls
-    await (async function importPolls () {
+    await (async function importPolls() {
         let succesfully_imported = 0; 
         const polls = await admin
             .firestore()
