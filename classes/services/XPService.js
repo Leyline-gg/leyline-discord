@@ -4,7 +4,7 @@ import { EmbedBase, LeylineUser } from '..';
 import xplevels from '../../xplevels.js'
 
 export class XPService {
-    static LEVELS =xplevels.LEVELS;
+    static LEVELS = xplevels.LEVELS;
     static ROLES = xplevels.ROLES;
     static COLLECTION_PATH = 'discord/bot/xp_transactions';
     /**
@@ -155,7 +155,7 @@ export class XPService {
     // * All parameters need to be destructured *
     static awardRole({member, bot, level, role_id} = {}) {
         //remove old roles
-        for(const id of this.ROLES)
+        for(const id of Object.values(this.ROLES))
             id != role_id && member.roles.cache.has(id) && member.roles.remove(id, `User Reached Level ${level.number}`);
         
         if(member.roles.cache.has(role_id)) 

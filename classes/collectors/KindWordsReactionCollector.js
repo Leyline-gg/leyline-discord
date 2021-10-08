@@ -70,7 +70,7 @@ export class KindWordsReactionCollector extends ReactionCollectorBase {
 			//award LLP to msg author
 			else await this.awardApprovalLLP({
 				user: msg.author,
-				pog: `Discord Kind Words Shared`,
+				pog: `Discord <a href="${msg.url}">Kind Words</a> Shared`,
 			});
 
 			// ---  Give LLP to the users that have already reacted   ---
