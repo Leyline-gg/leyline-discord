@@ -1,3 +1,15 @@
+# [2.3.2](https://github.com/Leyline-gg/leyline-discord/releases/tag/v2.3.2) (2021-10-08)
+
+## Dev Notes
+Small patch to clean up an XP bug for a better new user experience. Keep an eye out for a larger update within a couple weeks!
+
+## Existing Feature Changes
+- Discord LLP transactions in your LLP Balance History will now include URLs that link directly to the Discord message that caused the transaction
+
+## Bug Fixes
+- Users were not earning new roles after leveling up
+    - All roles that were not automatically awarded have been manually distributed
+
 # [2.3.1](https://github.com/Leyline-gg/leyline-discord/releases/tag/v2.3.1) (2021-09-13)
 
 ## Dev Notes
