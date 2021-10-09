@@ -240,15 +240,25 @@ export class PunishmentService {
         return true;
     }
 
+    /**
+     * Generate a punishment history embed for a given user
+     * @param {Object} args Destructured args
+     * @param {LeylineBot} args.bot Leyline Bot class
+     * @param {User} args.user user to query punishment history for
+     * @returns {Promise<EmbedBase>} embed with punishment history
+     */
     static async getHistory({bot, user}) {
         const docs = (await admin.firestore()
             .collection(this.COLLECTION_PATH)
             .where('uid', '==', user.id)
             .get()).docs.sort((a, b) => b.data().timestamp - a.data().timestamp);
+
         const embed = new EmbedBase(bot, {
             title: `Punishment History for ${user.tag} (${user.id})`,
             description: `**Total punishments: ${docs.length}**`,
         }).Punish();
+
+        //add each individual punishment to embed
         for(const doc of docs) {
             const data = doc.data();
             embed.fields.push({
