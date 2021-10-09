@@ -14,7 +14,7 @@ export class EmbedBase extends MessageEmbed {
         timestamp = new Date(),
         footer = '',
         ...other
-    }) {
+    } = {}) {
         super({
             color,
             title,
@@ -39,6 +39,17 @@ export class EmbedBase extends MessageEmbed {
         return this;
     }
 
+    ErrorMsg(msg) {
+        const default_msg = '❌ I ran into an error while trying to run that command';
+        this.Error();
+        if(!msg) this.description = `**${default_msg}**`;
+        else {
+            this.title = default_msg;
+            this.description = msg;
+        }
+        return this;
+    }
+
     Warn() {
         this.color = 0xf5a122;  //0xf59a22 for slightly less bright
         return this;
@@ -54,5 +65,3 @@ export class EmbedBase extends MessageEmbed {
         return this;
     }
 }
-
-
