@@ -39,6 +39,11 @@ export class EmbedBase extends MessageEmbed {
         return this;
     }
 
+    ErrorDesc(msg) {
+        this.description = `❌ **${msg}**`;
+        return this.Error();
+    }
+
     ErrorMsg(msg) {
         const default_msg = '❌ I ran into an error while trying to run that command';
         this.Error();

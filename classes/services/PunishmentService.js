@@ -330,7 +330,7 @@ export class PunishmentService {
 
         //ensure user has role
         if(!member.roles.cache.has(MUTED_ROLE)) {
-            embed.description = `⚠ The member does not have the <@&${MUTED_ROLE}> role`;
+            embed.description = `⚠ The member did not have the <@&${MUTED_ROLE}> role`;
             await bot.logDiscord({embed});
             return false;
         }

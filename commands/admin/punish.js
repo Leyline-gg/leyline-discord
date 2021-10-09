@@ -174,7 +174,7 @@ class punish extends Command {
             type: PunishmentService.PUNISHMENT_TYPES[type.toUpperCase()], 
         }).catch(err => {
             bot.logger.error(err);
-            bot.intrReply({intr, embed: new EmbedBase(bot).ErrorMsg(err.message), ephemeral: true});
+            bot.intrReply({intr, embed: new EmbedBase(bot).ErrorDesc(err.message), ephemeral: true});
         });
     }
 }
