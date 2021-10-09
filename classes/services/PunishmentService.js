@@ -123,7 +123,7 @@ export class PunishmentService {
             user,
             force: true,
         });
-        if(!member) throw new Error('I could not find that member in the server!');
+        if(!member) throw new Error(`I could not find member ${user.id} in the server!`);
 
         //issue punishment (log in cloud)
         //store punishment in cloud
@@ -155,11 +155,11 @@ export class PunishmentService {
             user,
             force: true,
         });
-        if(!member) throw new Error('I could not find that member in the server!');
+        if(!member) throw new Error(`I could not find member ${user.id} in the server!`);
 
         //issue punishment
         if(member.roles.cache.has(MUTED_ROLE))
-            throw new Error('That member is already muted!');
+            throw new Error(`Member ${member.id} is already muted!`);
         await member.roles.add(MUTED_ROLE, `Punishment issued by ${mod.tag}`);
 
         //store punishment in cloud
@@ -189,7 +189,7 @@ export class PunishmentService {
             user,
             force: true,
         });
-        if(!member) throw new Error('I could not find that member in the server!');
+        if(!member) throw new Error(`I could not find member ${user.id} in the server!`);
 
         //issue punishment
         await member.kick(`Punishment issued by ${mod.tag}`);
@@ -221,7 +221,7 @@ export class PunishmentService {
             user,
             force: true,
         });
-        if(!member) throw new Error('I could not find that member in the server!');
+        if(!member) throw new Error(`I could not find member ${user.id} in the server!`);
 
         //issue punishment
         await member.ban({
@@ -272,5 +272,122 @@ export class PunishmentService {
         }
 
         return embed;
+    }
+
+    /**
+     * Reverse a MUTE punishment to a user. 
+     * Discord logging is handeled in this function
+     * @param {Object} args Destructured args
+     * @param {LeylineBot} args.bot bot
+     * @param {FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>} args.doc Punishment document in Firestore
+     * @returns {Promise<boolean>} Resolves to true if successfully executed
+     */
+     static async unmuteUser({bot, doc} = {}) {
+        const MUTED_ROLE = bot.config.muted_role;
+        const data = doc.data();
+        const issuer = bot.users.resolve(data.issued_by);
+        //generate embed to modify it later
+        const embed = new EmbedBase(bot, {
+            title: 'Punishment Expired',
+            fields: [
+                {
+                    name: 'Type',
+                    value: this.PUNISHMENT_TYPES.BAN,
+                    inline: true,
+                },
+                {
+                    name: 'Issued By',
+                    value: bot.formatUser(issuer),
+                    inline: true,
+                },
+                { name: '\u200b', value: '\u200b', inline: true },
+                {
+                    name: 'Reason',
+                    value: data.reason ?? 'No reason given',
+                    inline: true,
+                },
+                {
+                    name: 'Expired',
+                    value: bot.formatTimestamp(data.expires, 'R'),
+                    inline: true,
+                },
+                { name: '\u200b', value: '\u200b', inline: true },
+            ],
+        }).Punish();
+
+        //remove punishment
+        const member = await bot.leyline_guild.members.fetch({
+            user,
+            force: true,
+        });
+        if(!member) {
+            embed.description `⚠ I was unable to find the user in the server`;
+            await bot.logDiscord({embed});
+            return false;
+        };
+
+        //ensure user has role
+        if(!member.roles.cache.has(MUTED_ROLE)) {
+            embed.description `⚠ The member does not have the <@&${MUTED_ROLE}> role`;
+            await bot.logDiscord({embed});
+            return false;
+        }
+        //issue punishment
+        await member.roles.remove(MUTED_ROLE, `Scheduled unmute for punishment ${doc.id} issued by ${issuer?.tag || 'Unknown User'}`);
+
+        //log removal
+        await bot.logDiscord({embed});
+
+        return true;
+    }
+
+    /**
+     * Reverse a BAN punishment to a user. 
+     * Discord logging is handeled in this function
+     * @param {Object} args Destructured args
+     * @param {LeylineBot} args.bot bot
+     * @param {FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>} args.doc Punishment document in Firestore
+     * @returns {Promise<boolean>} Resolves to true if successfully executed
+     */
+     static async unbanUser({bot, doc} = {}) {
+        const data = doc.data();
+        const issuer = bot.users.resolve(data.issued_by);
+
+        //remove punishment
+        await bot.leyline_guild.bans.remove(
+            data.uid, 
+            `Scheduled unban for punishment ${doc.id} issued by ${issuer?.tag || 'Unknown User'}`
+        );
+
+        //log removal
+        await bot.logDiscord({embed: new EmbedBase(bot, {
+            title: 'Punishment Expired',
+            fields: [
+                {
+                    name: 'Type',
+                    value: this.PUNISHMENT_TYPES.BAN,
+                    inline: true,
+                },
+                {
+                    name: 'Issued By',
+                    value: bot.formatUser(issuer),
+                    inline: true,
+                },
+                { name: '\u200b', value: '\u200b', inline: true },
+                {
+                    name: 'Reason',
+                    value: data.reason ?? 'No reason given',
+                    inline: true,
+                },
+                {
+                    name: 'Expired',
+                    value: bot.formatTimestamp(data.expires, 'R'),
+                    inline: true,
+                },
+                { name: '\u200b', value: '\u200b', inline: true },
+            ],
+        }).Punish()});
+
+        return true;
     }
 }

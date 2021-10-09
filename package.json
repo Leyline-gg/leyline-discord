@@ -24,6 +24,7 @@
     "firebase-admin": "^9.8.0",
     "klaw": "^3.0.0",
     "moment": "^2.29.1",
+    "node-schedule": "^2.0.0",
     "truncate": "^2.1.0"
   }
 }
