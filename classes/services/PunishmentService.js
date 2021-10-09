@@ -111,23 +111,23 @@ export class PunishmentService {
      * @param {Object} args Destructured args
      * @param {LeylineBot} args.bot bot
      * @param {string} args.id Punishment ID retrieved from the Firestore `DocumentSnapshot`
-     * @param {string} args.type See `PUNISHMENT_TYPES`. Type of punishment
      * @param {Object} args.data Pre-fetched punishment data
+     * @param {string} args.data.type See `PUNISHMENT_TYPES`. Type of punishment
      * @param {string} args.data.uid Target Discord user ID
      * @param {string} args.data.issued_by ID of Discord Mod that issued the punishment
      * @param {number} args.data.expires Unix timestamp of punishment expiration
      * @param {string} [args.data.reason] Reason punishment was issued
      * @returns {PunishmentService} Resolves to this class
      */
-    static scheduleRemoval({bot, id, type, data}) {
+    static scheduleRemoval({bot, id, data}) {
         const { PUNISHMENT_TYPES: types } = this; 
         // If no expiration, exit
         // Check punishment type
         // Create scheduled job
         if(!data.expires) return;
         const job = scheduleJob(new Date(data.expires), (fire_date) => {
-            bot.logger.debug(`un${type} for punishment ${id} scheduled for ${fire_date} triggered at ${new Date()}`);
-            switch(type) {
+            bot.logger.debug(`un${data.type} for punishment ${id} scheduled for ${fire_date} triggered at ${new Date()}`);
+            switch(data.type) {
                 case types.BAN: {
                     this.unbanUser({bot, id, ...data});
                     break;
@@ -138,7 +138,7 @@ export class PunishmentService {
                 }
             }
         });
-        bot.logger.log(`un${type} for punishment ${id} scheduled for ${job.nextInvocation()}`);
+        bot.logger.log(`un${data.type} for punishment ${id} scheduled for ${job.nextInvocation()}`);
 
         return this;
     }
@@ -214,8 +214,8 @@ export class PunishmentService {
         this.scheduleRemoval({
             bot,
             id: doc.id,
-            type,
             data: {
+                type,
                 uid: user.id,
                 issued_by: mod.id,
                 expires,
@@ -297,8 +297,8 @@ export class PunishmentService {
         this.scheduleRemoval({
             bot,
             id: doc.id,
-            type,
             data: {
+                type,
                 uid: user.id,
                 issued_by: mod.id,
                 expires,
@@ -333,7 +333,7 @@ export class PunishmentService {
             embed.fields.push({
                 name: `${data.type} - ${bot.formatTimestamp(data.timestamp, 'd')}`,
                 value: `
-                    **Issued by:** ${bot.formatUser(bot.users.resolve(data.issued_by ))}
+                    **Issued by:** ${bot.formatUser(bot.users.resolve(data.issued_by))}
                     **Reason:** \`${data.reason ?? 'No reason given'}\`
                     `,
                 inline: false,
@@ -356,7 +356,7 @@ export class PunishmentService {
      */
      static async unmuteUser({bot, id, uid, issued_by, reason=null}= {}) {
         const MUTED_ROLE = bot.config.muted_role;
-        const issuer = bot.users.resolve(issued_by);
+        const issuer = await bot.users.fetch(issued_by);
 
         //resolve target
         const member = await bot.leyline_guild.members.fetch({
@@ -429,7 +429,7 @@ export class PunishmentService {
      * @returns {Promise<boolean>} Resolves to true if successfully executed
      */
      static async unbanUser({bot, id, uid, issued_by, reason=null} = {}) {
-        const issuer = bot.users.resolve(issued_by);
+        const issuer = await bot.users.fetch(issued_by);
 
         //remove punishment, store resolved user
         const user = await bot.leyline_guild.bans.remove(

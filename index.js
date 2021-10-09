@@ -8,7 +8,7 @@ import admin from 'firebase-admin';
 import klaw from 'klaw';
 import path from 'path';
 import config from './config.js'
-import { ConfirmInteraction, EmbedBase, Logger, CommunityPoll, ReactionCollector } from './classes';
+import { ConfirmInteraction, EmbedBase, Logger, CommunityPoll, ReactionCollector, PunishmentService } from './classes';
 //formally, dotenv shouldn't be used in prod, but because staging and prod share a VM, it's an option I elected to go with for convenience
 import { config as dotenv_config} from 'dotenv';
 dotenv_config();
@@ -462,6 +462,30 @@ const postInit = async function () {
             }   
         }
         bot.logger.log(`Imported ${succesfully_imported} polls from Firestore`);
+        return;
+    })();
+
+    //import punishments
+    await (async function importPunishments() {
+        let succesfully_imported = 0; 
+        const punishments = await admin
+            .firestore()
+			.collection(PunishmentService.COLLECTION_PATH)
+			.where('expires', '>', Date.now())
+            .get();
+        for (const doc of punishments.docs) {
+            try {
+                PunishmentService.scheduleRemoval({
+                    bot,
+                    id: doc.id,
+                    data: { ...doc.data() },
+                });
+                succesfully_imported++;
+            } catch (err) {
+                bot.logger.error(`importPunishments error with doc id ${doc.id}: ${err}`);
+            }   
+        }
+        bot.logger.log(`Imported ${succesfully_imported} punishments from Firestore`);
         return;
     })();
 
