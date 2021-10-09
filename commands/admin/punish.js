@@ -1,14 +1,14 @@
 import { Command, EmbedBase, PunishmentService } from '../../classes';
-import * as Firebase from '../../api';
+import parse from 'parse-duration';
 
 class PunishmentSubCommand {
     constructor({
         name,
         description,
         options: {
-            target= true,
-            duration= true,
-            reason= true,
+            target=true,
+            duration=true,
+            reason=true,
         } = {},
     } = {}) {
         return {
@@ -23,9 +23,9 @@ class PunishmentSubCommand {
                     required: true,
                 }] : []),
                 ...(duration ? [{
-                    type: 'NUMBER',
+                    type: 'STRING',
                     name: 'duration',
-                    description: 'The duration of the punishment, in days. No duration means indefinite',
+                    description: 'The duration of the punishment, eg: 7d. No duration means indefinite',
                     required: false,
                 }] : []),
                 ...(reason ? [{
@@ -104,6 +104,30 @@ class punish extends Command {
                 description: `⚖ **Punishment Successfully Issued**`,
             }).Punish(), ephemeral: true});
         },
+        mute: async ({intr, type, user, expires, reason}) => {
+            const { bot } = this;
+            //confirm prompt from admin
+            //issue punishment
+            await PunishmentService.muteUser({
+                bot,
+                user,
+                mod: intr.user,
+                expires,
+                reason,
+            });
+            //log punishment
+            /*await*/ PunishmentService.logPunishment({
+                bot,
+                user,
+                mod: intr.user,
+                type,
+                expires,
+                reason,
+            });
+            return bot.intrReply({intr, embed: new EmbedBase(bot, {
+                description: `⚖ **Punishment Successfully Issued**`,
+            }).Punish(), ephemeral: true});
+        },
         history: async ({intr, user}) => {
             const { bot } = this;
             const embed = await PunishmentService.getHistory({bot, user});
@@ -118,18 +142,19 @@ class punish extends Command {
         const [type, user, duration, reason] = [
             opts.getSubcommand(),
             opts.getUser('target'),
-            opts.getNumber('duration'),
+            opts.getString('duration'),
             opts.getString('reason'),
         ];
+        const parsed_dur = parse(duration); //ms
 
-        if(!!duration && duration <= 0)
+        if(!!duration && !parsed_dur)
             return bot.intrReply({intr, embed: new EmbedBase(bot, {
-                description: `❌ **The duration of the punishment must be \`>\` 0 days**`,
+                description: `❌ **That's not a valid duration**`,
             }).Error()});
 
         //parse duration to epoch timestamp
         const expires = !!duration ?
-             Date.now() + Math.round(duration * 24 * 3600 * 1000) :
+             Date.now() + parsed_dur :
              null;
 
         //easter egg
@@ -147,6 +172,9 @@ class punish extends Command {
             expires, 
             reason,
             type: PunishmentService.PUNISHMENT_TYPES[type.toUpperCase()], 
+        }).catch(err => {
+            bot.logger.error(err);
+            bot.intrReply({intr, embed: new EmbedBase(bot).ErrorMsg(err.message), ephemeral: true});
         });
     }
 }
