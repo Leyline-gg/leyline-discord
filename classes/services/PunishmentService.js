@@ -79,6 +79,17 @@ export class PunishmentService {
                     inline: true,
                 },
                 { name: '\u200b', value: '\u200b', inline: true },
+                {
+                    name: 'Target',
+                    value: bot.formatUser(user),
+                    inline: true,
+                },
+                {
+                    name: 'Warnings',
+                    value: '0',
+                    inline: true,
+                },
+                { name: '\u200b', value: '\u200b', inline: true }
             ],
             timestamp,
         }).Punish();
@@ -89,21 +100,6 @@ export class PunishmentService {
         //log publicly
         if(type === PUNISHMENT_TYPES.BAN || type === PUNISHMENT_TYPES.KICK)
             await bot.logPunishment({embed});
-        
-        //generate private embed
-        embed.fields.push(...[
-            {
-                name: 'Target',
-                value: bot.formatUser(user),
-                inline: true,
-            },
-            {
-                name: 'Warnings',
-                value: '0',
-                inline: true,
-            },
-            { name: '\u200b', value: '\u200b', inline: true },
-        ]);
         //log privately
         await bot.logDiscord({embed});
     }
