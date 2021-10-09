@@ -221,7 +221,9 @@ class LeylineBot extends Client {
      * @param {User} user Discord.js `User` object 
      */
     formatUser(user) {
-        return `<@!${user.id}> (${user.tag})`;
+        return !!user?.id ? 
+            `<@!${user.id}> (${user.tag})` :
+            'Unknown User';
     }
 
     /**

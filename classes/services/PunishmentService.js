@@ -247,13 +247,16 @@ export class PunishmentService {
             .get()).docs.sort((a, b) => b.data().timestamp - a.data().timestamp);
         const embed = new EmbedBase(bot, {
             title: `Punishment History for ${user.tag} (${user.id})`,
-            description: `**${docs.length} total punishments**`,
+            description: `**Total punishments: ${docs.length}**`,
         }).Punish();
         for(const doc of docs) {
             const data = doc.data();
             embed.fields.push({
                 name: `${data.type} - ${bot.formatTimestamp(data.timestamp, 'd')}`,
-                value: `${data.reason ?? 'No reason given'}`,
+                value: `
+                    **Issued by:** ${bot.formatUser(bot.users.resolve(data.issued_by ))}
+                    **Reason:** \`${data.reason ?? 'No reason given'}\`
+                    `,
                 inline: false,
             });
         }
