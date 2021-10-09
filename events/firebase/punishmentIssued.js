@@ -22,21 +22,23 @@ class PunishmentIssued extends FirebaseEvent {
         // Create scheduled job
         if(!data.expires) return;
         switch(data.type) {
-            case 'BAN':
+            case PunishmentService.PUNISHMENT_TYPES.BAN: {
                 //create job
                 const job = schedule.scheduleJob(new Date(data.expires), (fire_date) => {
-                    bot.logger.debug(`Unban of user ${data.uid} scheduled for ${fire_date} is happening at ${new Date()}`);
+                    bot.logger.debug(`Unban for punishment ${doc.id} scheduled for ${fire_date} is happening at ${new Date()}`);
                     PunishmentService.unbanUser({bot, doc});
                 });
                 bot.logger.log(`Unban for punishment ${doc.id} scheduled for ${job.nextInvocation()}`);
                 break;
-            case 'MUTE':
+            }
+            case PunishmentService.PUNISHMENT_TYPES.MUTE: {
                 const job = schedule.scheduleJob(new Date(data.expires), (fire_date) => {
-                    bot.logger.debug(`Unmute of user ${data.uid} scheduled for ${fire_date} is happening at ${new Date()}`);
+                    bot.logger.debug(`Unmute for punishment ${doc.id} scheduled for ${fire_date} is happening at ${new Date()}`);
                     PunishmentService.unmuteUser({bot, doc});
                 });
                 bot.logger.log(`Unmute for punishment ${doc.id} scheduled for ${job.nextInvocation()}`);
                 break;
+            }
             default:
                 return;
         }

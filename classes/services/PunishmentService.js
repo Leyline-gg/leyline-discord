@@ -286,13 +286,20 @@ export class PunishmentService {
         const MUTED_ROLE = bot.config.muted_role;
         const data = doc.data();
         const issuer = bot.users.resolve(data.issued_by);
+
+        //resolve target
+        const member = await bot.leyline_guild.members.fetch({
+            user: data.uid,
+            force: true,
+        });
+
         //generate embed to modify it later
         const embed = new EmbedBase(bot, {
             title: 'Punishment Expired',
             fields: [
                 {
                     name: 'Type',
-                    value: this.PUNISHMENT_TYPES.BAN,
+                    value: this.PUNISHMENT_TYPES.MUTE,
                     inline: true,
                 },
                 {
@@ -307,33 +314,31 @@ export class PunishmentService {
                     inline: true,
                 },
                 {
-                    name: 'Expired',
-                    value: bot.formatTimestamp(data.expires, 'R'),
+                    name: 'Target',
+                    value: bot.formatUser(member?.user),
                     inline: true,
                 },
                 { name: '\u200b', value: '\u200b', inline: true },
             ],
         }).Punish();
 
-        //remove punishment
-        const member = await bot.leyline_guild.members.fetch({
-            user,
-            force: true,
-        });
         if(!member) {
-            embed.description `⚠ I was unable to find the user in the server`;
+            embed.description = `⚠ I was unable to find the user in the server`;
             await bot.logDiscord({embed});
             return false;
         };
 
         //ensure user has role
         if(!member.roles.cache.has(MUTED_ROLE)) {
-            embed.description `⚠ The member does not have the <@&${MUTED_ROLE}> role`;
+            embed.description = `⚠ The member does not have the <@&${MUTED_ROLE}> role`;
             await bot.logDiscord({embed});
             return false;
         }
-        //issue punishment
-        await member.roles.remove(MUTED_ROLE, `Scheduled unmute for punishment ${doc.id} issued by ${issuer?.tag || 'Unknown User'}`);
+        //remove punishment
+        await member.roles.remove(
+            MUTED_ROLE, 
+            `Scheduled unmute for punishment ${doc.id} issued by ${issuer?.tag || 'Unknown User'}`
+        );
 
         //log removal
         await bot.logDiscord({embed});
@@ -353,8 +358,8 @@ export class PunishmentService {
         const data = doc.data();
         const issuer = bot.users.resolve(data.issued_by);
 
-        //remove punishment
-        await bot.leyline_guild.bans.remove(
+        //remove punishment, store resolved user
+        const user = await bot.leyline_guild.bans.remove(
             data.uid, 
             `Scheduled unban for punishment ${doc.id} issued by ${issuer?.tag || 'Unknown User'}`
         );
@@ -380,8 +385,8 @@ export class PunishmentService {
                     inline: true,
                 },
                 {
-                    name: 'Expired',
-                    value: bot.formatTimestamp(data.expires, 'R'),
+                    name: 'Target',
+                    value: bot.formatUser(user),
                     inline: true,
                 },
                 { name: '\u200b', value: '\u200b', inline: true },
