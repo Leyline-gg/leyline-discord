@@ -31,7 +31,7 @@ export default {
                 private_log: '843892751276048394',
                 public_log: '810265135419490314',
                 reward_log: '872724760805654538',
-                punishment_log: '892268882285457439', //public punishment log
+                punishment_log: '896539306800328734', //public punishment log
                 ama_vc: '794283967460147221',
                 polls: '790063418898907166',
             },
@@ -59,6 +59,7 @@ export default {
                 '853414453206188063',   //do good alerts
                 '874704370103615559',   //Bot Updates
             ],
+            muted_role: '896538689734324224',
         };
     },
     get development() {
