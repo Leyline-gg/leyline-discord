@@ -239,4 +239,25 @@ export class PunishmentService {
 
         return true;
     }
+
+    static async getHistory({bot, user}) {
+        const docs = (await admin.firestore()
+            .collection(this.COLLECTION_PATH)
+            .where('uid', '==', user.id)
+            .get()).docs.sort((a, b) => b.data().timestamp - a.data().timestamp);
+        const embed = new EmbedBase(bot, {
+            title: `Punishment History for ${user.tag} (${user.id})`,
+            description: `**${docs.length} total punishments**`,
+        }).Punish();
+        for(const doc of docs) {
+            const data = doc.data();
+            embed.fields.push({
+                name: `${data.type} - ${bot.formatTimestamp(data.timestamp, 'd')}`,
+                value: `${data.reason ?? 'No reason given'}`,
+                inline: false,
+            });
+        }
+
+        return embed;
+    }
 }

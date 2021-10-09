@@ -84,6 +84,7 @@ class punish extends Command {
     subcommands = {
         warn: async ({intr, type, user, reason}) => {
             const { bot } = this;
+            //confirm prompt from admin
             //issue punishment
             await PunishmentService.warnUser({
                 bot,
@@ -103,22 +104,16 @@ class punish extends Command {
                 description: `⚖ **Punishment Successfully Issued**`,
             }).Punish(), ephemeral: true});
         },
-        channel: ({intr, nft, opts}) => {
+        history: async ({intr, user}) => {
             const { bot } = this;
-            const ch = opts.getChannel('channel');
-            //validate args
-            if(!ch.isVoice()) return bot.intrReply({intr, embed: new EmbedBase(bot, {
-                description: `❌ **That's not a voice channel!**`,
-            }).Error()});
-
-            this.nftDropVC({intr, nft, ch});
-            return;
+            const embed = await PunishmentService.getHistory({bot, user});
+            return bot.intrReply({intr, embed, ephemeral: true});
         },
     };
 
     async run({intr, opts}) {
         const { bot } = this;
-
+        
         //gotta store `type` separately to pass into subcmd, thanks 'use strict' :/
         const [type, user, duration, reason] = [
             opts.getSubcommand(),
@@ -133,7 +128,9 @@ class punish extends Command {
             }).Error()});
 
         //parse duration to epoch timestamp
-        const expires = duration && Date.now() + Math.round(duration * 24 * 3600 * 1000);
+        const expires = !!duration ?
+             Date.now() + Math.round(duration * 24 * 3600 * 1000) :
+             null;
 
         //easter egg
         //if(user.id === '139120967208271872')
