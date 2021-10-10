@@ -8,7 +8,7 @@ import admin from 'firebase-admin';
 import klaw from 'klaw';
 import path from 'path';
 import config from './config.js'
-import { ConfirmInteraction, EmbedBase, Logger, CommunityPoll, ReactionCollector } from './classes';
+import { ConfirmInteraction, EmbedBase, Logger, CommunityPoll, ReactionCollector, PunishmentService } from './classes';
 //formally, dotenv shouldn't be used in prod, but because staging and prod share a VM, it's an option I elected to go with for convenience
 import { config as dotenv_config} from 'dotenv';
 dotenv_config();
@@ -70,13 +70,14 @@ class LeylineBot extends Client {
      * @param {Object} args
      * @param {User} args.user Discord.js `User` object; recipient of msg
      * @param {EmbedBase} args.embed Singular embed object to be sent as response
+     * @param {boolean} [args.send_disabled_msg] Whether or not to send a public message prompting the user to enable messages from server members
      * @returns {Promise<Message>}
      */
-    sendDM({user, embed, ...options}) {
+    sendDM({user, embed, send_disabled_msg=true, ...options} = {}) {
         return user.send({
             embeds: [embed],
             ...options,
-        }).catch(() => this.sendDisabledDmMessage(user));
+        }).catch(() => send_disabled_msg && this.sendDisabledDmMessage(user));
     }
 
     /**
@@ -113,6 +114,19 @@ class LeylineBot extends Client {
      */
     async logReward({embed, ...options}) {
         return (await bot.channels.fetch(this.config.channels.reward_log)).send({
+            embeds: [embed],
+            ...options,
+        });
+    }
+
+    /**
+     * Sends a discord message on the bot's behalf to a public log channel, specific for punishments
+     * @param {Object} args
+     * @param {EmbedBase} args.embed Singular embed object to be sent in message
+     * @returns {Promise<Message>} Promise which resolves to the sent message
+     */
+     async logPunishment({embed, ...options}) {
+        return (await bot.channels.fetch(this.config.channels.punishment_log)).send({
             embeds: [embed],
             ...options,
         });
@@ -207,7 +221,9 @@ class LeylineBot extends Client {
      * @param {User} user Discord.js `User` object 
      */
     formatUser(user) {
-        return `<@!${user.id}> (${user.tag})`;
+        return !!user?.id ? 
+            `<@!${user.id}> (${user.tag})` :
+            'Unknown User';
     }
 
     /**
@@ -392,7 +408,7 @@ const postInit = async function () {
     })();
 
     //import ReactionCollectors (this can be modified later to take a more generic approach)
-    await (async function importReactionCollectors () {
+    await (async function importReactionCollectors() {
         let succesfully_imported = 0;
         const collectors = await admin
             .firestore()
@@ -420,7 +436,7 @@ const postInit = async function () {
     })();
 
     //import active polls
-    await (async function importPolls () {
+    await (async function importPolls() {
         let succesfully_imported = 0; 
         const polls = await admin
             .firestore()
@@ -446,6 +462,30 @@ const postInit = async function () {
             }   
         }
         bot.logger.log(`Imported ${succesfully_imported} polls from Firestore`);
+        return;
+    })();
+
+    //import punishments
+    await (async function importPunishments() {
+        let succesfully_imported = 0; 
+        const punishments = await admin
+            .firestore()
+			.collection(PunishmentService.COLLECTION_PATH)
+			.where('expires', '>', Date.now())
+            .get();
+        for (const doc of punishments.docs) {
+            try {
+                PunishmentService.scheduleRemoval({
+                    bot,
+                    id: doc.id,
+                    data: { ...doc.data() },
+                });
+                succesfully_imported++;
+            } catch (err) {
+                bot.logger.error(`importPunishments error with doc id ${doc.id}: ${err}`);
+            }   
+        }
+        bot.logger.log(`Imported ${succesfully_imported} punishments from Firestore`);
         return;
     })();
 

@@ -77,21 +77,22 @@ class poll extends Command {
 
     async run({intr, opts}) {
         const { bot } = this;
+        const [duration, question] = [opts.getNumber('duration'), opts.getString('question')];
         
         //validate args
-        if(opts.getNumber('duration') > 24)
+        if(duration > 24)
             return bot.intrReply({intr, embed: new EmbedBase(bot, {
                 description: `❌ **24 days is the maximum duration of the poll!**`,
             }).Error()});
-        if(opts.getNumber('duration') <= 0)
+        if(duration <= 0)
             return bot.intrReply({intr, embed: new EmbedBase(bot, {
                 description: `❌ **The duration of the poll must be \`>\` 0 days**`,
             }).Error()});
 
         //generate and send poll preview
         const com_pol = new CommunityPoll(bot, {
-            question: opts.getString('question'),
-            duration: Math.round(opts.getNumber('duration') * 24 * 3600 * 1000),
+            question,
+            duration: Math.round(duration * 24 * 3600 * 1000),
             author: intr.user,
             choices: opts.data.filter(o => o.name.startsWith('choice')),
         });
