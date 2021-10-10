@@ -84,7 +84,6 @@ class punish extends Command {
     subcommands = {
         warn: async ({intr, type, user, reason}) => {
             const { bot } = this;
-            //confirm prompt from admin
             //issue punishment
             await PunishmentService.warnUser({
                 bot,
@@ -106,7 +105,6 @@ class punish extends Command {
         },
         mute: async ({intr, type, user, expires, reason}) => {
             const { bot } = this;
-            //confirm prompt from admin
             //issue punishment
             await PunishmentService.muteUser({
                 bot,
@@ -130,7 +128,6 @@ class punish extends Command {
         },
         kick: async ({intr, type, user, reason}) => {
             const { bot } = this;
-            //confirm prompt from admin
             //issue punishment
             await PunishmentService.kickUser({
                 bot,
@@ -152,7 +149,6 @@ class punish extends Command {
         },
         ban: async ({intr, type, user, expires, reason}) => {
             const { bot } = this;
-            //confirm prompt from admin
             //issue punishment
             await PunishmentService.banUser({
                 bot,
@@ -189,10 +185,11 @@ class punish extends Command {
 
     async run({intr, opts}) {
         const { bot } = this;
+        const { PUNISHMENT_TYPES } = PunishmentService;
         
         //gotta store `type` separately to pass into subcmd, thanks 'use strict' :/
         const [type, user, duration, reason] = [
-            opts.getSubcommand(),
+            opts.getSubcommand().toUpperCase(),
             opts.getUser('target'),
             opts.getString('duration'),
             opts.getString('reason'),
@@ -218,12 +215,29 @@ class punish extends Command {
         //        },
         //    }).Warn()});
 
-        this.subcommands[type]({
+        //send confirm prompt
+        if (Object.keys(PUNISHMENT_TYPES).includes(type))
+			if (!(await bot.intrConfirm({
+                intr,
+                ephemeral: true,
+                embed: new EmbedBase(bot, {
+                    description: `⚠ **Are you sure you want to ${type} ${bot.formatUser(user)}?**`,
+                }).Warn(),
+            })))
+				return bot.intrReply({
+					intr,
+                    ephemeral: true,
+					embed: new EmbedBase(bot, {
+						description: `❌ **Punishment canceled**`,
+					}).Error(),
+				});
+
+        this.subcommands[type.toLowerCase()]({
             intr, 
             user, 
             expires, 
             reason,
-            type: PunishmentService.PUNISHMENT_TYPES[type.toUpperCase()], 
+            type: PUNISHMENT_TYPES[type], 
         }).catch(err => {
             bot.logger.error(err);
             bot.intrReply({intr, embed: new EmbedBase(bot).ErrorDesc(err.message), ephemeral: true});
