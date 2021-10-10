@@ -172,13 +172,18 @@ class punish extends Command {
         },
         history: async ({intr, user}) => {
             const { bot } = this;
+            const mod = bot.checkMod(user.id);
             return bot.intrReply({
                 intr, 
                 embed: PunishmentService.generateHistoryEmbed({
                     bot,
                     user,
-                    history_docs: await PunishmentService.getHistory({user}),
-                }), ephemeral: true
+                    mod,
+                    history_docs: await (mod 
+                        ? PunishmentService.getModHistory({user})
+                        : PunishmentService.getHistory({user})),
+                }), 
+                ephemeral: true
             });
         },
     };

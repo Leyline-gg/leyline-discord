@@ -313,7 +313,7 @@ export class PunishmentService {
     }
 
     /**
-     * Generate a punishment history embed for a given user
+     * Retrieve all the punishments issued for a given user
      * @param {Object} args Destructured args
      * @param {User} args.user user to query punishment history for
      * @param {Array} [args.types] Array of valid `PUNISHMENT_TYPE`s to be filtered. Defaults to all types
@@ -329,30 +329,53 @@ export class PunishmentService {
     }
 
     /**
+     * Retrieve all the punishments issued by a moderator
+     * @param {Object} args Destructured args
+     * @param {User} args.user moderator to query punishment history for
+     * @param {Array} [args.types] Array of valid `PUNISHMENT_TYPE`s to be filtered. Defaults to all types
+     * @returns {Promise<FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>[]>} 
+     * Array of documents for the moderator's punishment history, sorted by date issued, descending
+     */
+    static async getModHistory({user, types=Object.values(this.PUNISHMENT_TYPES)}) {
+        return (await admin.firestore()
+            .collection(this.COLLECTION_PATH)
+            .where('issued_by', '==', user.id)
+            .where('type', 'in', types)
+            .get()).docs.sort((a, b) => b.data().timestamp - a.data().timestamp);
+    }
+
+    /**
      * Generate a punishment history embed for a given user
      * @param {Object} args Destructured args
      * @param {LeylineBot} args.bot Leyline Bot class
      * @param {User} args.user user to query punishment history for
      * @param {Array} args.history_docs Documents retrieved from `getHistory()`
+     * @param {boolean} [args.mod] Whether the embed is for a mod issued history
      * @returns {EmbedBase} embed with punishment history
      */
-    static generateHistoryEmbed({bot, user, history_docs}) {
+    static generateHistoryEmbed({bot, user, history_docs, mod=false}) {
         const embed = new EmbedBase(bot, {
-            title: `Punishment History for ${user.tag} (${user.id})`,
-            description: `**Total punishments: ${history_docs.length}**`,
-        }).Punish();
+			title: mod
+				? `Punishments Issued by ${user.tag} (${user.id})`
+				: `Punishment History for ${user.tag} (${user.id})`,
+			description: `**Total punishments: ${history_docs.length}**`,
+		}).Punish();
 
         //add each individual punishment to embed (25 fields max)
         for(const doc of history_docs.slice(0, 25)) {
             const data = doc.data();
             embed.fields.push({
-                name: `${data.type} - ${bot.formatTimestamp(data.timestamp, 'd')}`,
-                value: `
-                    **Issued by:** ${bot.formatUser(bot.users.resolve(data.issued_by))}
+				name: `${data.type} - ${bot.formatTimestamp(data.timestamp, 'd')}`,
+				value: `
+                    ${
+						mod
+							? `**Target:** ${bot.formatUser(bot.users.resolve(data.uid))}`
+							: `**Issued by:** ${bot.formatUser(bot.users.resolve(data.issued_by))}`
+					}
                     **Reason:** \`${data.reason ?? 'No reason given'}\`
                     `,
-                inline: false,
-            });
+				inline: false,
+			});
         }
 
         return embed;
