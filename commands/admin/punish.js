@@ -226,7 +226,12 @@ class punish extends Command {
                 intr,
                 ephemeral: true,
                 embed: new EmbedBase(bot, {
-                    description: `⚠ **Are you sure you want to ${type} ${bot.formatUser(user)}?**`,
+                    description: `
+                        ⚠ **Are you sure you want to ${type} ${bot.formatUser(user)}?**
+
+                        Is this punishment consistent with the official rules & moderation protocol?
+                        Is this punishment consistent with the other punishments you've issued this past month?
+                    `,
                 }).Warn(),
             })))
 				return bot.intrReply({
