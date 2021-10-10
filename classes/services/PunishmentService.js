@@ -79,13 +79,16 @@ export class PunishmentService {
                 },
                 { name: '\u200b', value: '\u200b', inline: true },
                 {
-                    name: 'Target',
-                    value: bot.formatUser(user),
+                    name: 'Current Warnings',
+                    value: `${(await this.getHistory({
+                        user,
+                        types: [PUNISHMENT_TYPES.WARN],
+                    })).length} Warnings`,
                     inline: true,
                 },
                 {
-                    name: 'Warnings',
-                    value: '0',
+                    name: 'Target',
+                    value: bot.formatUser(user),
                     inline: true,
                 },
                 { name: '\u200b', value: '\u200b', inline: true }
@@ -285,7 +288,7 @@ export class PunishmentService {
         });
 
         //store punishment in cloud
-        await this.recordPunishment({
+        const doc = await this.recordPunishment({
             uid: user.id,
             mod,
             type,
@@ -312,23 +315,35 @@ export class PunishmentService {
     /**
      * Generate a punishment history embed for a given user
      * @param {Object} args Destructured args
-     * @param {LeylineBot} args.bot Leyline Bot class
      * @param {User} args.user user to query punishment history for
-     * @returns {Promise<EmbedBase>} embed with punishment history
+     * @param {Array} [args.types] Array of valid `PUNISHMENT_TYPE`s to be filtered. Defaults to all types
+     * @returns {Promise<FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>[]>} 
+     * Array of documents for the user's punishment history, sorted by date issued, descending
      */
-    static async getHistory({bot, user}) {
-        const docs = (await admin.firestore()
+    static async getHistory({user, types=Object.values(this.PUNISHMENT_TYPES)}) {
+        return (await admin.firestore()
             .collection(this.COLLECTION_PATH)
             .where('uid', '==', user.id)
+            .where('type', 'in', types)
             .get()).docs.sort((a, b) => b.data().timestamp - a.data().timestamp);
+    }
 
+    /**
+     * Generate a punishment history embed for a given user
+     * @param {Object} args Destructured args
+     * @param {LeylineBot} args.bot Leyline Bot class
+     * @param {User} args.user user to query punishment history for
+     * @param {Array} args.history_docs Documents retrieved from `getHistory()`
+     * @returns {EmbedBase} embed with punishment history
+     */
+    static generateHistoryEmbed({bot, user, history_docs}) {
         const embed = new EmbedBase(bot, {
             title: `Punishment History for ${user.tag} (${user.id})`,
-            description: `**Total punishments: ${docs.length}**`,
+            description: `**Total punishments: ${history_docs.length}**`,
         }).Punish();
 
         //add each individual punishment to embed (25 fields max)
-        for(const doc of docs.slice(0, 25)) {
+        for(const doc of history_docs.slice(0, 25)) {
             const data = doc.data();
             embed.fields.push({
                 name: `${data.type} - ${bot.formatTimestamp(data.timestamp, 'd')}`,
@@ -435,7 +450,7 @@ export class PunishmentService {
         const user = await bot.leyline_guild.bans.remove(
             uid, 
             `Scheduled unban for punishment ${id} issued by ${issuer?.tag || 'Unknown User'}`
-        );
+        ) || await bot.users.fetch(uid);
 
         //log removal
         await bot.logDiscord({embed: new EmbedBase(bot, {

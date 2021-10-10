@@ -128,10 +128,62 @@ class punish extends Command {
                 description: `⚖ **Punishment Successfully Issued**`,
             }).Punish(), ephemeral: true});
         },
+        kick: async ({intr, type, user, reason}) => {
+            const { bot } = this;
+            //confirm prompt from admin
+            //issue punishment
+            await PunishmentService.kickUser({
+                bot,
+                mod: intr.user,
+                user,
+                reason,
+            });
+            //log punishment
+            /*await*/ PunishmentService.logPunishment({
+                bot,
+                user,
+                mod: intr.user,
+                type,
+                reason,
+            });
+            return bot.intrReply({intr, embed: new EmbedBase(bot, {
+                description: `⚖ **Punishment Successfully Issued**`,
+            }).Punish(), ephemeral: true});
+        },
+        ban: async ({intr, type, user, expires, reason}) => {
+            const { bot } = this;
+            //confirm prompt from admin
+            //issue punishment
+            await PunishmentService.banUser({
+                bot,
+                user,
+                mod: intr.user,
+                expires,
+                reason,
+            });
+            //log punishment
+            /*await*/ PunishmentService.logPunishment({
+                bot,
+                user,
+                mod: intr.user,
+                type,
+                expires,
+                reason,
+            });
+            return bot.intrReply({intr, embed: new EmbedBase(bot, {
+                description: `⚖ **Punishment Successfully Issued**`,
+            }).Punish(), ephemeral: true});
+        },
         history: async ({intr, user}) => {
             const { bot } = this;
-            const embed = await PunishmentService.getHistory({bot, user});
-            return bot.intrReply({intr, embed, ephemeral: true});
+            return bot.intrReply({
+                intr, 
+                embed: PunishmentService.generateHistoryEmbed({
+                    bot,
+                    user,
+                    history_docs: await PunishmentService.getHistory({user}),
+                }), ephemeral: true
+            });
         },
     };
 
