@@ -100,7 +100,7 @@ export class PunishmentService {
         await bot.sendDM({send_disabled_msg: false, user, embed});
 
         //log publicly
-        if(type === PUNISHMENT_TYPES.BAN || type === PUNISHMENT_TYPES.KICK)
+        if(type === PUNISHMENT_TYPES.BAN)
             await bot.logPunishment({embed});
         //log privately
         await bot.logDiscord({embed});

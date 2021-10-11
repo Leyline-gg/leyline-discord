@@ -206,41 +206,41 @@ class punish extends Command {
                 description: `❌ **That's not a valid duration**`,
             }).Error()});
 
-        //parse duration to epoch timestamp
-        const expires = !!duration ?
-             Date.now() + parsed_dur :
-             null;
-
-        //easter egg
-        //if(user.id === '139120967208271872')
-        //    return bot.intrReply({intr, embed: new EmbedBase(bot, {
-        //        title: 'Nice try!',
-        //        image: {
-        //            url: '',
-        //        },
-        //    }).Warn()});
-
         //send confirm prompt
         if (Object.keys(PUNISHMENT_TYPES).includes(type))
-			if (!(await bot.intrConfirm({
+            if (!(await bot.intrConfirm({
                 intr,
                 ephemeral: true,
                 embed: new EmbedBase(bot, {
                     description: `
-                        ⚠ **Are you sure you want to ${type} ${bot.formatUser(user)}?**
+                        ⚠ **Are you sure you want to ${type} ${bot.formatUser(user)} for \`${reason ?? 'No reason given'}\`?**
 
                         Is this punishment consistent with the official rules & moderation protocol?
                         Is this punishment consistent with the other punishments you've issued this past month?
                     `,
                 }).Warn(),
             })))
-				return bot.intrReply({
-					intr,
+                return bot.intrReply({
+                    intr,
                     ephemeral: true,
-					embed: new EmbedBase(bot, {
-						description: `❌ **Punishment canceled**`,
-					}).Error(),
-				});
+                    embed: new EmbedBase(bot, {
+                        description: `❌ **Punishment canceled**`,
+                    }).Error(),
+                });
+
+        //convert duration to epoch timestamp
+        const expires = !!duration ?
+             Date.now() + parsed_dur :
+             null;
+
+        //easter egg
+        if(user.id === '139120967208271872')
+            return bot.intrReply({intr, embed: new EmbedBase(bot, {
+                title: 'Nice try!',
+                image: {
+                    url: '',    //to be updated later
+                },
+            }).Warn()});
 
         this.subcommands[type.toLowerCase()]({
             intr, 
