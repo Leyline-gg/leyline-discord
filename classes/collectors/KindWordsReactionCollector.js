@@ -1,19 +1,11 @@
 import * as Firebase from '../../api';
-import { EmbedBase, XPService, ReactionCollectorBase } from '..';
+import { EmbedBase, XPService, ReactionCollectorBase, CloudConfig } from '..';
 
 export class KindWordsReactionCollector extends ReactionCollectorBase {
 	//override parent properties
-	REACTION_LLP = 1;		//LLP awarded for reacting
-	APPROVAL_LLP = 10 	//LLP awarded for approved post
-	MOD_EMOJIS = [
-		{
-			unicode: '✅',
-		},
-		{
-			unicode: '❌',
-		},
-	];
-
+	get REACTION_LLP() { return CloudConfig.get('ReactionCollector').KindWords.REACTION_LLP; }
+	get APPROVAL_LLP() { return CloudConfig.get('ReactionCollector').KindWords.APPROVAL_LLP; }
+	get MOD_EMOJIS() { return CloudConfig.get('ReactionCollector').KindWords.MOD_EMOJIS; }
 	constructor(bot, {
 		msg,
 	}) {
