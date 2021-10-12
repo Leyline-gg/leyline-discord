@@ -8,27 +8,44 @@ export class FirebaseCache {
         path=null,   //firebase path to watch
         collection=true,    //whether we're watching a collection or a document
     } = {}) {
-        const col_ref = admin.firestore().collection(path);
+        if(collection) {
+            const col_ref = admin.firestore().collection(path);
 
-        // Synchronously load data from Firestore and
-        // Set up watcher to keep local cache up to date
-        col_ref.onSnapshot((snapshot) => {
-            if(snapshot.empty) return;
-            for(const docChange of snapshot.docChanges()) {
-                //if doc was created before the bot came online, ignore it
-                //if(docChange.doc.createTime.toMillis() < Date.now()) continue;
-                switch(docChange.type) {
-                    case 'added':
-                    case 'modified':
-                        this._cache.set(docChange.doc.id, docChange.doc.data());
-                        break;
-                    case 'removed':
-                        this._cache.delete(docChange.doc.id);
-                        break;
+            // Synchronously load data from Firestore and
+            // Set up watcher to keep local cache up to date
+            col_ref.onSnapshot((snapshot) => {
+                if(snapshot.empty) return;
+                for(const docChange of snapshot.docChanges()) {
+                    //if doc was created before the bot came online, ignore it
+                    //if(docChange.doc.createTime.toMillis() < Date.now()) continue;
+                    switch(docChange.type) {
+                        case 'added':
+                        case 'modified':
+                            this._cache.set(docChange.doc.id, docChange.doc.data());
+                            break;
+                        case 'removed':
+                            this._cache.delete(docChange.doc.id);
+                            break;
+                    }
                 }
-            }
-            this.ready ||= true;
-        }, console.error); 
+                this.ready ||= true;
+            }, console.error); 
+        } else {
+            const doc_ref = admin.firestore().doc(path);
+
+            // Synchronously load data from Firestore and
+            // Set up watcher to keep local cache up to date
+            doc_ref.onSnapshot((doc) => {
+                if(!doc.exists) return;    //document was removed, keep locally cached data the same
+                //create temporary new cache to copy most recent doc data into
+                //all deleted doc fields will be removed from the current cache
+                const tmp = new Map();
+                for(const [key, val] of Object.entries(doc.data()))
+                    tmp.set(key, val);
+                this._cache = tmp;
+                this.ready ||= true;
+            }, console.error); 
+        }
     }
 
     get(id) {

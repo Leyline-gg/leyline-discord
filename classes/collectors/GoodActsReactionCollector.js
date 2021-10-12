@@ -1,54 +1,13 @@
 import * as Firebase from '../../api';
-import { EmbedBase, XPService, ReactionCollectorBase } from '..';
+import { EmbedBase, XPService, ReactionCollectorBase, CloudConfig } from '..';
 
 const CTA_ROLE 			= '853414453206188063'; //role to ping when photo is approved
 
 export class GoodActsReactionCollector extends ReactionCollectorBase {
 	//override parent properties
-	REACTION_LLP = 5;		//LLP awarded for reacting
-	APPROVAL_LLP = 100 	//LLP awarded for approved post
-	MOD_EMOJIS = [
-		{
-			unicode: '💪',
-			keyword: 'Exercise',
-		},
-		{
-			unicode: '🧘‍♀️',
-			keyword: 'Mindfulness',
-		},
-		{
-			unicode: '🩸',
-			keyword: 'Blood Donation',
-		},
-		{
-			unicode: '🧹',
-			keyword: 'Local Cleanup',
-		},
-		{
-			unicode: '👖',
-			keyword: 'Charity Donation',
-		},
-		{
-			unicode: '⛑',
-			keyword: 'Community Service',
-		},
-		{
-			unicode: '👨‍🏫',
-			keyword: 'Education',
-		},
-		{
-			unicode: '🌳',
-			keyword: 'Tree Planting',
-		},
-		{
-			unicode: '🇴',
-			keyword: 'Good Act',
-		},
-		{
-			unicode: '❌',
-			keyword: 'Rejected',
-		},
-	];
+	get REACTION_LLP() { return CloudConfig.get('ReactionCollector').GoodActs.REACTION_LLP; }
+	get APPROVAL_LLP() { return CloudConfig.get('ReactionCollector').GoodActs.APPROVAL_LLP; }
+	get MOD_EMOJIS() { return CloudConfig.get('ReactionCollector').GoodActs.MOD_EMOJIS; }
 
 	media_placeholder	//unfortunately, there is no easy way to extract the thumbnail from a video posted in discord
 		= 'https://cdn1.iconfinder.com/data/icons/growth-marketing/48/marketing_video_marketing-512.png';

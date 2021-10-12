@@ -1,19 +1,18 @@
 import * as Firebase from '../../api';
-import { EmbedBase } from '../';
+import { EmbedBase, CloudConfig } from '../';
 
 export class ReactionCollectorBase {
-    APPROVAL_WINDOW     = 24 * 7;	//(hours) how long the mods have to approve a photo
-    REACTION_WINDOW   	= 24;   //(hours) how long users have to react after collector approval
-    APPROVAL_LLP        = 10; 	//LLP awarded for approved post
-    REACTION_LLP        = 1;    //LLP awarded for reacting
-	MOD_EMOJIS 			= [
-		// Emojis allowed in setupModReactionCollector
-		/* Should be of structure {
-			unicode: String,
-			keyword?: String,
-			add_on_msg?: boolean,
-		} */
-	];
+    get APPROVAL_WINDOW() { return CloudConfig.get('ReactionCollector').APPROVAL_WINDOW; }	//(hours) how long the mods have to approve a photo
+    get REACTION_WINDOW() { return CloudConfig.get('ReactionCollector').REACTION_WINDOW; }	//(hours) how long users have to react after collector approval
+    get APPROVAL_LLP() { return CloudConfig.get('ReactionCollector').APPROVAL_LLP; }	//LLP awarded for approved post
+    get REACTION_LLP() { return CloudConfig.get('ReactionCollector').REACTION_LLP; }	//LLP awarded for reacting
+	// Emojis allowed in setupModReactionCollector
+	/* Should be of structure {
+		unicode: String,
+		keyword?: String,
+		add_on_msg?: boolean,
+	} */
+	get MOD_EMOJIS() { return CloudConfig.get('ReactionCollector').MOD_EMOJIS; }
     media_type = 'submission';
 
     constructor(bot, {
