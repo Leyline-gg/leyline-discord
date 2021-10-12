@@ -229,9 +229,9 @@ class punish extends Command {
                 });
 
         //convert duration to epoch timestamp
-        const expires = !!duration ?
-             Date.now() + parsed_dur :
-             null;
+        const expires = !!duration 
+            ? Date.now() + parsed_dur 
+            : null;
 
         //easter egg
         if(user.id === '139120967208271872')
