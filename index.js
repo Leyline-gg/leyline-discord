@@ -3,224 +3,14 @@
 if (process.version.slice(1).split(".")[0] < 16)
   throw new Error("Node 16.6.0 or higher is required.");
   
-import { Client, Collection, Intents, Message } from 'discord.js';
+import { Intents, Message } from 'discord.js';
 import admin from 'firebase-admin';
 import klaw from 'klaw';
 import path from 'path';
-import config from './config.js'
-import { ConfirmInteraction, EmbedBase, Logger, CommunityPoll, ReactionCollector } from './classes';
+import { LeylineBot, EmbedBase, CommunityPoll, ReactionCollector, PunishmentService, CloudConfig } from './classes';
 //formally, dotenv shouldn't be used in prod, but because staging and prod share a VM, it's an option I elected to go with for convenience
-import { config as dotenv_config} from 'dotenv';
+import { config as dotenv_config } from 'dotenv';
 dotenv_config();
-
-// Custom bot class, based off the discord.js Client (bot)
-class LeylineBot extends Client {
-    connection_tutorial = 'https://www.notion.so/leyline/How-to-Connect-Your-Discord-Leyline-Accounts-917dd19be57c4242878b73108e0cc2d1';
-    xp_doc              = 'https://www.notion.so/leyline/d0dc285583b7443cb315851bdbf09fb4';
-
-    constructor(options) {
-        super(options);
-
-        // Custom properties for our bot
-        this.CURRENT_VERSION    = process.env.npm_package_version || '0.0.0-unknown';
-        this.logger             = Logger;
-        this.config             = config[process.env.NODE_ENV || 'development'];
-        this.commands           = new Collection();
-        this.events             = new Collection();
-        this.firebase_events    = new Collection();
-    }
-
-    get leyline_guild() {
-        return this.guilds.resolve(this.config.leyline_guild_id);
-    }
-
-    // ----- Message Methods -----
-    /**
-     * Send a single embed in the `channel` of the `msg` argument
-     * @param {Object} args
-     * @param {Message} args.msg Discord.js `Message` object, target channel is taken from this
-     * @param {EmbedBase} args.embed Singular embed object to be sent in channel
-     * @returns {Promise<Message>}
-     */
-    sendEmbed({msg, embed, ...options}) {
-        if(!msg.channel) throw new Error(`No channel property found on the msg object: ${msg}`);
-        return msg.channel.send({msg, 
-            embeds: [embed],
-            ...options,
-        });
-    }
-
-    /**
-     * Send an inline reply to the `msg` that mentions the author
-     * @param {Object} args
-     * @param {Message} args.msg Discord.js `Message` object, target author is taken from this
-     * @param {EmbedBase} args.embed Singular embed object to be sent as response
-     * @returns {Promise<Message>}
-     */
-    sendReply({msg, embed, ...options}) {
-        return msg.reply({
-            embeds: [embed],
-            failIfNotExists: false,
-            ...options,
-        });
-    }
-
-    /**
-     * Send a direct message to the target user, catches error if user has closed DMs
-     * @param {Object} args
-     * @param {User} args.user Discord.js `User` object; recipient of msg
-     * @param {EmbedBase} args.embed Singular embed object to be sent as response
-     * @returns {Promise<Message>}
-     */
-    sendDM({user, embed, ...options}) {
-        return user.send({
-            embeds: [embed],
-            ...options,
-        }).catch(() => this.sendDisabledDmMessage(user));
-    }
-
-    /**
-     * Sends a discord message on the bot's behalf to a private log channel
-     * @param {Object} args
-     * @param {EmbedBase} args.embed Singular embed object to be sent in message 
-     * @returns {Promise<Message>} Promise which resolves to the sent message
-     */
-    async logDiscord({embed, ...options}) {
-        return (await bot.channels.fetch(this.config.channels.private_log)).send({
-            embeds: [embed],
-            ...options,
-        });
-    }
-
-    /**
-     * Sends a discord message on the bot's behalf to a public log channel
-     * @param {Object} args
-     * @param {EmbedBase} args.embed Singular embed object to be sent in message
-     * @returns {Promise<Message>} Promise which resolves to the sent message
-     */
-    async msgBotChannel({embed, ...options}) {
-        return (await bot.channels.fetch(this.config.channels.public_log)).send({
-            embeds: [embed],
-            ...options,
-        });
-    }
-
-    /**
-     * Sends a discord message on the bot's behalf to a public log channel, specific for rewards
-     * @param {Object} args
-     * @param {EmbedBase} args.embed Singular embed object to be sent in message
-     * @returns {Promise<Message>} Promise which resolves to the sent message
-     */
-    async logReward({embed, ...options}) {
-        return (await bot.channels.fetch(this.config.channels.reward_log)).send({
-            embeds: [embed],
-            ...options,
-        });
-    }
-
-    sendDisabledDmMessage(user) {
-        this.msgBotChannel({
-            content: user.toString(),
-            embed: new EmbedBase(this, {
-                fields: [
-                    {
-                        name: '❌ You need to enable DMs from server members!',
-                        value: "I tried to send you a direct message, but you currently have them disabled! Navigate to the server's Privacy Settings, then toggle **Allow Direct Messages From Server Members** to the right."
-                    }
-                ],
-                image: {
-                    url: 'https://i.ibb.co/L8j9dCD/discord-dm-tutorial.png'
-                },
-        }).Warn()});
-    }
-
-    // ----- Interaction Methods -----
-    /**
-     * Replies to an interaction
-     * @param {Object} args Destructured arguments
-     * @param {Interaction} args.intr Discord.js `Interaction`
-     * @param {EmbedBase} [args.embed] Singular embed object to be included in reply
-     * @returns {Promise<Message>} The reply that was sent
-     */
-    intrReply({intr, embed, ...options}) {
-        const payload = {
-            ...embed && { embeds: [embed] },
-            fetchReply: true,
-            ...options,
-        };
-        return (intr.deferred || intr.replied) ? intr.editReply(payload) : intr.reply(payload);
-    }
-
-    intrUpdate({intr, embed, ...options}) {
-        const payload = {
-            ...embed && { embeds: [embed] },
-            fetchReply: true,
-            ...options,
-        };
-        return intr.replied ? intr.editReply(payload) : intr.update(payload);
-    }
-
-    /**
-     * Reply to a `CommandInteraction` with a message containing 'Confirm' and 'Cancel' as buttons, among other options passed as parameters
-     * Returns a promise which resolves to a boolean indicating the user's selection
-     * @param {Object} args Destructured arguments. `options` will be passed to `LeylineBot.intrReply()` as params
-     * @param {CommandInteraction} args.intr Discord.js `CommandInteraction` to reply w/ confirmation prompt 
-     * @returns {Promise<boolean>} `true` if user selected 'Confirm', `false` if user selected `Cancel`
-     */
-    async intrConfirm({intr, ...options}) {
-        try {
-            const msg = await this[`${intr.isButton() ? 'intrUpdate' : 'intrReply'}`]({intr, ...options, components:[new ConfirmInteraction()]});
-            const res = await msg.awaitInteractionFromUser({user: intr.user});
-            //remove components
-            await res.update({components:[]});
-            return res.customId === 'confirm';
-        } catch (err) {
-            this.logger.error(`intrConfirm err: ${err}`);
-            return false;
-        }
-    }
-
-
-    // ----- Other Methods -----
-    /**
-     * Checks if a user has mod permissions on the Leyline server.
-     * Current mod roles: `Admin`, `Moderator`
-     * @param {String} uid Discord UID of the user to check
-     * @returns {boolean} `true` if user has mod perms, `false` otherwise
-     */
-    checkMod(uid) {
-        return bot.leyline_guild.members.cache.get(uid).roles.cache.some(r => this.config.mod_roles.includes(r.id));
-    }
-
-    /**
-     * Checks if a user has admin permissions on the Leyline server.
-     * Current admin permission: Anyone with the ADMINISTRATOR permission
-     * @param {String} uid Discord UID of the user to check
-     * @returns {boolean} `true` if user has admin perms, `false` otherwise
-     */
-    checkAdmin(uid) {
-        return bot.leyline_guild.members.cache.get(uid).permissions.has('ADMINISTRATOR');
-    }
-
-    /**
-     * Formats a `User` for logging purposes
-     * @param {User} user Discord.js `User` object 
-     */
-    formatUser(user) {
-        return `<@!${user.id}> (${user.tag})`;
-    }
-
-    /**
-     * Format a UNIX timestamp to be sent in a Discord message
-     * @param {Number} [timestamp] UNIX timestamp in milliseconds, default is `Date.now()`
-     * @param {*} [letter] The suffix to append, resulting in a different display
-     * @returns {String}
-     */
-    formatTimestamp(timestamp=Date.now(), letter='D') {
-        return `<t:${timestamp /1000 |0}:${letter}>`;
-    }
-
-}
 
 // Modify Discord.js classes to include custom methods
 /**
@@ -266,7 +56,7 @@ Message.prototype.disableComponents = function () {
     return this.edit({components: this.components});
 };
 
-// Instantiate our bot; prepare to login later
+// Globally instantiate our bot; prepare to login later
 const bot = new LeylineBot({ 
     restTimeOffset: 0, /*allegedly this helps with API delays*/
     intents: [
@@ -289,6 +79,8 @@ const init = async function () {
     admin.initializeApp({});
     if(admin.apps.length === 0) bot.logger.error('Error initializing firebase app');
     else bot.logger.log('Firebase succesfully initialized');
+    await CloudConfig.init();   //import cloud configuration settings
+    bot.logger.log('CloudConfig initialized');
 
     //import commands
     for await (const item of klaw('./commands')) {
@@ -392,7 +184,7 @@ const postInit = async function () {
     })();
 
     //import ReactionCollectors (this can be modified later to take a more generic approach)
-    await (async function importReactionCollectors () {
+    await (async function importReactionCollectors() {
         let succesfully_imported = 0;
         const collectors = await admin
             .firestore()
@@ -420,7 +212,7 @@ const postInit = async function () {
     })();
 
     //import active polls
-    await (async function importPolls () {
+    await (async function importPolls() {
         let succesfully_imported = 0; 
         const polls = await admin
             .firestore()
@@ -449,16 +241,34 @@ const postInit = async function () {
         return;
     })();
 
+    //import punishments
+    await (async function importPunishments() {
+        let succesfully_imported = 0; 
+        const punishments = await admin
+            .firestore()
+			.collection(PunishmentService.COLLECTION_PATH)
+			.where('expires', '>', Date.now())
+            .get();
+        for (const doc of punishments.docs) {
+            try {
+                PunishmentService.scheduleRemoval({
+                    bot,
+                    id: doc.id,
+                    data: { ...doc.data() },
+                });
+                succesfully_imported++;
+            } catch (err) {
+                bot.logger.error(`importPunishments error with doc id ${doc.id}: ${err}`);
+            }   
+        }
+        bot.logger.log(`Imported ${succesfully_imported} punishments from Firestore`);
+        return;
+    })();
+
     bot.logger.debug('Post-initialization complete');
 };
 
 init();
-
-// Setup events to log unexpected errors
-bot.on("disconnect", () => bot.logger.warn("Bot is disconnecting..."))
-    .on("reconnect", () => bot.logger.log("Bot reconnecting..."))
-    .on("error", e => bot.logger.error(e))
-    .on("warn", info => bot.logger.warn(info));
 
 // Prevent the bot from crashing on unhandled rejections
 process.on("unhandledRejection", function (err, promise) {

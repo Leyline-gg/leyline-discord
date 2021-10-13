@@ -1,3 +1,29 @@
+# [2.4.0](https://github.com/Leyline-gg/leyline-discord/releases/tag/v2.4.0) (2021-10-12)
+
+## Dev Notes
+This update adds a couple new features, most notable being a custom punishment command system.
+
+A major pro of a custom punishment system is the ability to retain complete control & customization over the functionality. Additionally, all actions are synchronized with our private database, which allows for several data analysis opportunities that would be otherwise unavailable with an external service.
+
+## New Features
+- Punishment command system
+    - This is releasing now in anticipation of the rules restructure
+    - 5 `punish` commands are added for staff members to use:
+        - `warn` - issues a written warning
+        - `mute` - temporarily prevents a user from sending messages in channels/threads, speaking in voice channels, or creating threads
+        - `kick` - removes a user from the server without revoking their ability to rejoin
+        - `ban` - removes a user from the server and revokes their ability to rejoin
+        - `history` - displays the 25 most recent punishments issued to a user
+    - All punishments issued will be logged in a private, staff-only channel
+    - All bans will be logged in a public channel, #mod-log
+    - Any punishments issued will require staff to confirm the target user & reason for punishment, to minimize mistakes
+- Cloud configuration synchronization system
+    - Several bot options can now be configured in real-time, preventing the need to draft a new release for minor changes
+    - For example, the LLP values for good-acts approvals can now be changed dynamically
+
+## Existing Feature Changes
+- Internal code cleanups
+
 # [2.3.2](https://github.com/Leyline-gg/leyline-discord/releases/tag/v2.3.2) (2021-10-08)
 
 ## Dev Notes
