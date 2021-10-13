@@ -234,7 +234,7 @@ class punish extends Command {
             : null;
 
         //easter egg
-        if(user.id === '139120967208271872')
+        if(type !== 'HISTORY' && user.id === '139120967208271872')
             return bot.intrReply({intr, embed: new EmbedBase(bot, {
                 title: 'Nice try!',
                 image: {
