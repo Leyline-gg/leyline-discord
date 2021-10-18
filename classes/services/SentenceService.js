@@ -68,13 +68,13 @@ export class SentenceService {
                 },
                 { name: '\u200b', value: '\u200b', inline: true },
                 {
-                    name: 'Reason',
-                    value: reason ?? 'No reason given',
+                    name: 'Expires',
+                    value: !!expires ? bot.formatTimestamp(expires) : 'No expiration',
                     inline: true,
                 },
                 {
-                    name: 'Expires',
-                    value: !!expires ? bot.formatTimestamp(expires) : 'No expiration',
+                    name: 'Reason',
+                    value: reason ?? 'No reason given',
                     inline: true,
                 },
                 { name: '\u200b', value: '\u200b', inline: true },
@@ -285,6 +285,7 @@ export class SentenceService {
         //issue sentence
         await member.ban({
             reason: `Justice Served by ${mod.tag}`,
+            days: 1,
         });
 
         //store sentence in cloud
@@ -418,13 +419,13 @@ export class SentenceService {
                 },
                 { name: '\u200b', value: '\u200b', inline: true },
                 {
-                    name: 'Reason',
-                    value: reason ?? 'No reason given',
+                    name: 'Target',
+                    value: bot.formatUser(member?.user),
                     inline: true,
                 },
                 {
-                    name: 'Target',
-                    value: bot.formatUser(member?.user),
+                    name: 'Reason',
+                    value: reason ?? 'No reason given',
                     inline: true,
                 },
                 { name: '\u200b', value: '\u200b', inline: true },
@@ -491,13 +492,13 @@ export class SentenceService {
                 },
                 { name: '\u200b', value: '\u200b', inline: true },
                 {
-                    name: 'Reason',
-                    value: reason ?? 'No reason given',
+                    name: 'Target',
+                    value: bot.formatUser(user),
                     inline: true,
                 },
                 {
-                    name: 'Target',
-                    value: bot.formatUser(user),
+                    name: 'Reason',
+                    value: reason ?? 'No reason given',
                     inline: true,
                 },
                 { name: '\u200b', value: '\u200b', inline: true },
