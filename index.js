@@ -7,7 +7,7 @@ import { Intents, Message } from 'discord.js';
 import admin from 'firebase-admin';
 import klaw from 'klaw';
 import path from 'path';
-import { LeylineBot, EmbedBase, CommunityPoll, ReactionCollector, PunishmentService, CloudConfig } from './classes';
+import { LeylineBot, EmbedBase, CommunityPoll, ReactionCollector, SentenceService, CloudConfig } from './classes';
 //formally, dotenv shouldn't be used in prod, but because staging and prod share a VM, it's an option I elected to go with for convenience
 import { config as dotenv_config } from 'dotenv';
 dotenv_config();
@@ -241,27 +241,27 @@ const postInit = async function () {
         return;
     })();
 
-    //import punishments
-    await (async function importPunishments() {
+    //import sentences
+    await (async function importSentences() {
         let succesfully_imported = 0; 
-        const punishments = await admin
+        const sentences = await admin
             .firestore()
-			.collection(PunishmentService.COLLECTION_PATH)
+			.collection(SentenceService.COLLECTION_PATH)
 			.where('expires', '>', Date.now())
             .get();
-        for (const doc of punishments.docs) {
+        for (const doc of sentences.docs) {
             try {
-                PunishmentService.scheduleRemoval({
+                SentenceService.scheduleRemoval({
                     bot,
                     id: doc.id,
                     data: { ...doc.data() },
                 });
                 succesfully_imported++;
             } catch (err) {
-                bot.logger.error(`importPunishments error with doc id ${doc.id}: ${err}`);
+                bot.logger.error(`importSentences error with doc id ${doc.id}: ${err}`);
             }   
         }
-        bot.logger.log(`Imported ${succesfully_imported} punishments from Firestore`);
+        bot.logger.log(`Imported ${succesfully_imported} sentences from Firestore`);
         return;
     })();
 

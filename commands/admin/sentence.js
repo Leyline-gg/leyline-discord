@@ -1,7 +1,7 @@
-import { Command, EmbedBase, PunishmentService } from '../../classes';
+import { Command, EmbedBase, SentenceService } from '../../classes';
 import parse from 'parse-duration';
 
-class PunishmentSubCommand {
+class SentenceSubCommand {
     constructor({
         name,
         description,
@@ -19,19 +19,19 @@ class PunishmentSubCommand {
                 ...(target ? [{
                     type: 'USER',
                     name: 'target',
-                    description: 'The target user to punish',
+                    description: 'The target user to sentence',
                     required: true,
                 }] : []),
                 ...(duration ? [{
                     type: 'STRING',
                     name: 'duration',
-                    description: 'The duration of the punishment, eg: 7d. No duration means indefinite',
+                    description: 'The duration of the sentence, eg: 7d. No duration means indefinite',
                     required: false,
                 }] : []),
                 ...(reason ? [{
                     type: 'STRING',
                     name: 'reason',
-                    description: 'The reason the punishment was issued',
+                    description: 'The reason the sentence was issued',
                     required: false,
                 }] : []),
             ],
@@ -39,37 +39,37 @@ class PunishmentSubCommand {
     }
 }
 
-class punish extends Command {
+class sentence extends Command {
     constructor(bot) {
         super(bot, {
-            name: 'punish',
-            description: "Punishment utilities",
+            name: 'sentence',
+            description: "Sentence utilities",
             options: [
-                new PunishmentSubCommand({
+                new SentenceSubCommand({
                     name: 'warn',
                     description: 'Issue a written warning to a Discord user',
                     options: {
                         duration: false,
                     },
                 }),
-                new PunishmentSubCommand({
+                new SentenceSubCommand({
                     name: 'mute',
                     description: 'Issue a server mute to a Discord user',
                 }),
-                new PunishmentSubCommand({
+                new SentenceSubCommand({
                     name: 'kick',
                     description: 'Remove a Discord user from the server',
                     options: {
                         duration: false,
                     },
                 }),
-                new PunishmentSubCommand({
+                new SentenceSubCommand({
                     name: 'ban',
                     description: 'Issue a temporary or permanent ban to a Discord user',
                 }),
-                new PunishmentSubCommand({
+                new SentenceSubCommand({
                     name: 'history',
-                    description: 'View the entire recorded punishment history for a Discord user',
+                    description: 'View the entire recorded sentence history for a Discord user',
                     options: {
                         duration: false,
                         reason: false,
@@ -84,15 +84,15 @@ class punish extends Command {
     subcommands = {
         warn: async ({intr, type, user, reason}) => {
             const { bot } = this;
-            //issue punishment
-            await PunishmentService.warnUser({
+            //issue sentence
+            await SentenceService.warnUser({
                 bot,
                 mod: intr.user,
                 user,
                 reason,
             });
-            //log punishment
-            /*await*/ PunishmentService.logPunishment({
+            //log sentence
+            /*await*/ SentenceService.logSentence({
                 bot,
                 user,
                 mod: intr.user,
@@ -100,21 +100,21 @@ class punish extends Command {
                 reason,
             });
             return bot.intrReply({intr, embed: new EmbedBase(bot, {
-                description: `⚖ **Punishment Successfully Issued**`,
-            }).Punish(), ephemeral: true});
+                description: `⚖ **Sentence Successfully Issued**`,
+            }).Sentence(), ephemeral: true});
         },
         mute: async ({intr, type, user, expires, reason}) => {
             const { bot } = this;
-            //issue punishment
-            await PunishmentService.muteUser({
+            //issue sentence
+            await SentenceService.muteUser({
                 bot,
                 user,
                 mod: intr.user,
                 expires,
                 reason,
             });
-            //log punishment
-            /*await*/ PunishmentService.logPunishment({
+            //log sentence
+            /*await*/ SentenceService.logSentence({
                 bot,
                 user,
                 mod: intr.user,
@@ -123,20 +123,20 @@ class punish extends Command {
                 reason,
             });
             return bot.intrReply({intr, embed: new EmbedBase(bot, {
-                description: `⚖ **Punishment Successfully Issued**`,
-            }).Punish(), ephemeral: true});
+                description: `⚖ **Sentence Successfully Issued**`,
+            }).Sentence(), ephemeral: true});
         },
         kick: async ({intr, type, user, reason}) => {
             const { bot } = this;
-            //issue punishment
-            await PunishmentService.kickUser({
+            //issue sentence
+            await SentenceService.kickUser({
                 bot,
                 mod: intr.user,
                 user,
                 reason,
             });
-            //log punishment
-            /*await*/ PunishmentService.logPunishment({
+            //log sentence
+            /*await*/ SentenceService.logSentence({
                 bot,
                 user,
                 mod: intr.user,
@@ -144,21 +144,21 @@ class punish extends Command {
                 reason,
             });
             return bot.intrReply({intr, embed: new EmbedBase(bot, {
-                description: `⚖ **Punishment Successfully Issued**`,
-            }).Punish(), ephemeral: true});
+                description: `⚖ **Sentence Successfully Issued**`,
+            }).Sentence(), ephemeral: true});
         },
         ban: async ({intr, type, user, expires, reason}) => {
             const { bot } = this;
-            //issue punishment
-            await PunishmentService.banUser({
+            //issue sentence
+            await SentenceService.banUser({
                 bot,
                 user,
                 mod: intr.user,
                 expires,
                 reason,
             });
-            //log punishment
-            /*await*/ PunishmentService.logPunishment({
+            //log sentence
+            /*await*/ SentenceService.logSentence({
                 bot,
                 user,
                 mod: intr.user,
@@ -167,21 +167,21 @@ class punish extends Command {
                 reason,
             });
             return bot.intrReply({intr, embed: new EmbedBase(bot, {
-                description: `⚖ **Punishment Successfully Issued**`,
-            }).Punish(), ephemeral: true});
+                description: `⚖ **Sentence Successfully Issued**`,
+            }).Sentence(), ephemeral: true});
         },
         history: async ({intr, user}) => {
             const { bot } = this;
             const mod = bot.checkMod(user.id);
             return bot.intrReply({
                 intr, 
-                embed: PunishmentService.generateHistoryEmbed({
+                embed: SentenceService.generateHistoryEmbed({
                     bot,
                     user,
                     mod,
                     history_docs: await (mod 
-                        ? PunishmentService.getModHistory({user})
-                        : PunishmentService.getHistory({user})),
+                        ? SentenceService.getModHistory({user})
+                        : SentenceService.getHistory({user})),
                 }), 
                 ephemeral: true
             });
@@ -190,7 +190,7 @@ class punish extends Command {
 
     async run({intr, opts}) {
         const { bot } = this;
-        const { PUNISHMENT_TYPES } = PunishmentService;
+        const { SENTENCE_TYPES: SENTENCE_TYPES } = SentenceService;
         
         //gotta store `type` separately to pass into subcmd, thanks 'use strict' :/
         const [type, user, duration, reason] = [
@@ -207,7 +207,7 @@ class punish extends Command {
             }).Error()});
 
         //send confirm prompt
-        if (Object.keys(PUNISHMENT_TYPES).includes(type))
+        if (Object.keys(SENTENCE_TYPES).includes(type))
             if (!(await bot.intrConfirm({
                 intr,
                 ephemeral: true,
@@ -215,8 +215,8 @@ class punish extends Command {
                     description: `
                         ⚠ **Are you sure you want to ${type} ${bot.formatUser(user)} for \`${reason ?? 'No reason given'}\`?**
 
-                        Is this punishment consistent with the official rules & moderation protocol?
-                        Is this punishment consistent with the other punishments you've issued this past month?
+                        Is this sentence consistent with the official rules & moderation protocol?
+                        Is this sentence consistent with the other sentences you've issued this past month?
                     `,
                 }).Warn(),
             })))
@@ -224,7 +224,7 @@ class punish extends Command {
                     intr,
                     ephemeral: true,
                     embed: new EmbedBase(bot, {
-                        description: `❌ **Punishment canceled**`,
+                        description: `❌ **Sentence canceled**`,
                     }).Error(),
                 });
 
@@ -247,7 +247,7 @@ class punish extends Command {
             user, 
             expires, 
             reason,
-            type: PUNISHMENT_TYPES[type], 
+            type: SENTENCE_TYPES[type], 
         }).catch(err => {
             bot.logger.error(err);
             bot.intrReply({intr, embed: new EmbedBase(bot).ErrorDesc(err.message), ephemeral: true});
@@ -255,4 +255,4 @@ class punish extends Command {
     }
 }
 
-export default punish;
+export default sentence;
