@@ -116,13 +116,13 @@ export class LeylineBot extends Client {
     }
 
     /**
-     * Sends a discord message on the bot's behalf to a public log channel, specific for punishments
+     * Sends a discord message on the bot's behalf to a public log channel, specific for sentences
      * @param {Object} args
      * @param {EmbedBase} args.embed Singular embed object to be sent in message
      * @returns {Promise<Message>} Promise which resolves to the sent message
      */
-     async logPunishment({embed, ...options}) {
-        return (await this.channels.fetch(this.config.channels.punishment_log)).send({
+     async logSentence({embed, ...options}) {
+        return (await this.channels.fetch(this.config.channels.mod_log)).send({
             embeds: [embed],
             ...options,
         });

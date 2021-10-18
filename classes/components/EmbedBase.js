@@ -54,7 +54,7 @@ export class EmbedBase extends MessageEmbed {
         return this;
     }
 
-    Punish() {
+    Sentence() {
         this.color = 0xe3da32;
         return this;
     }

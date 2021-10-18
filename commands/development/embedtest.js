@@ -14,7 +14,7 @@ class embedtest extends Command {
         let expires = false;
         bot.intrReply({intr, embed: new EmbedBase(bot).ErrorDesc('I ran into an error!')});
         //bot.intrReply({intr, embed: new EmbedBase(bot, {
-        //    title: 'Punishment Issued',
+        //    title: 'Justice Served',
         //    fields: [
         //        {
         //            name: 'Issued By',
@@ -32,7 +32,7 @@ class embedtest extends Command {
         //            inline: true,
         //        },
         //    ],
-        //}).Punish(), files: ['./images/avatar-default.png']});
+        //}).Sentence(), files: ['./images/avatar-default.png']});
     }
 }
 

@@ -31,7 +31,7 @@ export default {
                 private_log: '843892751276048394',
                 public_log: '810265135419490314',
                 reward_log: '872724760805654538',
-                punishment_log: '896539306800328734', //public punishment log
+                mod_log: '896539306800328734', //private mod log
                 ama_vc: '794283967460147221',
                 polls: '790063418898907166',
             },
@@ -83,7 +83,7 @@ export default {
                 private_log: '858141871788392448',
                 public_log: '858141914841481246',
                 reward_log: '858141836513771550',
-                punishment_log: '892268882285457439', //public punishment log
+                mod_log: '892268882285457439', //private mod log
                 ama_vc: '869993145499287604',
                 polls: '877229054456107069',
             },
