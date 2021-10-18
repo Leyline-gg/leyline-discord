@@ -101,9 +101,9 @@ export class SentenceService {
 
         //log publicly
         if(type === SENTENCE_TYPES.BAN)
-            await bot.logSentence({embed});
+            await bot.logDiscord({embed});
         //log privately
-        await bot.logDiscord({embed});
+        await bot.logSentence({embed});
     }
 
     /**
