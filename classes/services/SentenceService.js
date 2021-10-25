@@ -52,7 +52,7 @@ export class SentenceService {
      * @returns Resolves to added doc
      */
     static async logSentence({bot, user, mod, type, expires=null, reason=null, timestamp=Date.now()} = {}) {
-        const { SENTENCE_TYPES: SENTENCE_TYPES } = this;
+        const { SENTENCE_TYPES } = this;
         const embed = new EmbedBase(bot, {
             title: 'Justice Served',
             fields: [

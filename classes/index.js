@@ -1,4 +1,3 @@
-export * from './Command.js';
 export * from './CommunityPoll.js';
 export * from './LeylineUser.js';
 export * from './Logger.js';
@@ -7,6 +6,8 @@ export * from './collectors/ReactionCollectorBase.js';
 export * from './collectors/GoodActsReactionCollector.js';
 export * from './collectors/KindWordsReactionCollector.js';
 export * from './collectors/ReactionCollector.js';
+export * from './commands/Command.js';
+export * from './commands/JusticeCommand.js';
 export * from './components/ConfirmInteraction.js';
 export * from './components/EmbedBase.js';
 export * from './events/DiscordEvent.js';
