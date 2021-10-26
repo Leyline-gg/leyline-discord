@@ -218,7 +218,7 @@ export class ReactionCollectorBase {
 	async awardApprovalGP({user, pog}) {
 		const { bot, msg } = this;
 
-		await Firebase.awardGP(await Firebase.getLeylineUID(user.id), this.APPROVAL_GP, {
+		await Firebase.awardPoints(await Firebase.getLeylineUID(user.id), this.APPROVAL_GP, {
 			category: pog,
 			comment: `User's Discord ${this.media_type} (${msg.id}) was approved by ${user.tag}`,
 		});
@@ -258,7 +258,7 @@ export class ReactionCollectorBase {
 		const { bot, msg } = this;
 
 		//new user reacted, award GP
-		await Firebase.awardGP(await Firebase.getLeylineUID(user.id), this.REACTION_GP, {
+		await Firebase.awardPoints(await Firebase.getLeylineUID(user.id), this.REACTION_GP, {
 			category: pog,
 			comment: `User reacted to Discord message (${msg.id})`,
 		});
@@ -295,7 +295,7 @@ export class ReactionCollectorBase {
 	async awardAuthorReactionGP({user, pog}) {
 		const { bot, msg } = this;
 		//new user reacted, award GP
-		await Firebase.awardGP(await Firebase.getLeylineUID(msg.author.id), this.REACTION_GP, {
+		await Firebase.awardPoints(await Firebase.getLeylineUID(msg.author.id), this.REACTION_GP, {
 			category: pog,
 			comment: `User's Discord ${this.media_type} (${msg.id}) received a reaction from ${user.tag}`,
 		});
