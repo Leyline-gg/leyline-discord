@@ -51,7 +51,7 @@ export class SentenceService {
      * @param {number} [args.timestamp] Unix timestamp of when sentence was issued. Defaults to `Date.now()`
      * @returns Resolves to added doc
      */
-    static async logSentence({bot, user, mod, type, expires=null, reason=null, timestamp=Date.now()} = {}) {
+    static async logSentence({bot, user, mod, sentence_type: type, expires=null, reason=null, timestamp=Date.now()} = {}) {
         const { SENTENCE_TYPES } = this;
         const embed = new EmbedBase(bot, {
             title: 'Justice Served',

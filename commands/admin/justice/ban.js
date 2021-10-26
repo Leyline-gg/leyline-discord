@@ -4,14 +4,14 @@ class ban extends JusticeCommand {
     constructor(bot) {
         super(bot, {
             name: 'ban',
-            type: SentenceService.SENTENCE_TYPES.BAN,
+            sentence_type: SentenceService.SENTENCE_TYPES.BAN,
             description: 'Issue a temporary or permanent ban to a Discord user',
         });
     }
 
     //Override parent
     async executeSentence({intr, user, expires, reason}) {
-        const { bot, type } = this;
+        const { bot, sentence_type } = this;
         //issue sentence
         await SentenceService.banUser({
             bot,
@@ -25,7 +25,7 @@ class ban extends JusticeCommand {
             bot,
             user,
             mod: intr.user,
-            type,
+            sentence_type,
             expires,
             reason,
         });
@@ -35,13 +35,13 @@ class ban extends JusticeCommand {
     }
 
     async run({intr, opts}) {
-        const { bot, type } = this;
+        const { bot, sentence_type } = this;
         const { SENTENCE_TYPES } = SentenceService;
 
         const { user, reason, expires } = super.parseInput(opts);
 
         //send confirm prompt if this is a sentence in SENTENCE_TYPES
-        if (Object.keys(SENTENCE_TYPES).includes(type))
+        if (Object.keys(SENTENCE_TYPES).includes(sentence_type))
             if (!(await super.getModConfirmation({intr, user, reason})))
                 return bot.intrReply({
                     intr,

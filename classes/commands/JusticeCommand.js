@@ -1,10 +1,11 @@
-import { Command } from "..";
+import { Command, EmbedBase } from "..";
+import parse from 'parse-duration';
 
 export class JusticeCommand extends Command {
     constructor(bot, {
         name,
         description,
-        type,   //uppercase string, see SENTENCE_TYPES
+        sentence_type,   //uppercase string, see SENTENCE_TYPES
         options: {
             target=true,
             duration=true,
@@ -36,7 +37,7 @@ export class JusticeCommand extends Command {
             ],
             category: 'admin',
         });
-        this.type = type;
+        this.sentence_type = sentence_type;
     }
 
     parseInput(opts) {
@@ -59,13 +60,13 @@ export class JusticeCommand extends Command {
     }
 
     getModConfirmation({intr, user, reason}) {
-        const { bot, type } = this;
+        const { bot, sentence_type } = this;
         return bot.intrConfirm({
             intr,
             ephemeral: true,
             embed: new EmbedBase(bot, {
                 description: `
-                    ⚠ **Are you sure you want to ${type} ${bot.formatUser(user)} for \`${reason ?? 'No reason given'}\`?**
+                    ⚠ **Are you sure you want to ${sentence_type} ${bot.formatUser(user)} for \`${reason ?? 'No reason given'}\`?**
 
                     Is this sentence consistent with the official rules & moderation protocol?
                     Is this sentence consistent with the other sentences you've issued this past month?
@@ -75,8 +76,8 @@ export class JusticeCommand extends Command {
     }
 
     checkEasterEgg({user, intr}) {
-        const { bot, type } = this;
-        return (type !== 'HISTORY' && user.id === '139120967208271872')
+        const { bot, sentence_type } = this;
+        return (sentence_type !== 'HISTORY' && user.id === '139120967208271872')
             ? bot.intrReply({intr, embed: new EmbedBase(bot, {
                 title: 'Nice try!',
                 image: {
