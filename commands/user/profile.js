@@ -55,7 +55,7 @@ class profile extends Command {
                 fields: [
                     {
                         name: `${bot.config.emoji.leyline_logo}  Lifetime GP`,
-                        value: `**${user.total_gp}** Leyline Points\n\u200b`, /*newline for spacing*/
+                        value: `**${user.total_gp}** Good Points\n\u200b`, /*newline for spacing*/
                         inline: true,
                     },
                     {
@@ -118,7 +118,7 @@ class profile extends Command {
                     },
                     {
                         name: '👤  Leyline Volunteering',
-                        value: `**${user.volunteer_gp || 0}** Leyline Points\n\u200b`,
+                        value: `**${user.volunteer_gp || 0}** Good Points\n\u200b`,
                         inline: true,
                     },
                     {
