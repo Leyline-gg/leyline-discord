@@ -48,7 +48,7 @@ export class GoodActsReactionCollector extends ReactionCollectorBase {
 		const { bot, msg } = this;
 		try {
 			//store the activity type for LLP award text both locally and in the cloud
-			msg._activityType = this.MOD_EMOJIS.find(e => e.unicode === reaction.emoji.name)?.keyword || 'Good Act';
+			msg._activityType = this.MOD_EMOJIS.find(e => e.emoji_id === reaction.emoji.toString())?.keyword || 'Good Act';
 			await Firebase.approveCollector({collector: this, user, metadata: {
 				activity_type: msg._activityType,
 			}});

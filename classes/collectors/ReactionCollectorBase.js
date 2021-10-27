@@ -8,7 +8,7 @@ export class ReactionCollectorBase {
     get REACTION_LLP() { return CloudConfig.get('ReactionCollector').REACTION_LLP; }	//LLP awarded for reacting
 	// Emojis allowed in setupModReactionCollector
 	/* Should be of structure {
-		unicode: String,
+		emoji_id: String,
 		keyword?: String,
 		add_on_msg?: boolean,
 	} */
@@ -60,7 +60,7 @@ export class ReactionCollectorBase {
 		if(!from_firestore)
 			for (const reaction of this.MOD_EMOJIS) 
 				reaction?.add_on_msg !== false && 
-					msg.react(reaction.unicode);
+					msg.react(reaction.emoji_id);
 
 		//setup collector
 		this.collector = msg
@@ -74,7 +74,7 @@ export class ReactionCollectorBase {
 					return reaction.users.remove(user);
 					
 				//this takes the place of the reactioncollector filter
-				if(!(bot.checkMod(user.id) && this.MOD_EMOJIS.some(e => e.unicode === reaction.emoji.name)))
+				if(!(bot.checkMod(user.id) && this.MOD_EMOJIS.some(e => e.emoji_id === reaction.emoji.toString())))
 					return;
 				
 				await msg.fetchReactions();
