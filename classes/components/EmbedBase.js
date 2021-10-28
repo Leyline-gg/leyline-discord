@@ -50,7 +50,7 @@ export class EmbedBase extends MessageEmbed {
     }
 
     Success() {
-        this.color = 0x35de2f;
+        this.color = 0x31d64d;
         return this;
     }
 

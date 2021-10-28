@@ -69,17 +69,35 @@ export class GoodActsReactionCollector extends ReactionCollectorBase {
 				}),
 			});
 
-			//log approval in bot log
-			bot.logDiscord({
-				embed: new EmbedBase(bot, {
+			//Privately log approval
+			this.logApproval({
+				user,
+				embed_data: {
 					fields: [
 						{
-							name: `${this.media_type[0].toUpperCase() + this.media_type.slice(1)} Approved`,
-							value: `${bot.formatUser(user)} approved the [${this.media_type}](${msg.url} 'click to view message') posted in <#${msg.channel.id}> by ${bot.formatUser(msg.author)}`
+							name: 'Channel',
+							value: `<#${msg.channel.id}>`,
+							inline: true,
 						},
+						{
+							name: 'Approved By',
+							value: bot.formatUser(user),
+							inline: true,
+						},
+						{ name: '\u200b', value: '\u200b', inline: true },
+						{
+							name: 'Category',
+							value: msg._activityType,
+							inline: true,
+						},
+						{
+							name: 'Author',
+							value: bot.formatUser(msg.author),
+							inline: true,
+						},
+						{ name: '\u200b', value: '\u200b', inline: true },
 					],
-					thumbnail: { url: this.media_type === 'photo' ? msg.attachments.first().url : this.media_placeholder },
-				}),
+				},
 			});
 
 			this.setupApprovedCollector();

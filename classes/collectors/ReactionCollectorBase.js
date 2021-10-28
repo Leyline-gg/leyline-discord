@@ -127,9 +127,87 @@ export class ReactionCollectorBase {
 	}
 
 	/**
+	 * Log an approval in a private log channel
+	 * @param {Object} args Destructured arguments
+	 * @param {User} args.user Discord.js `User` that approved the submission
+	 * @param {Object} [args.embed_data] Embed data to be sent in the approval message
+	 */
+	logApproval({user, embed_data} = {}) {
+		const { bot, msg } = this;
+
+		//log rejection using bot method
+		bot.logSubmission({
+			embed: new EmbedBase(bot, {
+				title: 'Submission Approved',
+				url: msg.url,
+				fields: [
+					{
+						name: 'Channel',
+						value: `<#${msg.channel.id}>`,
+						inline: true,
+					},
+					{
+						name: 'Approved By',
+						value: bot.formatUser(user),
+						inline: true,
+					},
+					{
+						name: 'Author',
+						value: bot.formatUser(msg.author),
+						inline: true,
+					},
+				],
+				thumbnail: { url: this.media_type === 'photo' ? msg.attachments.first().url : this.media_placeholder },
+				...embed_data,
+			}).Success(),
+		});
+
+		return this;
+	}
+
+	/**
+	 * Log a rejection in a private log channel
+	 * @param {Object} args Destructured arguments
+	 * @param {User} args.user Discord.js `User` that rejected the submission
+	 * @param {Object} [args.embed_data] Embed data to be sent in the rejection message
+	 */
+	logRejection({user, embed_data} = {}) {
+		const { bot, msg } = this;
+
+		//log rejection using bot method
+		bot.logSubmission({
+			embed: new EmbedBase(bot, {
+				title: 'Submission Rejected',
+				url: msg.url,
+				fields: [
+					{
+						name: 'Channel',
+						value: `<#${msg.channel.id}>`,
+						inline: true,
+					},
+					{
+						name: 'Rejected By',
+						value: bot.formatUser(user),
+						inline: true,
+					},
+					{
+						name: 'Author',
+						value: bot.formatUser(msg.author),
+						inline: true,
+					},
+				],
+				thumbnail: { url: this.media_type === 'photo' ? msg.attachments.first().url : this.media_placeholder },
+				...embed_data,
+			}).Error(),
+		});
+
+		return this;
+	}
+
+	/**
 	 * Soft-rejects a submission and logs actions appropriately
-	 * @param {Object} [args] Destructured arguments
-	 * @param {User} [args.user] Discord.js `User` that rejected the submission
+	 * @param {Object} args Destructured arguments
+	 * @param {User} args.user Discord.js `User` that rejected the submission
 	 */
 	rejectSubmission({user}) {
 		const { bot, msg } = this;
@@ -144,17 +222,7 @@ export class ReactionCollectorBase {
 		msg.reactions.cache.each(reaction => reaction.users.remove(bot.user));
 
 		//log rejection
-		bot.logDiscord({
-			embed: new EmbedBase(bot, {
-				fields: [
-					{
-						name: `Submission Rejected`,
-						value: `${bot.formatUser(user)} rejected the [${this.media_type}](${msg.url} 'click to view message') posted in <#${msg.channel.id}> by ${bot.formatUser(msg.author)}`
-					},
-				],
-				thumbnail: { url: this.media_type === 'photo' ? msg.attachments.first().url : this.media_placeholder },
-			}).Error(),
-		});
+		this.logRejection({user});
 
 		return this;
 	}
