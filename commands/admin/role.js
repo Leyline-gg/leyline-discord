@@ -74,7 +74,7 @@ class role extends Command {
 
     async run({intr, opts}) {
         const { bot } = this;
-        const mem = (await bot.leyline_guild.members.fetch()).get(opts.getUser('user').id);
+        const mem = await bot.leyline_guild.members.fetch(opts.getUser('user'));
         if(!mem) return bot.intrReply({intr, embed: new EmbedBase(bot, {
             description: `❌ **I couldn't find that user**`,
         }).Error()});
