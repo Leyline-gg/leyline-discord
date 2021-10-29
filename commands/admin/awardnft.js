@@ -42,6 +42,10 @@ class awardnft extends Command {
                             name: 'channel',
                             description: 'The voice channel where all members inside it will receive an NFT',
                             required: true,
+                            channelTypes: [
+                                'GUILD_VOICE',
+                                'GUILD_STAGE_VOICE',
+                            ],
                         },
                     ],
                 },
