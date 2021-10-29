@@ -88,7 +88,7 @@ export default class extends DiscordEvent {
 				embed: new EmbedBase(bot, {
 					fields:[{
 						name: `Thank you for your submission!`,
-						value: `Please remember to connect your Leyline & Discord accounts so you can receive LLP if your [submission](${msg.url}) is approved!
+						value: `Please remember to connect your Leyline & Discord accounts so you can receive GP if your [submission](${msg.url}) is approved!
 							[Click here](${bot.connection_tutorial} 'How to connect your accounts') to view the account connection tutorial.`,
 					}],
 				}),

@@ -1,12 +1,12 @@
 import admin from 'firebase-admin';
 
 /**
- * Get the latest LLP balance of a Leyline user
+ * Get the latest GP balance of a Leyline user
  * Taken from webapp's api package `userService.ts`
  * @param {String} uid Leyline UID 
- * @returns {Promise<Number>} User's most up-to-date LLP balance
+ * @returns {Promise<Number>} User's most up-to-date GP balance
  */
-export const getLLPBalance = async function (uid) {
+export const getPointsBalance = async function (uid) {
     const userDoc = await admin.firestore().doc(`users/${uid}`).get();
     const userData = userDoc.data();
 
@@ -28,12 +28,12 @@ export const getLLPBalance = async function (uid) {
 }
 
 /**
- * Get a Leyline user's total LLP earned
+ * Get a Leyline user's total GP earned
  * Taken from webapp's api `userService.ts`
  * @param {String} uid Leyline UID 
- * @returns {Promise<Number>} Total LLP earned up until this point
+ * @returns {Promise<Number>} Total GP earned up until this point
  */
-export const getTotalEarnedLLP = async function (uid) {
+export const getTotalEarnedPoints = async function (uid) {
     const snapshotRef = await admin.firestore()
         .collection('leaderboards')
         .orderBy('snapshot_time', 'desc')
@@ -51,11 +51,11 @@ export const getTotalEarnedLLP = async function (uid) {
 }
 
 /**
- * Get a Leyline user's total LLP earned for volunteering
+ * Get a Leyline user's total GP earned for volunteering
  * @param {String} uid Leyline UID 
- * @returns {Promise<Number>} Approximate total LLP earned for volunteering
+ * @returns {Promise<Number>} Approximate total GP earned for volunteering
  */
-export const getVolunteerLLP = async function (uid) {
+export const getVolunteerPoints = async function (uid) {
     const snapshot = await admin.firestore()
         .collection('leyline_points')
         .where('uid', '==', uid)
@@ -66,12 +66,12 @@ export const getVolunteerLLP = async function (uid) {
 }
 
 /**
- * Award a specific amount of LLP to a user, with an option to include transaction metadata
+ * Award a specific amount of GP to a user, with an option to include transaction metadata
  * @param {String} uid Leyline UID
- * @param {Number} amount Amount of LLP to award
+ * @param {Number} amount Amount of GP to award
  * @param {Object} [metadata] Metadata for transaction. Should contain a `category` property
  */
-export const awardLLP = async function (uid, amount, metadata = {}) {
+export const awardPoints = async function (uid, amount, metadata = {}) {
     return await admin.firestore().collection('leyline_points').add({
         uid: uid,
         leyline_points: amount,
