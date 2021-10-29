@@ -171,7 +171,7 @@ const postInit = async function () {
         const cmds = await bot.leyline_guild.commands.set(bot.commands.map(({ run, ...data }) => data))
             .catch(err => bot.logger.error(`registerCommands err: ${err}`));
         //turn each Command into an ApplicationCommand
-        cmds.forEach(cmd => bot.commands.get(cmd.name).setApplicationCommand(cmd));
+        cmds.forEach(cmd => bot.commands.get(cmd.name.replaceAll(' ', '')).setApplicationCommand(cmd));
         //Register command permissions
         await bot.leyline_guild.commands.permissions.set({ 
             fullPermissions: bot.commands.filter(c => c.category === 'admin')

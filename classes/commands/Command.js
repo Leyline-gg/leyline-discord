@@ -1,10 +1,11 @@
 export class Command {
     constructor(bot, {
         name = null,
-        description = "No description provided.",
+        description = '',   //cannot be empty for chat commands
         options = [],
         category,
         deferResponse = false,  //for commands that take longer to run
+        type = 'CHAT_INPUT',
         ...other
     }) {
         this.bot = bot;
@@ -14,6 +15,7 @@ export class Command {
         this.category = category;
         this.defaultPermission = (this.category !== 'admin');   //lock admin cmds
         this.deferResponse = deferResponse;
+        this.type = type;
         Object.assign(this, other);
     }
 
