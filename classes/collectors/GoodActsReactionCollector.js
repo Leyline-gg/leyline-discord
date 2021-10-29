@@ -170,5 +170,3 @@ export class GoodActsReactionCollector extends ReactionCollectorBase {
 		return super.loadMessageCache(doc);
     }
 };
-
-

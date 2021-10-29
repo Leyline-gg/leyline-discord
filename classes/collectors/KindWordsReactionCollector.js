@@ -86,5 +86,3 @@ export class KindWordsReactionCollector extends ReactionCollectorBase {
 		} catch(err) { return bot.logger.error(err); }
 	}
 }
-
-

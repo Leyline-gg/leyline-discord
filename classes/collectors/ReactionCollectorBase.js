@@ -472,5 +472,3 @@ export class ReactionCollectorBase {
         return this;
     }
 }
-
-
