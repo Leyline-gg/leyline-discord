@@ -34,19 +34,9 @@ export class KindWordsReactionCollector extends ReactionCollectorBase {
 				msg: msg.id,
 			});
 
-			//log approval in bot log
-			bot.logDiscord({
-				embed: new EmbedBase(bot, {
-					fields: [
-						{
-							name: `${this.media_type[0].toUpperCase() + this.media_type.slice(1)} Approved`,
-							value: `${bot.formatUser(user)} approved the [${this.media_type}](${msg.url} 'click to view message') posted in <#${msg.channel.id}> by ${bot.formatUser(msg.author)}`
-						},
-					],
-				}),
-			});
-
-			this.setupApprovedCollector();
+			//Privately log approval
+			this.logApproval({user})
+				.setupApprovedCollector();
 
 			//ensure user is connected to LL
 			const is_author_connected = await Firebase.isUserConnectedToLeyline(msg.author.id);

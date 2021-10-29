@@ -128,6 +128,19 @@ export class LeylineBot extends Client {
         });
     }
 
+    /**
+     * Sends a discord message on the bot's behalf to a private log channel, specific for submissions
+     * @param {Object} args
+     * @param {EmbedBase} args.embed Singular embed object to be sent in message
+     * @returns {Promise<Message>} Promise which resolves to the sent message
+     */
+    async logSubmission({embed, ...options}) {
+        return (await this.channels.fetch(this.config.channels.submission_log)).send({
+            embeds: [embed],
+            ...options,
+        });
+    }
+
     sendDisabledDmMessage(user) {
         this.msgBotChannel({
             content: user.toString(),
