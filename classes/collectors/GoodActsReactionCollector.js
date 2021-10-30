@@ -51,11 +51,11 @@ export class GoodActsReactionCollector extends ReactionCollectorBase {
 		return;
 	}
 
-	async approveSubmission({user, reaction}) {
+	async approveSubmission({user, approval_emoji}) {
 		const { bot, msg } = this;
 		try {
 			//store the activity type for GP award text both locally and in the cloud
-			msg._activityType = this.MOD_EMOJIS.find(e => e.toString() === reaction.emoji.toString())?.keyword || 'Good Act';
+			msg._activityType = this.MOD_EMOJIS.find(e => e.toString() === approval_emoji.toString())?.keyword || 'Good Act';
 			await Firebase.approveCollector({collector: this, user, metadata: {
 				activity_type: msg._activityType,
 			}});
@@ -164,8 +164,11 @@ export class GoodActsReactionCollector extends ReactionCollectorBase {
 
 			//remove all reactions added by the bot
 			msg.reactions.cache.each(reaction => reaction.users.remove(bot.user));
-			return;
-		} catch(err) { return bot.logger.error(err); }
+			return this;
+		} catch(err) { 
+			bot.logger.error(err);
+			return this;
+		}
 	}
 
 	// Overwrite of parent method

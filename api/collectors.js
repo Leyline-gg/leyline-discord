@@ -104,15 +104,15 @@ export const getDiscordReactions = async function (uid) {
 }
 
 /**
- * Check if a collector exists in Firestore
+ * Get the Firestore document for a collector, if it exists
  * @param {String} id The collector's id
- * @returns {Promise<Boolean>}
+ * @returns {Promise<FirebaseFirestore.DocumentData | undefined>} JSON collector data or undefined if non-existent
  */
-export const collectorExists = async function (id) {
+export const fetchCollector = async function (id) {
     const collector = await admin
         .firestore()
         .collection('discord/bot/reaction_collectors')
         .doc(id)
         .get();
-    return collector.exists;
+    return collector.data();
 }

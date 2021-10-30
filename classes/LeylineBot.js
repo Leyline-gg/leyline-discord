@@ -245,6 +245,11 @@ export class LeylineBot extends Client {
         return `<t:${timestamp /1000 |0}:${letter}>`;
     }
 
+    /**
+     * Construct an Discord.js emoji from destructured parameters (such as Firestore data)
+     * @param {Object} args Destructured arguments, see `Emoji` constructor
+     * @returns {Emoji} 
+     */
     constructEmoji({name, id, animated=false, ...other} = {}) {
         return Object.assign(new Emoji(this, {
             name,

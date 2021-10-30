@@ -30,7 +30,7 @@ export class KindWordsReactionCollector extends ReactionCollectorBase {
 	}
 
     // Callback specific to this Collector class
-	async approveSubmission({user, reaction}) {
+	async approveSubmission({user}) {
 		const { bot, msg } = this;
 		try {
 			await Firebase.approveCollector({collector: this, user});

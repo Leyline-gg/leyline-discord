@@ -1,4 +1,4 @@
-import { Command, EmbedBase, GoodActsReactionCollector } from '../../classes';
+import { Command, EmbedBase, ReactionCollector } from '../../classes';
 import * as Firebase from '../../api';
 
 class ApproveGoodAct extends Command {
@@ -13,10 +13,28 @@ class ApproveGoodAct extends Command {
     async run({intr, msg}) {
         const { bot } = this;
 
-        if(await Firebase.collectorExists(msg.id)) return bot.intrReply({intr,
-            embed: new EmbedBase().ErrorDesc('Please use a reaction to approve this submission!')
-        });
+        //Input Validations
+        const cloud_collector = await Firebase.fetchCollector(msg.id);
+        if(cloud_collector?.approved)
+            return bot.intrReply({
+                intr,
+                embed: new EmbedBase(bot).ErrorDesc('This submission has already been approved'),
+                ephemeral: true,
+            });
+        if(!!cloud_collector?.rejected_by)
+            return bot.intrReply({
+                intr,
+                embed: new EmbedBase(bot).ErrorDesc('This submission has already been rejected'),
+                ephemeral: true,
+            });
+        if(cloud_collector?.expires < Date.now())
+            return bot.intrReply({
+                intr,
+                embed: new EmbedBase(bot).ErrorDesc('The approval window for this submission has expired'),
+                ephemeral: true,
+            });
 
+        //Send confirmation prompt
         if (!(await bot.intrConfirm({
             intr,
             embed: new EmbedBase(bot, {
@@ -33,7 +51,7 @@ class ApproveGoodAct extends Command {
 			});
 
         //instantiate collector to get mod_emojis
-        const collector = new GoodActsReactionCollector(bot, { msg });
+        const collector = new ReactionCollector(bot, { type: ReactionCollector.Collectors.GOOD_ACTS, msg });
         const response_intr = await (await bot.intrReply({
             intr,
             content: `Select an approval category`,
@@ -49,7 +67,7 @@ class ApproveGoodAct extends Command {
                             .filter(e => e.name !== '❌')
                             .map(emoji => ({
                                 label: emoji.keyword,
-                                value: emoji.keyword,
+                                value: emoji?.id || emoji.name,
                                 emoji: {
                                     name: emoji.name,
                                     id: emoji?.id,
@@ -63,7 +81,17 @@ class ApproveGoodAct extends Command {
                 type: 1,
             }],
         })).awaitInteractionFromUser({user: intr.user});
-        console.log(response_intr);
+
+        //parse emoji and setup collector
+        const emoji = bot.emojis.resolve(response_intr.values[0]) ?? response_intr.values[0];
+        await Firebase.createCollector(collector);  //needs to be performed first
+        await collector.approveSubmission({user: intr.user, approval_emoji: emoji});
+        collector.createThread();
+        msg.react(emoji.toString());
+
+        return bot.intrReply({intr, embed: new EmbedBase(bot, {
+            description: `✅ **Good Act Approved**`,
+        }).Success(), content: '\u200b', components: [], ephemeral: true});
     }
 }
 

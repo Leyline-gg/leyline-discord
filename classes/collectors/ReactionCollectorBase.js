@@ -54,10 +54,10 @@ export class ReactionCollectorBase {
 	 * !! MUST BE IMPLEMENTED IN ALL SUBCLASSES !!
 	 * Method called after a submission has been approved
 	 * @param {Object} args Destructured args
-	 * @param {Reaction} args.reaction The reaction that approved the submission
+	 * @param {Emoji} args.approval_emoji The emoji of the reaction that approved the submission
 	 * @param {User} args.user The user that approved the submission
 	 */
-	approveSubmission({reaction, user}) {
+	approveSubmission({approval_emoji, user}) {
 		throw new Error(`${this.constructor.name} doesn't provide a ${this.reactionReceived.name} method`);
 	}
 
@@ -97,7 +97,7 @@ export class ReactionCollectorBase {
 
 				//end this modReactionCollector
 				this.collector.stop();
-				this.approveSubmission({reaction, user});
+				this.approveSubmission({approval_emoji:reaction.emoji, user});
 			});
 		return this;
 	}
