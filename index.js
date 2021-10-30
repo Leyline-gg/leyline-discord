@@ -174,10 +174,11 @@ const postInit = async function () {
         cmds.forEach(cmd => bot.commands.get(cmd.name.replaceAll(' ', '')).setApplicationCommand(cmd));
         //Register command permissions
         await bot.leyline_guild.commands.permissions.set({ 
-            fullPermissions: bot.commands.filter(c => c.category === 'admin')
-                .map(cmd => ({ 
-                    id: cmd.id,
-                    permissions: bot.config.command_perms,
+            fullPermissions: bot.commands
+                .filter(c => Object.keys(bot.config.command_perms).includes(c.category))
+                .map(({id, category}) => ({ 
+                    id,
+                    permissions: bot.config.command_perms[category],
                 })),
         }).catch(err => bot.logger.error(`registerCommands err: ${err}`));
         bot.logger.log(`Registered ${cmds.size} out of ${bot.commands.size} commands to Discord`);

@@ -13,7 +13,7 @@ export class Command {
         this.description = description;
         this.options = options;
         this.category = category;
-        this.defaultPermission = (this.category !== 'admin');   //lock admin cmds
+        this.defaultPermission = (this.category !== 'admin' && this.category !== 'moderator');   //lock admin cmds
         this.deferResponse = deferResponse;
         this.type = type;
         Object.assign(this, other);

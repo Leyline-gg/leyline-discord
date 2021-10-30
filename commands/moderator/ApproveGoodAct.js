@@ -5,7 +5,7 @@ class ApproveGoodAct extends Command {
     constructor(bot) {
         super(bot, {
             name: 'Approve Good Act',
-            category: 'admin',
+            category: 'moderator',
             type: 'MESSAGE',
         });
     }
