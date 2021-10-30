@@ -11,6 +11,10 @@ class sudosay extends Command {
                     name: 'channel',
                     description: 'The text channel where the bot will send the message',
                     required: true,
+                    channelTypes: [
+                        'GUILD_TEXT',
+                        'GUILD_NEWS',
+                    ],
                 },
                 {
                     type: 'STRING',

@@ -1,7 +1,7 @@
 import * as Firebase from '../api';
 
 export class LeylineUser {
-    // hours donated, blood donated, llp balance, days slept/exercised
+    // hours donated, blood donated, gp balance, days slept/exercised
     // leaderboard positions? for all time
     // avatar, total items in inventory
     constructor(uid) {
@@ -10,9 +10,9 @@ export class LeylineUser {
             this.uid = uid;
             //this.discord_uid = discord_uid || (await Firebase.getDiscordDoc(uid, true)).id;
             this._username = doc?.username;
-            this.llp = await Firebase.getLLPBalance(uid);
-            this.total_llp = await Firebase.getTotalEarnedLLP(uid);
-            this.volunteer_llp = await Firebase.getVolunteerLLP(uid);
+            this.gp = await Firebase.getPointsBalance(uid);
+            this.total_gp = await Firebase.getTotalEarnedPoints(uid);
+            this.volunteer_gp = await Firebase.getVolunteerPoints(uid);
             this.rankings = await Firebase.getUserRankings(uid);
             this.inventory = await Firebase.getInventoryItems(uid);
             this.profile_url = `https://leyline.gg/profile/${doc?.profile_id}`;
