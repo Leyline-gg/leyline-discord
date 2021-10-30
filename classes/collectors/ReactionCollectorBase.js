@@ -15,7 +15,15 @@ export class ReactionCollectorBase {
 		position?: Number,	//lower numbers get added to msg first
 		add_on_msg?: boolean,
 	} */
-	get MOD_EMOJIS() { return CloudConfig.get('ReactionCollector').MOD_EMOJIS; }
+	get MOD_EMOJIS() { 
+		return CloudConfig.get('ReactionCollector').MOD_EMOJIS
+			.map(this.bot.constructEmoji)
+			.sort((a, b) => (
+				{position: Number.MAX_VALUE, ...a}.position -
+				{position: Number.MAX_VALUE, ...b}.position
+			));
+	}
+	
     media_type = 'submission';
 
     constructor(bot, {
@@ -61,9 +69,9 @@ export class ReactionCollectorBase {
 
 		//add initial reactions
 		if(!from_firestore)
-			for (const reaction of this.MOD_EMOJIS) 
+			for (const reaction of this.MOD_EMOJIS)
 				reaction?.add_on_msg !== false && 
-					msg.react(reaction.emoji_id);
+					msg.react(reaction.toString());
 
 		//setup collector
 		this.collector = msg
@@ -77,7 +85,7 @@ export class ReactionCollectorBase {
 					return reaction.users.remove(user);
 					
 				//this takes the place of the reactioncollector filter
-				if(!(bot.checkMod(user.id) && this.MOD_EMOJIS.some(e => e.emoji_id === reaction.emoji.toString())))
+				if(!(bot.checkMod(user.id) && this.MOD_EMOJIS.some(e => e.toString() === reaction.emoji.toString())))
 					return;
 				
 				await msg.fetchReactions();

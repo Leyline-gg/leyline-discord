@@ -1,4 +1,4 @@
-import { Client, Collection } from "discord.js";
+import { Client, Collection, Emoji } from "discord.js";
 import config from '../config.js';
 import { ConfirmInteraction, EmbedBase, Logger, CloudConfig } from ".";
 
@@ -245,4 +245,11 @@ export class LeylineBot extends Client {
         return `<t:${timestamp /1000 |0}:${letter}>`;
     }
 
+    constructEmoji({name, id, animated=false, ...other} = {}) {
+        return Object.assign(new Emoji(this, {
+            name,
+            id,
+            animated,
+        }), other);
+    }
 }
