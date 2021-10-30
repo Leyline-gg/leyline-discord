@@ -8,8 +8,11 @@ export class ReactionCollectorBase {
     get REACTION_GP() { return CloudConfig.get('ReactionCollector').REACTION_GP; }	//GP awarded for reacting
 	// Emojis allowed in setupModReactionCollector
 	/* Should be of structure {
-		emoji_id: String,
+		name: String,
+		id?: Snowflake, //for custom emoji
+		animated?: Boolean,
 		keyword?: String,
+		position?: Number,	//lower numbers get added to msg first
 		add_on_msg?: boolean,
 	} */
 	get MOD_EMOJIS() { return CloudConfig.get('ReactionCollector').MOD_EMOJIS; }
@@ -118,7 +121,7 @@ export class ReactionCollectorBase {
 				//this handles the whole awarding process
 				else await this.awardReactionGP({user});
 
-				//await in case callback is async
+				//await in case child method is async
 				await this.reactionReceived({reaction, user});
 				return;
 			} catch(err) { return bot.logger.error(err); }
@@ -233,6 +236,7 @@ export class ReactionCollectorBase {
 	 * @returns {boolean} `true` if an attachment was detected & stored, `false` otherwise
 	 */
 	processAttachment(url) {
+		url ||= '';
 		if (url.endsWith('.png') || url.endsWith('.jpg') || url.endsWith('.jpeg') || url.endsWith('.webp')) {
 			this.media_type = 'photo';
 			return true;
