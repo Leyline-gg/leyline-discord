@@ -8,11 +8,22 @@ export class ReactionCollectorBase {
     get REACTION_GP() { return CloudConfig.get('ReactionCollector').REACTION_GP; }	//GP awarded for reacting
 	// Emojis allowed in setupModReactionCollector
 	/* Should be of structure {
-		emoji_id: String,
+		name: String,
+		id?: Snowflake, //for custom emoji
+		animated?: Boolean,
 		keyword?: String,
+		position?: Number,	//lower numbers get added to msg first
 		add_on_msg?: boolean,
 	} */
-	get MOD_EMOJIS() { return CloudConfig.get('ReactionCollector').MOD_EMOJIS; }
+	get MOD_EMOJIS() { 
+		return CloudConfig.get('ReactionCollector').MOD_EMOJIS
+			.map(this.bot.constructEmoji)
+			.sort((a, b) => (
+				{position: Number.MAX_VALUE, ...a}.position -
+				{position: Number.MAX_VALUE, ...b}.position
+			));
+	}
+	
     media_type = 'submission';
 
     constructor(bot, {
@@ -43,10 +54,10 @@ export class ReactionCollectorBase {
 	 * !! MUST BE IMPLEMENTED IN ALL SUBCLASSES !!
 	 * Method called after a submission has been approved
 	 * @param {Object} args Destructured args
-	 * @param {Reaction} args.reaction The reaction that approved the submission
+	 * @param {Emoji} args.approval_emoji The emoji of the reaction that approved the submission
 	 * @param {User} args.user The user that approved the submission
 	 */
-	approveSubmission({reaction, user}) {
+	approveSubmission({approval_emoji, user}) {
 		throw new Error(`${this.constructor.name} doesn't provide a ${this.reactionReceived.name} method`);
 	}
 
@@ -58,9 +69,9 @@ export class ReactionCollectorBase {
 
 		//add initial reactions
 		if(!from_firestore)
-			for (const reaction of this.MOD_EMOJIS) 
+			for (const reaction of this.MOD_EMOJIS)
 				reaction?.add_on_msg !== false && 
-					msg.react(reaction.emoji_id);
+					msg.react(reaction.toString());
 
 		//setup collector
 		this.collector = msg
@@ -74,7 +85,7 @@ export class ReactionCollectorBase {
 					return reaction.users.remove(user);
 					
 				//this takes the place of the reactioncollector filter
-				if(!(bot.checkMod(user.id) && this.MOD_EMOJIS.some(e => e.emoji_id === reaction.emoji.toString())))
+				if(!(bot.checkMod(user.id) && this.MOD_EMOJIS.some(e => e.toString() === reaction.emoji.toString())))
 					return;
 				
 				await msg.fetchReactions();
@@ -86,7 +97,7 @@ export class ReactionCollectorBase {
 
 				//end this modReactionCollector
 				this.collector.stop();
-				this.approveSubmission({reaction, user});
+				this.approveSubmission({approval_emoji:reaction.emoji, user});
 			});
 		return this;
 	}
@@ -118,7 +129,7 @@ export class ReactionCollectorBase {
 				//this handles the whole awarding process
 				else await this.awardReactionGP({user});
 
-				//await in case callback is async
+				//await in case child method is async
 				await this.reactionReceived({reaction, user});
 				return;
 			} catch(err) { return bot.logger.error(err); }
@@ -233,6 +244,7 @@ export class ReactionCollectorBase {
 	 * @returns {boolean} `true` if an attachment was detected & stored, `false` otherwise
 	 */
 	processAttachment(url) {
+		url ||= '';
 		if (url.endsWith('.png') || url.endsWith('.jpg') || url.endsWith('.jpeg') || url.endsWith('.webp')) {
 			this.media_type = 'photo';
 			return true;

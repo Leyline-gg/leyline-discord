@@ -1,4 +1,4 @@
-import { Client, Collection } from "discord.js";
+import { Client, Collection, Emoji } from "discord.js";
 import config from '../config.js';
 import { ConfirmInteraction, EmbedBase, Logger, CloudConfig } from ".";
 
@@ -162,21 +162,21 @@ export class LeylineBot extends Client {
      * Replies to an interaction
      * @param {Object} args Destructured arguments
      * @param {Interaction} args.intr Discord.js `Interaction`
-     * @param {EmbedBase} [args.embed] Singular embed object to be included in reply
+     * @param {EmbedBase} [args.embed] Singular embed object to be included in reply. If unspecified, existing embeds are removed
      * @returns {Promise<Message>} The reply that was sent
      */
-    intrReply({intr, embed, ...options}) {
+    intrReply({intr, embed=null, ...options}) {
         const payload = {
-            ...embed && { embeds: [embed] },
+            embeds: !!embed ? [embed] : [],
             fetchReply: true,
             ...options,
         };
         return (intr.deferred || intr.replied) ? intr.editReply(payload) : intr.reply(payload);
     }
 
-    intrUpdate({intr, embed, ...options}) {
+    intrUpdate({intr, embed=null, ...options}) {
         const payload = {
-            ...embed && { embeds: [embed] },
+            embeds: !!embed ? [embed] : [],
             fetchReply: true,
             ...options,
         };
@@ -245,4 +245,16 @@ export class LeylineBot extends Client {
         return `<t:${timestamp /1000 |0}:${letter}>`;
     }
 
+    /**
+     * Construct an Discord.js emoji from destructured parameters (such as Firestore data)
+     * @param {Object} args Destructured arguments, see `Emoji` constructor
+     * @returns {Emoji} 
+     */
+    constructEmoji({name, id, animated=false, ...other} = {}) {
+        return Object.assign(new Emoji(this, {
+            name,
+            id,
+            animated,
+        }), other);
+    }
 }

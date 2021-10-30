@@ -7,7 +7,14 @@ export class GoodActsReactionCollector extends ReactionCollectorBase {
 	//override parent properties
 	get REACTION_GP() { return CloudConfig.get('ReactionCollector').GoodActs.REACTION_GP; }
 	get APPROVAL_GP() { return CloudConfig.get('ReactionCollector').GoodActs.APPROVAL_GP; }
-	get MOD_EMOJIS() { return CloudConfig.get('ReactionCollector').GoodActs.MOD_EMOJIS; }
+	get MOD_EMOJIS() { 
+		return CloudConfig.get('ReactionCollector').GoodActs.MOD_EMOJIS
+			.map(this.bot.constructEmoji)
+			.sort((a, b) => (
+				{position: Number.MAX_VALUE, ...a}.position -
+				{position: Number.MAX_VALUE, ...b}.position
+			));
+	}
 
 	media_placeholder	//unfortunately, there is no easy way to extract the thumbnail from a video posted in discord
 		= 'https://cdn1.iconfinder.com/data/icons/growth-marketing/48/marketing_video_marketing-512.png';
@@ -44,11 +51,11 @@ export class GoodActsReactionCollector extends ReactionCollectorBase {
 		return;
 	}
 
-	async approveSubmission({user, reaction}) {
+	async approveSubmission({user, approval_emoji}) {
 		const { bot, msg } = this;
 		try {
 			//store the activity type for GP award text both locally and in the cloud
-			msg._activityType = this.MOD_EMOJIS.find(e => e.emoji_id === reaction.emoji.toString())?.keyword || 'Good Act';
+			msg._activityType = this.MOD_EMOJIS.find(e => e.toString() === approval_emoji.toString())?.keyword || 'Good Act';
 			await Firebase.approveCollector({collector: this, user, metadata: {
 				activity_type: msg._activityType,
 			}});
@@ -157,8 +164,11 @@ export class GoodActsReactionCollector extends ReactionCollectorBase {
 
 			//remove all reactions added by the bot
 			msg.reactions.cache.each(reaction => reaction.users.remove(bot.user));
-			return;
-		} catch(err) { return bot.logger.error(err); }
+			return this;
+		} catch(err) { 
+			bot.logger.error(err);
+			return this;
+		}
 	}
 
 	// Overwrite of parent method

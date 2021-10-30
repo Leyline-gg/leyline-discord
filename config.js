@@ -3,29 +3,49 @@ export default {
     get production() {
         return {
             // Which users/roles get access to all commands
-            command_perms: [
-                {   // Admin
-                    id: '784875278593818694',
-                    type: 'ROLE',
-                    permission: true,
-                },
-                {   // Moderator
-                    id: '752363863441145866',
-                    type: 'ROLE',
-                    permission: true,
-                },
-                {   // Leyline staff
-                    id: '751919243062411385',
-                    type: 'ROLE',
-                    permission: true,
-                },
-                {
-                    // Ollog10
-                    id: '139120967208271872',
-                    type: 'USER',
-                    permission: true,
-                },
-            ],
+            command_perms: {
+                moderator: [
+                    {   // Admin
+                        id: '784875278593818694',
+                        type: 'ROLE',
+                        permission: true,
+                    },
+                    {   // Moderator
+                        id: '752363863441145866',
+                        type: 'ROLE',
+                        permission: true,
+                    },
+                    {
+                        // Ollog10
+                        id: '139120967208271872',
+                        type: 'USER',
+                        permission: true,
+                    },
+                ],
+                admin: [
+                    {   // Admin
+                        id: '784875278593818694',
+                        type: 'ROLE',
+                        permission: true,
+                    },
+                    {   // Moderator
+                        id: '752363863441145866',
+                        type: 'ROLE',
+                        permission: true,
+                    },
+                    {
+                        // Ollog10
+                        id: '139120967208271872',
+                        type: 'USER',
+                        permission: true,
+                    },
+                    {   // Leyline staff
+                        id: '751919243062411385',
+                        type: 'ROLE',
+                        permission: true,
+                    },
+                ],
+            },
             leyline_guild_id: '751913089271726160',
             channels: {
                 private_log: '843892751276048394',
@@ -66,24 +86,34 @@ export default {
     get development() {
         return {
             // Which users/roles get access to all commands
-            command_perms: [
-                {   // Leyline staff
-                    id: '858144532318519326',
-                    type: 'ROLE',
-                    permission: true,
-                },
-                {
-                    // Ollog10
-                    id: '139120967208271872',
-                    type: 'USER',
-                    permission: true,
-                },
-            ],
+            command_perms: {
+                moderator: [
+                    {
+                        // Moderator
+                        id: '904095889558212660',
+                        type: 'ROLE',
+                        permission: true,
+                    },
+                ],
+                admin: [
+                    {
+                        // Moderator
+                        id: '904095889558212660',
+                        type: 'ROLE',
+                        permission: true,
+                    },
+                    {   // Leyline staff
+                        id: '858144532318519326',
+                        type: 'ROLE',
+                        permission: true,
+                    },
+                ],
+            },
             leyline_guild_id: '857839180608307210',
             channels: {
                 private_log: '858141871788392448',
                 public_log: '858141914841481246',
-                reward_log: '858141836513771550',
+                reward_log: '904081593029759006',
                 mod_log: '892268882285457439',  //private mod log
                 submission_log: '903055896173764659',   //private submission log
                 ama_vc: '869993145499287604',
