@@ -7,7 +7,7 @@ import { Intents, Message } from 'discord.js';
 import admin from 'firebase-admin';
 import klaw from 'klaw';
 import path from 'path';
-import { LeylineBot, EmbedBase, CommunityPoll, ReactionCollector, PunishmentService, CloudConfig } from './classes';
+import { LeylineBot, EmbedBase, CommunityPoll, ReactionCollector, SentenceService, CloudConfig } from './classes';
 //formally, dotenv shouldn't be used in prod, but because staging and prod share a VM, it's an option I elected to go with for convenience
 import { config as dotenv_config } from 'dotenv';
 dotenv_config();
@@ -171,13 +171,14 @@ const postInit = async function () {
         const cmds = await bot.leyline_guild.commands.set(bot.commands.map(({ run, ...data }) => data))
             .catch(err => bot.logger.error(`registerCommands err: ${err}`));
         //turn each Command into an ApplicationCommand
-        cmds.forEach(cmd => bot.commands.get(cmd.name).setApplicationCommand(cmd));
+        cmds.forEach(cmd => bot.commands.get(cmd.name.replaceAll(' ', '')).setApplicationCommand(cmd));
         //Register command permissions
         await bot.leyline_guild.commands.permissions.set({ 
-            fullPermissions: bot.commands.filter(c => c.category === 'admin')
-                .map(cmd => ({ 
-                    id: cmd.id,
-                    permissions: bot.config.command_perms,
+            fullPermissions: bot.commands
+                .filter(c => Object.keys(bot.config.command_perms).includes(c.category))
+                .map(({id, category}) => ({ 
+                    id,
+                    permissions: bot.config.command_perms[category],
                 })),
         }).catch(err => bot.logger.error(`registerCommands err: ${err}`));
         bot.logger.log(`Registered ${cmds.size} out of ${bot.commands.size} commands to Discord`);
@@ -241,27 +242,27 @@ const postInit = async function () {
         return;
     })();
 
-    //import punishments
-    await (async function importPunishments() {
+    //import sentences
+    await (async function importSentences() {
         let succesfully_imported = 0; 
-        const punishments = await admin
+        const sentences = await admin
             .firestore()
-			.collection(PunishmentService.COLLECTION_PATH)
+			.collection(SentenceService.COLLECTION_PATH)
 			.where('expires', '>', Date.now())
             .get();
-        for (const doc of punishments.docs) {
+        for (const doc of sentences.docs) {
             try {
-                PunishmentService.scheduleRemoval({
+                SentenceService.scheduleRemoval({
                     bot,
                     id: doc.id,
                     data: { ...doc.data() },
                 });
                 succesfully_imported++;
             } catch (err) {
-                bot.logger.error(`importPunishments error with doc id ${doc.id}: ${err}`);
+                bot.logger.error(`importSentences error with doc id ${doc.id}: ${err}`);
             }   
         }
-        bot.logger.log(`Imported ${succesfully_imported} punishments from Firestore`);
+        bot.logger.log(`Imported ${succesfully_imported} sentences from Firestore`);
         return;
     })();
 

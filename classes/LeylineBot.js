@@ -1,4 +1,4 @@
-import { Client, Collection } from "discord.js";
+import { Client, Collection, Emoji } from "discord.js";
 import config from '../config.js';
 import { ConfirmInteraction, EmbedBase, Logger, CloudConfig } from ".";
 
@@ -116,13 +116,26 @@ export class LeylineBot extends Client {
     }
 
     /**
-     * Sends a discord message on the bot's behalf to a public log channel, specific for punishments
+     * Sends a discord message on the bot's behalf to a public log channel, specific for sentences
      * @param {Object} args
      * @param {EmbedBase} args.embed Singular embed object to be sent in message
      * @returns {Promise<Message>} Promise which resolves to the sent message
      */
-     async logPunishment({embed, ...options}) {
-        return (await this.channels.fetch(this.config.channels.punishment_log)).send({
+     async logSentence({embed, ...options}) {
+        return (await this.channels.fetch(this.config.channels.mod_log)).send({
+            embeds: [embed],
+            ...options,
+        });
+    }
+
+    /**
+     * Sends a discord message on the bot's behalf to a private log channel, specific for submissions
+     * @param {Object} args
+     * @param {EmbedBase} args.embed Singular embed object to be sent in message
+     * @returns {Promise<Message>} Promise which resolves to the sent message
+     */
+    async logSubmission({embed, ...options}) {
+        return (await this.channels.fetch(this.config.channels.submission_log)).send({
             embeds: [embed],
             ...options,
         });
@@ -149,21 +162,21 @@ export class LeylineBot extends Client {
      * Replies to an interaction
      * @param {Object} args Destructured arguments
      * @param {Interaction} args.intr Discord.js `Interaction`
-     * @param {EmbedBase} [args.embed] Singular embed object to be included in reply
+     * @param {EmbedBase} [args.embed] Singular embed object to be included in reply. If unspecified, existing embeds are removed
      * @returns {Promise<Message>} The reply that was sent
      */
-    intrReply({intr, embed, ...options}) {
+    intrReply({intr, embed=null, ...options}) {
         const payload = {
-            ...embed && { embeds: [embed] },
+            embeds: !!embed ? [embed] : [],
             fetchReply: true,
             ...options,
         };
         return (intr.deferred || intr.replied) ? intr.editReply(payload) : intr.reply(payload);
     }
 
-    intrUpdate({intr, embed, ...options}) {
+    intrUpdate({intr, embed=null, ...options}) {
         const payload = {
-            ...embed && { embeds: [embed] },
+            embeds: !!embed ? [embed] : [],
             fetchReply: true,
             ...options,
         };
@@ -232,4 +245,16 @@ export class LeylineBot extends Client {
         return `<t:${timestamp /1000 |0}:${letter}>`;
     }
 
+    /**
+     * Construct an Discord.js emoji from destructured parameters (such as Firestore data)
+     * @param {Object} args Destructured arguments, see `Emoji` constructor
+     * @returns {Emoji} 
+     */
+    constructEmoji({name, id, animated=false, ...other} = {}) {
+        return Object.assign(new Emoji(this, {
+            name,
+            id,
+            animated,
+        }), other);
+    }
 }

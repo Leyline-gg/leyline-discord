@@ -53,8 +53,8 @@ class inspect extends Command {
                     inline: true
                 },
                 {
-                    name: 'LLP Balance',
-                    value: `${!!llid ? await Firebase.getLLPBalance(llid) : 'N/A'}`,
+                    name: 'GP Balance',
+                    value: `${!!llid ? await Firebase.getPointsBalance(llid) : 'N/A'}`,
                     inline: true
                 },
             ],

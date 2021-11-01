@@ -12,27 +12,27 @@ class embedtest extends Command {
     async run({intr, opts}) {
         const { bot } = this;
         let expires = false;
-        bot.intrReply({intr, embed: new EmbedBase(bot).ErrorDesc('I ran into an error!')});
-        //bot.intrReply({intr, embed: new EmbedBase(bot, {
-        //    title: 'Punishment Issued',
-        //    fields: [
-        //        {
-        //            name: 'Issued By',
-        //            value: bot.formatUser(intr.user),
-        //            inline: true,
-        //        },
-        //        {
-        //            name: 'Reason',
-        //            value: null ?? 'No reason given',
-        //            inline: true,
-        //        },
-        //        {
-        //            name: 'Expires',
-        //            value: !!expires ? bot.formatTimestamp(expires) : 'No expiration',
-        //            inline: true,
-        //        },
-        //    ],
-        //}).Punish(), files: ['./images/avatar-default.png']});
+        bot.intrReply({intr, embed: new EmbedBase(bot, {
+            title: 'Justice Served',
+            fields: [
+                {
+                    name: 'Issued By',
+                    value: bot.formatUser(intr.user),
+                    inline: true,
+                },
+                {
+                    name: 'Reason',
+                    value: null ?? 'No reason given',
+                    inline: true,
+                },
+                {
+                    name: 'Expires',
+                    value: !!expires ? bot.formatTimestamp(expires) : 'No expiration',
+                    inline: true,
+                },
+            ],
+            color: 0x31d64d,
+        })});
     }
 }
 

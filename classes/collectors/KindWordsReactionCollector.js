@@ -3,9 +3,16 @@ import { EmbedBase, XPService, ReactionCollectorBase, CloudConfig } from '..';
 
 export class KindWordsReactionCollector extends ReactionCollectorBase {
 	//override parent properties
-	get REACTION_LLP() { return CloudConfig.get('ReactionCollector').KindWords.REACTION_LLP; }
-	get APPROVAL_LLP() { return CloudConfig.get('ReactionCollector').KindWords.APPROVAL_LLP; }
-	get MOD_EMOJIS() { return CloudConfig.get('ReactionCollector').KindWords.MOD_EMOJIS; }
+	get REACTION_GP() { return CloudConfig.get('ReactionCollector').KindWords.REACTION_GP; }
+	get APPROVAL_GP() { return CloudConfig.get('ReactionCollector').KindWords.APPROVAL_GP; }
+	get MOD_EMOJIS() { 
+		return CloudConfig.get('ReactionCollector').KindWords.MOD_EMOJIS
+			.map(this.bot.constructEmoji)
+			.sort((a, b) => (
+				{position: Number.MAX_VALUE, ...a}.position -
+				{position: Number.MAX_VALUE, ...b}.position
+			));
+	}
 	constructor(bot, {
 		msg,
 	}) {
@@ -23,7 +30,7 @@ export class KindWordsReactionCollector extends ReactionCollectorBase {
 	}
 
     // Callback specific to this Collector class
-	async approveSubmission({user, reaction}) {
+	async approveSubmission({user}) {
 		const { bot, msg } = this;
 		try {
 			await Firebase.approveCollector({collector: this, user});
@@ -34,38 +41,28 @@ export class KindWordsReactionCollector extends ReactionCollectorBase {
 				msg: msg.id,
 			});
 
-			//log approval in bot log
-			bot.logDiscord({
-				embed: new EmbedBase(bot, {
-					fields: [
-						{
-							name: `${this.media_type[0].toUpperCase() + this.media_type.slice(1)} Approved`,
-							value: `${bot.formatUser(user)} approved the [${this.media_type}](${msg.url} 'click to view message') posted in <#${msg.channel.id}> by ${bot.formatUser(msg.author)}`
-						},
-					],
-				}),
-			});
-
-			this.setupApprovedCollector();
+			//Privately log approval
+			this.logApproval({user})
+				.setupApprovedCollector();
 
 			//ensure user is connected to LL
 			const is_author_connected = await Firebase.isUserConnectedToLeyline(msg.author.id);
 			if(!is_author_connected)
 				this.handleUnconnectedAccount(msg.author, {
-					dm: `Your [${this.media_type}](${msg.url} 'click to view message') posted in <#${msg.channel.id}> was approved, but because you have not connected your Discord & Leyline accounts, I couldn't award you any LLP!
+					dm: `Your [${this.media_type}](${msg.url} 'click to view message') posted in <#${msg.channel.id}> was approved, but because you have not connected your Discord & Leyline accounts, I couldn't award you any GP!
 						[Click here](${bot.connection_tutorial} 'How to connect your accounts') to view the account connection tutorial`,
-					log: `${bot.formatUser(msg.author)}'s [${this.media_type}](${msg.url} 'click to view message') posted in <#${msg.channel.id}> was approved, but I did not award them any LLP because they have not connected their Leyline & Discord accounts`,
+					log: `${bot.formatUser(msg.author)}'s [${this.media_type}](${msg.url} 'click to view message') posted in <#${msg.channel.id}> was approved, but I did not award them any GP because they have not connected their Leyline & Discord accounts`,
 				});
 
-			// I could add some catch statements here and log them to Discord (for the awarding LLP process)
+			// I could add some catch statements here and log them to Discord (for the awarding GP process)
 
-			//award LLP to msg author
-			else await this.awardApprovalLLP({
+			//award GP to msg author
+			else await this.awardApprovalGP({
 				user: msg.author,
 				pog: `Discord <a href="${msg.url}">Kind Words</a> Shared`,
 			});
 
-			// ---  Give LLP to the users that have already reacted   ---
+			// ---  Give GP to the users that have already reacted   ---
 			// --- (this includes the mod that just approved the msg) ---
 			await msg.fetchReactions();
 			for (const old_reaction of [...msg.reactions.cache.values()]) {
@@ -77,15 +74,15 @@ export class KindWordsReactionCollector extends ReactionCollectorBase {
 						//exit if user is not connected to Leyline
 						if(!(await Firebase.isUserConnectedToLeyline(old_user.id))) {
 							this.handleUnconnectedAccount(old_user, {
-								dm: `You reacted to the [${this.media_type}](${msg.url} 'click to view message') posted by ${bot.formatUser(msg.author)} in <#${msg.channel.id}>, but because you have not connected your Discord & Leyline accounts, I couldn't award you any LLP!
+								dm: `You reacted to the [${this.media_type}](${msg.url} 'click to view message') posted by ${bot.formatUser(msg.author)} in <#${msg.channel.id}>, but because you have not connected your Discord & Leyline accounts, I couldn't award you any GP!
 									[Click here](${bot.connection_tutorial} 'How to connect your accounts') to view the account connection tutorial`,
-								log: `${bot.formatUser(old_user)} reacted to the [${this.media_type}](${msg.url} 'click to view message') posted by ${bot.formatUser(msg.author)} in <#${msg.channel.id}>, but I did not award them any LLP because they have not connected their Leyline & Discord accounts`,
+								log: `${bot.formatUser(old_user)} reacted to the [${this.media_type}](${msg.url} 'click to view message') posted by ${bot.formatUser(msg.author)} in <#${msg.channel.id}>, but I did not award them any GP because they have not connected their Leyline & Discord accounts`,
 							});
 							continue;
 						}
 
-						//award LLP!
-						await this.awardReactionLLP({user: old_user});
+						//award GP!
+						await this.awardReactionGP({user: old_user});
 					}
 				}
 			}
@@ -96,5 +93,3 @@ export class KindWordsReactionCollector extends ReactionCollectorBase {
 		} catch(err) { return bot.logger.error(err); }
 	}
 }
-
-

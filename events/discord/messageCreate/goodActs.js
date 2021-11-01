@@ -25,13 +25,31 @@ export default class extends DiscordEvent {
 
 	rejectSubmission(msg) {
 		const { bot } = this;
-		bot.logDiscord({embed: new EmbedBase(bot, {
-			fields:[{
-				name: `Submission Auto-Rejected`,
-				value: `The [submission](${msg.url} 'click to view message') posted in <#${msg.channel.id}> by ${bot.formatUser(msg.author)} was automatically rejected because it did not contain a description.`,
-			}],
-			thumbnail: { url: msg.attachments.first().url },
-		}).Error()});
+		bot.logSubmission({
+			embed: new EmbedBase(bot, {
+				title: 'Submission Auto-Rejected',
+				description: 'The submission did not contain a description',
+				url: msg.url,
+				fields: [
+					{
+						name: 'Channel',
+						value: `<#${msg.channel.id}>`,
+						inline: true,	
+					},
+					{
+						name: 'Rejected By',
+						value: bot.formatUser(bot.user),
+						inline: true,
+					},
+					{
+						name: 'Author',
+						value: bot.formatUser(msg.author),
+						inline: true,
+					},
+				],
+				thumbnail: { url: msg.attachments.first().url },
+			}).Error(),
+		});
 
 		bot.sendDM({
 			user: msg.author,
@@ -70,7 +88,7 @@ export default class extends DiscordEvent {
 				embed: new EmbedBase(bot, {
 					fields:[{
 						name: `Thank you for your submission!`,
-						value: `Please remember to connect your Leyline & Discord accounts so you can receive LLP if your [submission](${msg.url}) is approved!
+						value: `Please remember to connect your Leyline & Discord accounts so you can receive GP if your [submission](${msg.url}) is approved!
 							[Click here](${bot.connection_tutorial} 'How to connect your accounts') to view the account connection tutorial.`,
 					}],
 				}),

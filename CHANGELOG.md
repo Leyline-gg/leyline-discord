@@ -1,3 +1,38 @@
+# [2.5.0](https://github.com/Leyline-gg/leyline-discord/releases/tag/v2.5.0) (2021-10-31)
+
+## Dev Notes
+The custom punishment system introduced previously has been rebranded to Justice System to better reflect the core values of Leyline. All "punish" wording has been changed to either "justice" or "sentence".
+A lot of what we're doing at Leyline involves making new paths and breaking away from traditions and creating our own standard. Trial & error is a big component of this process, which means rebrands and revisions are more common than with a well-established company. In addition to the renaming of the Discord justice system, Leyline Points are also being renamed across the platform to Good Points. For more info on any of the changes we make, whether on Discord or not, the weekly AMA on Saturday is a great place to ask your questions in a casual environment and get responses from the core Leyline team.
+
+## New Features
+- Good Acts submissions can now be manually approved by Moderators
+    - This feature makes use of Discord's context menus
+    - It can be used to manually approve any message as a Good Act
+    - When a message is manually approved, the same process for automatic approval occurs (see previous changelogs for details)
+    - Any users that reacted to the message prior to its approval will receive GP
+    - Any users that react to the message within 24h of its approval will receive GP
+    - The approved act will be recorded on the user's Proof of Good ledger
+- Good Acts and Kind Words submissions now support custom emoji for moderator reactions
+- Good Acts and Kind Words submission approvals & rejections are now logged in a private staff-only channel
+    - The log information displayed in the embeds has been reformatted
+
+## Existing Feature Changes
+- All `punish` subcommands have been split into their own commands
+    - Example: `/punish warn` is now `/warn`
+- All uses of the phrase "punish" have been renamed to either "justice" or "sentence"
+- All front-facing references to LLP have been renamed to GP. This includes:
+    - `inspect` command
+    - `profile` command
+    - all logs and DMs associated with user submissions
+    - the LLP tag has been changed to GP
+- Good Acts and Kind Words submission approvals & rejections are no longer logged in #bot-log
+- `awardnft channel` subcommand now only takes voice or stage channels for the `channel` parameter
+- `sudosay` command now only takes non-thread text channels for the `channel` parameter
+- The green color for success embeds has been darkened slightly
+
+## Bug Fixes
+- `profile` command displaying an incorrect GP value
+
 # [2.4.0](https://github.com/Leyline-gg/leyline-discord/releases/tag/v2.4.0) (2021-10-12)
 
 ## Dev Notes

@@ -4,15 +4,26 @@ import { EmbedBase, CloudConfig } from '../';
 export class ReactionCollectorBase {
     get APPROVAL_WINDOW() { return CloudConfig.get('ReactionCollector').APPROVAL_WINDOW; }	//(hours) how long the mods have to approve a photo
     get REACTION_WINDOW() { return CloudConfig.get('ReactionCollector').REACTION_WINDOW; }	//(hours) how long users have to react after collector approval
-    get APPROVAL_LLP() { return CloudConfig.get('ReactionCollector').APPROVAL_LLP; }	//LLP awarded for approved post
-    get REACTION_LLP() { return CloudConfig.get('ReactionCollector').REACTION_LLP; }	//LLP awarded for reacting
+    get APPROVAL_GP() { return CloudConfig.get('ReactionCollector').APPROVAL_GP; }	//GP awarded for approved post
+    get REACTION_GP() { return CloudConfig.get('ReactionCollector').REACTION_GP; }	//GP awarded for reacting
 	// Emojis allowed in setupModReactionCollector
 	/* Should be of structure {
-		unicode: String,
+		name: String,
+		id?: Snowflake, //for custom emoji
+		animated?: Boolean,
 		keyword?: String,
+		position?: Number,	//lower numbers get added to msg first
 		add_on_msg?: boolean,
 	} */
-	get MOD_EMOJIS() { return CloudConfig.get('ReactionCollector').MOD_EMOJIS; }
+	get MOD_EMOJIS() { 
+		return CloudConfig.get('ReactionCollector').MOD_EMOJIS
+			.map(this.bot.constructEmoji)
+			.sort((a, b) => (
+				{position: Number.MAX_VALUE, ...a}.position -
+				{position: Number.MAX_VALUE, ...b}.position
+			));
+	}
+	
     media_type = 'submission';
 
     constructor(bot, {
@@ -30,7 +41,7 @@ export class ReactionCollectorBase {
 	/**
 	 * !! MUST BE IMPLEMENTED IN ALL SUBCLASSES !!
 	 * Method called after a reaction to an approved submission has been received.
-	 * This method should specify actions in addition to reaction storage and reaction user "Moral Support" LLP awardal
+	 * This method should specify actions in addition to reaction storage and reaction user "Moral Support" GP awardal
 	 * @param {Object} args Destructured args
 	 * @param {Reaction} args.reaction The received reaction
 	 * @param {User} args.user The user associated with the incoming reaction
@@ -43,10 +54,10 @@ export class ReactionCollectorBase {
 	 * !! MUST BE IMPLEMENTED IN ALL SUBCLASSES !!
 	 * Method called after a submission has been approved
 	 * @param {Object} args Destructured args
-	 * @param {Reaction} args.reaction The reaction that approved the submission
+	 * @param {Emoji} args.approval_emoji The emoji of the reaction that approved the submission
 	 * @param {User} args.user The user that approved the submission
 	 */
-	approveSubmission({reaction, user}) {
+	approveSubmission({approval_emoji, user}) {
 		throw new Error(`${this.constructor.name} doesn't provide a ${this.reactionReceived.name} method`);
 	}
 
@@ -58,9 +69,9 @@ export class ReactionCollectorBase {
 
 		//add initial reactions
 		if(!from_firestore)
-			for (const reaction of this.MOD_EMOJIS) 
+			for (const reaction of this.MOD_EMOJIS)
 				reaction?.add_on_msg !== false && 
-					msg.react(reaction.unicode);
+					msg.react(reaction.toString());
 
 		//setup collector
 		this.collector = msg
@@ -74,7 +85,7 @@ export class ReactionCollectorBase {
 					return reaction.users.remove(user);
 					
 				//this takes the place of the reactioncollector filter
-				if(!(bot.checkMod(user.id) && this.MOD_EMOJIS.some(e => e.unicode === reaction.emoji.name)))
+				if(!(bot.checkMod(user.id) && this.MOD_EMOJIS.some(e => e.toString() === reaction.emoji.toString())))
 					return;
 				
 				await msg.fetchReactions();
@@ -86,13 +97,13 @@ export class ReactionCollectorBase {
 
 				//end this modReactionCollector
 				this.collector.stop();
-				this.approveSubmission({reaction, user});
+				this.approveSubmission({approval_emoji:reaction.emoji, user});
 			});
 		return this;
 	}
 
 	/**
-	 * Sets up a specific ReactionCollector on an approved message that is designed to last for 24hrs and award LLP to users that react
+	 * Sets up a specific ReactionCollector on an approved message that is designed to last for 24hrs and award GP to users that react
 	 * @param {Object} [options] Collector options
 	 * @param {Number} [options.duration] How long until the collector expires, in `ms` 
 	 * @returns {ReactionCollectorBase} This class itself
@@ -110,15 +121,15 @@ export class ReactionCollectorBase {
 				//ensure user is connected to LL
 				if(!(await Firebase.isUserConnectedToLeyline(user.id))) 
 					this.handleUnconnectedAccount(user, {
-						dm: `You reacted to the [${this.media_type}](${msg.url} 'click to view message') posted by ${bot.formatUser(msg.author)} in <#${msg.channel.id}>, but because you have not connected your Discord & Leyline accounts, I couldn't award you any LLP!
+						dm: `You reacted to the [${this.media_type}](${msg.url} 'click to view message') posted by ${bot.formatUser(msg.author)} in <#${msg.channel.id}>, but because you have not connected your Discord & Leyline accounts, I couldn't award you any GP!
 							[Click here](${bot.connection_tutorial} 'How to connect your accounts') to view the account connection tutorial`,
-						log: `${bot.formatUser(user)} reacted to the [${this.media_type}](${msg.url} 'click to view message') posted by ${bot.formatUser(msg.author)} in <#${msg.channel.id}>, but I did not award them any LLP because they have not connected their Leyline & Discord accounts`,
+						log: `${bot.formatUser(user)} reacted to the [${this.media_type}](${msg.url} 'click to view message') posted by ${bot.formatUser(msg.author)} in <#${msg.channel.id}>, but I did not award them any GP because they have not connected their Leyline & Discord accounts`,
 					});
 
 				//this handles the whole awarding process
-				else await this.awardReactionLLP({user});
+				else await this.awardReactionGP({user});
 
-				//await in case callback is async
+				//await in case child method is async
 				await this.reactionReceived({reaction, user});
 				return;
 			} catch(err) { return bot.logger.error(err); }
@@ -127,9 +138,87 @@ export class ReactionCollectorBase {
 	}
 
 	/**
+	 * Log an approval in a private log channel
+	 * @param {Object} args Destructured arguments
+	 * @param {User} args.user Discord.js `User` that approved the submission
+	 * @param {Object} [args.embed_data] Embed data to be sent in the approval message
+	 */
+	logApproval({user, embed_data} = {}) {
+		const { bot, msg } = this;
+
+		//log rejection using bot method
+		bot.logSubmission({
+			embed: new EmbedBase(bot, {
+				title: 'Submission Approved',
+				url: msg.url,
+				fields: [
+					{
+						name: 'Channel',
+						value: `<#${msg.channel.id}>`,
+						inline: true,
+					},
+					{
+						name: 'Approved By',
+						value: bot.formatUser(user),
+						inline: true,
+					},
+					{
+						name: 'Author',
+						value: bot.formatUser(msg.author),
+						inline: true,
+					},
+				],
+				thumbnail: { url: this.media_type === 'photo' ? msg.attachments.first().url : this.media_placeholder },
+				...embed_data,
+			}).Success(),
+		});
+
+		return this;
+	}
+
+	/**
+	 * Log a rejection in a private log channel
+	 * @param {Object} args Destructured arguments
+	 * @param {User} args.user Discord.js `User` that rejected the submission
+	 * @param {Object} [args.embed_data] Embed data to be sent in the rejection message
+	 */
+	logRejection({user, embed_data} = {}) {
+		const { bot, msg } = this;
+
+		//log rejection using bot method
+		bot.logSubmission({
+			embed: new EmbedBase(bot, {
+				title: 'Submission Rejected',
+				url: msg.url,
+				fields: [
+					{
+						name: 'Channel',
+						value: `<#${msg.channel.id}>`,
+						inline: true,
+					},
+					{
+						name: 'Rejected By',
+						value: bot.formatUser(user),
+						inline: true,
+					},
+					{
+						name: 'Author',
+						value: bot.formatUser(msg.author),
+						inline: true,
+					},
+				],
+				thumbnail: { url: this.media_type === 'photo' ? msg.attachments.first().url : this.media_placeholder },
+				...embed_data,
+			}).Error(),
+		});
+
+		return this;
+	}
+
+	/**
 	 * Soft-rejects a submission and logs actions appropriately
-	 * @param {Object} [args] Destructured arguments
-	 * @param {User} [args.user] Discord.js `User` that rejected the submission
+	 * @param {Object} args Destructured arguments
+	 * @param {User} args.user Discord.js `User` that rejected the submission
 	 */
 	rejectSubmission({user}) {
 		const { bot, msg } = this;
@@ -144,17 +233,7 @@ export class ReactionCollectorBase {
 		msg.reactions.cache.each(reaction => reaction.users.remove(bot.user));
 
 		//log rejection
-		bot.logDiscord({
-			embed: new EmbedBase(bot, {
-				fields: [
-					{
-						name: `Submission Rejected`,
-						value: `${bot.formatUser(user)} rejected the [${this.media_type}](${msg.url} 'click to view message') posted in <#${msg.channel.id}> by ${bot.formatUser(msg.author)}`
-					},
-				],
-				thumbnail: { url: this.media_type === 'photo' ? msg.attachments.first().url : this.media_placeholder },
-			}).Error(),
-		});
+		this.logRejection({user});
 
 		return this;
 	}
@@ -165,6 +244,7 @@ export class ReactionCollectorBase {
 	 * @returns {boolean} `true` if an attachment was detected & stored, `false` otherwise
 	 */
 	processAttachment(url) {
+		url ||= '';
 		if (url.endsWith('.png') || url.endsWith('.jpg') || url.endsWith('.jpeg') || url.endsWith('.webp')) {
 			this.media_type = 'photo';
 			return true;
@@ -181,7 +261,7 @@ export class ReactionCollectorBase {
 	 * @param {User} user user that has not connected their accounts
 	 * @param {Object} args Destructured args
 	 * @param {string} args.dm Specific reason why user should connect their accounts
-	 * @param {string} args.log Discord log content to send under the embed title `LLP NOT Awarded`
+	 * @param {string} args.log Discord log content to send under the embed title `GP NOT Awarded`
 	 * @returns 
 	 */
 	 handleUnconnectedAccount(user, {dm, log} = {}) {
@@ -199,7 +279,7 @@ export class ReactionCollectorBase {
 			embed: new EmbedBase(bot, {
 				fields: [
 					{
-						name: `LLP __NOT__ Awarded`,
+						name: `GP __NOT__ Awarded`,
 						value: log,
 					},
 				],
@@ -209,16 +289,16 @@ export class ReactionCollectorBase {
 	}
 
     /**
-	 * Award LLP to a user for having a submission approved, and log the transaction appropriately.
+	 * Award GP to a user for having a submission approved, and log the transaction appropriately.
 	 * Assumes all checks have been previously applied. 
 	 * @param {Object} args Destructured arguments
      * @param {User} args.user Discord user
-     * @param {string} args.pog "Proof of good" - message to display in LLP history
+     * @param {string} args.pog "Proof of good" - message to display in GP history
 	 */
-	async awardApprovalLLP({user, pog}) {
+	async awardApprovalGP({user, pog}) {
 		const { bot, msg } = this;
 
-		await Firebase.awardLLP(await Firebase.getLeylineUID(user.id), this.APPROVAL_LLP, {
+		await Firebase.awardPoints(await Firebase.getLeylineUID(user.id), this.APPROVAL_GP, {
 			category: pog,
 			comment: `User's Discord ${this.media_type} (${msg.id}) was approved by ${user.tag}`,
 		});
@@ -227,19 +307,19 @@ export class ReactionCollectorBase {
 		bot.sendDM({user, embed: new EmbedBase(bot, {
 			fields: [
 				{
-					name: `🎉 You Earned Some LLP!`,
-					value: `Your [${this.media_type}](${msg.url} 'click to view message') posted in <#${msg.channel.id}> was approved, and you received **+${this.APPROVAL_LLP} LLP**!`
+					name: `🎉 You Earned Some GP!`,
+					value: `Your [${this.media_type}](${msg.url} 'click to view message') posted in <#${msg.channel.id}> was approved, and you received **+${this.APPROVAL_GP} GP**!`
 				},
 			],	
 		})});
 
-		//log LLP change in bot-log
+		//log GP change in bot-log
 		bot.logDiscord({
 			embed: new EmbedBase(bot, {
 				fields: [
 					{
-						name: `LLP Awarded`,
-						value: `${bot.formatUser(user)}'s [${this.media_type}](${msg.url} 'click to view message') posted in <#${msg.channel.id}> was approved, and I gave them **+${this.APPROVAL_LLP} LLP**`,
+						name: `GP Awarded`,
+						value: `${bot.formatUser(user)}'s [${this.media_type}](${msg.url} 'click to view message') posted in <#${msg.channel.id}> was approved, and I gave them **+${this.APPROVAL_GP} GP**`,
 					},
 				],
 			}),
@@ -248,17 +328,17 @@ export class ReactionCollectorBase {
 	}
 
 	/**
-	 * Award LLP to a user for reacting to an approved submission, and log the transaction appropriately.
+	 * Award GP to a user for reacting to an approved submission, and log the transaction appropriately.
 	 * Assumes all checks have been previously applied. 
 	 * @param {Object} args Destructured arguments
      * @param {User} args.user Discord user
-     * @param {string} [args.pog] "Proof of good" - message to display in LLP history
+     * @param {string} [args.pog] "Proof of good" - message to display in GP history
 	 */
-	async awardReactionLLP({user, pog=`Discord <a href="${this.msg.url}">Moral Support</a>`}) {
+	async awardReactionGP({user, pog=`Discord <a href="${this.msg.url}">Moral Support</a>`}) {
 		const { bot, msg } = this;
 
-		//new user reacted, award LLP
-		await Firebase.awardLLP(await Firebase.getLeylineUID(user.id), this.REACTION_LLP, {
+		//new user reacted, award GP
+		await Firebase.awardPoints(await Firebase.getLeylineUID(user.id), this.REACTION_GP, {
 			category: pog,
 			comment: `User reacted to Discord message (${msg.id})`,
 		});
@@ -266,8 +346,8 @@ export class ReactionCollectorBase {
 		bot.sendDM({user, embed: new EmbedBase(bot, {
 			fields: [
 				{
-					name: `🎉 You Earned Some LLP!`,
-					value: `You reacted to the [${this.media_type}](${msg.url} 'click to view message') posted by ${bot.formatUser(msg.author)} in <#${msg.channel.id}>, and received **+${this.REACTION_LLP} LLP**!`
+					name: `🎉 You Earned Some GP!`,
+					value: `You reacted to the [${this.media_type}](${msg.url} 'click to view message') posted by ${bot.formatUser(msg.author)} in <#${msg.channel.id}>, and received **+${this.REACTION_GP} GP**!`
 				},
 			],	
 		})});
@@ -276,8 +356,8 @@ export class ReactionCollectorBase {
 			embed: new EmbedBase(bot, {
 				fields: [
 					{
-						name: `LLP Awarded`,
-						value: `${bot.formatUser(user)} reacted to the [${this.media_type}](${msg.url} 'click to view message') posted by ${bot.formatUser(msg.author)} in <#${msg.channel.id}>, and I gave them **+${this.REACTION_LLP} LLP**`,
+						name: `GP Awarded`,
+						value: `${bot.formatUser(user)} reacted to the [${this.media_type}](${msg.url} 'click to view message') posted by ${bot.formatUser(msg.author)} in <#${msg.channel.id}>, and I gave them **+${this.REACTION_GP} GP**`,
 					},
 				],
 			}),
@@ -286,16 +366,16 @@ export class ReactionCollectorBase {
 	}
 
     /**
-	 * Award LLP to the author of an approved submission when someone else reacts, and log the transaction appropriately.
+	 * Award GP to the author of an approved submission when someone else reacts, and log the transaction appropriately.
 	 * Assumes all checks have been previously applied.
      * @param {Object} args Destructured arguments
      * @param {User} args.user Discord user
-     * @param {string} args.pog "Proof of good" - message to display in LLP history
+     * @param {string} args.pog "Proof of good" - message to display in GP history
 	 */
-	async awardAuthorReactionLLP({user, pog}) {
+	async awardAuthorReactionGP({user, pog}) {
 		const { bot, msg } = this;
-		//new user reacted, award LLP
-		await Firebase.awardLLP(await Firebase.getLeylineUID(msg.author.id), this.REACTION_LLP, {
+		//new user reacted, award GP
+		await Firebase.awardPoints(await Firebase.getLeylineUID(msg.author.id), this.REACTION_GP, {
 			category: pog,
 			comment: `User's Discord ${this.media_type} (${msg.id}) received a reaction from ${user.tag}`,
 		});
@@ -305,8 +385,8 @@ export class ReactionCollectorBase {
 			embed: new EmbedBase(bot, {
 				fields: [
 					{
-						name: `🎉 You Earned Some LLP!`,
-						value: `Someone reacted reacted to your [${this.media_type}](${msg.url} 'click to view message') posted in <#${msg.channel.id}>, and you received **+${this.REACTION_LLP} LLP**!`
+						name: `🎉 You Earned Some GP!`,
+						value: `Someone reacted reacted to your [${this.media_type}](${msg.url} 'click to view message') posted in <#${msg.channel.id}>, and you received **+${this.REACTION_GP} GP**!`
 					},
 				],
 		})});
@@ -315,8 +395,8 @@ export class ReactionCollectorBase {
 			embed: new EmbedBase(bot, {
 				fields: [
 					{
-						name: `LLP Awarded`,
-						value: `${bot.formatUser(msg.author)}'s [${this.media_type}](${msg.url} 'click to view message') posted in <#${msg.channel.id}> received a reaction, and I gave them **+${this.REACTION_LLP} LLP**`,
+						name: `GP Awarded`,
+						value: `${bot.formatUser(msg.author)}'s [${this.media_type}](${msg.url} 'click to view message') posted in <#${msg.channel.id}> received a reaction, and I gave them **+${this.REACTION_GP} GP**`,
 					},
 				],
 			}),
@@ -404,5 +484,3 @@ export class ReactionCollectorBase {
         return this;
     }
 }
-
-
