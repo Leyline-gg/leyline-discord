@@ -2,7 +2,7 @@
 
 ## Dev Notes
 The custom punishment system introduced previously has been rebranded to Justice System to better reflect the core values of Leyline. All "punish" wording has been changed to either "justice" or "sentence".
-A lot of what we're doing at Leyline involves making new paths and breaking away from traditions and creating our own standard. Trial & error is a big component of this process, which means rebrands and revisions are more common than with a well-established company. In addition to the renaming of the Discord justice system, Leyline Points are also being renamed across the platform to Good Points. For more info on any of the changes we make, whether on Discord or not, the weekly AMA on Saturday is a great place to ask your questions in a casual environment and get responses from the core Leyline team.
+A lot of what we're doing at Leyline involves making new paths, breaking away from traditions, and creating our own standards. Trial & error is a big component of this process, which means rebrands and revisions are more common than they would be with a more well-established company. In addition to the renaming of the Discord justice system, Leyline Points are also being renamed across the platform to Good Points. For more info on any of the changes we make, whether on Discord or not, the weekly AMA on Saturday is a great place to ask your questions in a casual environment and get responses from the core Leyline team.
 
 ## New Features
 - Good Acts submissions can now be manually approved by Moderators
