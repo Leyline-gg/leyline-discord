@@ -293,14 +293,15 @@ export class ReactionCollectorBase {
 	 * Assumes all checks have been previously applied. 
 	 * @param {Object} args Destructured arguments
      * @param {User} args.user Discord user
+     * @param {User} args.approver Discord mod that approved the photo
      * @param {string} args.pog "Proof of good" - message to display in GP history
 	 */
-	async awardApprovalGP({user, pog}) {
+	async awardApprovalGP({user, approver, pog}) {
 		const { bot, msg } = this;
 
 		await Firebase.awardPoints(await Firebase.getLeylineUID(user.id), this.APPROVAL_GP, {
 			category: pog,
-			comment: `User's Discord ${this.media_type} (${msg.id}) was approved by ${user.tag}`,
+			comment: `User's Discord ${this.media_type} (${msg.id}) was approved by ${approver.tag}`,
 		});
 
 		//send dm to author

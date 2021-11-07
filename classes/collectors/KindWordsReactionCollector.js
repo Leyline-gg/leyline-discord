@@ -59,6 +59,7 @@ export class KindWordsReactionCollector extends ReactionCollectorBase {
 			//award GP to msg author
 			else await this.awardApprovalGP({
 				user: msg.author,
+				approver: user,
 				pog: `Discord <a href="${msg.url}">Kind Words</a> Shared`,
 			});
 
