@@ -123,7 +123,7 @@ export class GoodActsReactionCollector extends ReactionCollectorBase {
 			//award GP to msg author
 			else await this.awardApprovalGP({
 				user: msg.author,
-				approver: user.tag,
+				approver: user,
 				pog: `Discord <a href="${msg.url}">\
 					${msg._activityType} ${this.media_type[0].toUpperCase() + this.media_type.slice(1)}</a> Approved`,
 			});
