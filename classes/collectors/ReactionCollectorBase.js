@@ -301,7 +301,7 @@ export class ReactionCollectorBase {
 
 		await Firebase.awardPoints(await Firebase.getLeylineUID(user.id), this.APPROVAL_GP, {
 			category: pog,
-			comment: `User's Discord ${this.media_type} (${msg.id}) was approved by ${approver}`,
+			comment: `User's Discord ${this.media_type} (${msg.id}) was approved by ${approver.tag}`,
 		});
 
 		//send dm to author
