@@ -293,6 +293,7 @@ export class ReactionCollectorBase {
 	 * Assumes all checks have been previously applied. 
 	 * @param {Object} args Destructured arguments
      * @param {User} args.user Discord user
+     * @param {User} args.approver Discord mod that approved the photo
      * @param {string} args.pog "Proof of good" - message to display in GP history
 	 */
 	async awardApprovalGP({user, approver, pog}) {
