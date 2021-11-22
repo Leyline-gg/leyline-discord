@@ -1,7 +1,7 @@
 'use strict';
 
 if (process.version.slice(1).split(".")[0] < 16)
-  throw new Error("Node 16.6.0 or higher is required.");
+    throw new Error("Node 16.6.0 or higher is required.");
   
 import { Intents, Message } from 'discord.js';
 import admin from 'firebase-admin';
@@ -89,9 +89,9 @@ const init = async function () {
         const cmdName = cmdFile.name.split('.')[0];
         try {
             const cmd = new (await import('./' + path.relative(process.cwd(), `${cmdFile.dir}${path.sep}${cmdFile.name}${cmdFile.ext}`))).default(bot);
-            process.env.NODE_ENV === 'development' ?
-                    bot.commands.set(cmdName, cmd) :
-                    cmd.category !== 'development' &&
+            process.env.NODE_ENV === 'development' 
+                ? bot.commands.set(cmdName, cmd) 
+                : cmd.category !== 'development' &&
                     bot.commands.set(cmdName, cmd);
             
             //delete require.cache[require.resolve(`${cmdFile.dir}${path.sep}${cmdFile.name}${cmdFile.ext}`)];
