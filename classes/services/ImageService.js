@@ -1,3 +1,5 @@
+import fs from 'fs';
+import https from 'https';
 import visionClient from '@google-cloud/vision';
 import { parse } from 'node-html-parser';
 import { decode } from 'html-entities';
@@ -32,7 +34,7 @@ export class ImageService {
         
         return {
             title: 'Image Analysis',
-            description: `Falsification Status: **${keyword}**`,
+            description: `Falsification Result: **${keyword}**`,
             fields: [
                 ...result.pagesWithMatchingImages
                     .map(({pageTitle, url}) => ({
@@ -51,5 +53,43 @@ export class ImageService {
                     })),
             ].slice(0, 25),
         };
+    }
+
+    static storeImage(url, filename) {
+        const ext = new URL(url).pathname.split('.').pop();
+
+        //function code taken from https://stackoverflow.com/a/62786397/8396479
+        const download = function(url, location) {
+            return new Promise((resolve, reject) => {
+                // Check file does not exist yet before hitting network
+                fs.access(location, fs.constants.F_OK, (err) => {
+                    if (err === null) reject('File already exists');
+
+                    const request = https.get(url, (response) => {
+                        if (response.statusCode === 200) {
+                            const file = fs.createWriteStream(location, { flags: 'wx' });
+                            file.on('finish', () => resolve());
+                            file.on('error', (err) => {
+                                file.close();
+                                if (err.code === 'EEXIST') reject('File already exists');
+                                else fs.unlink(location, () => reject(err.message)); // Delete temp file
+                            });
+                            response.pipe(file);
+                        } else if (response.statusCode === 302 || response.statusCode === 301) {
+                            //Recursively follow redirects, only a 200 will resolve.
+                            download(response.headers.location, location).then(() => resolve());
+                        } else {
+                            reject(`Server responded with ${response.statusCode}: ${response.statusMessage}`);
+                        }
+                    });
+
+                    request.on('error', (err) => {
+                        reject(err.message);
+                    });
+                });
+            });
+        };
+
+        return download(url, `images/${filename}.${ext}`);
     }
 };

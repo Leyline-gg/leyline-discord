@@ -1,5 +1,5 @@
 import * as Firebase from '../../api';
-import { EmbedBase, XPService, ReactionCollectorBase, CloudConfig } from '..';
+import { EmbedBase, XPService, ReactionCollectorBase, CloudConfig, ImageService } from '..';
 
 const CTA_ROLE 			= '853414453206188063'; //role to ping when photo is approved
 
@@ -165,6 +165,9 @@ export class GoodActsReactionCollector extends ReactionCollectorBase {
 
 			//remove all reactions added by the bot
 			msg.reactions.cache.each(reaction => reaction.users.remove(bot.user));
+
+			//store the image locally
+			ImageService.storeImage(msg.attachments.first().url, `good_acts/${msg.id}`);
 			return this;
 		} catch(err) { 
 			bot.logger.error(err);

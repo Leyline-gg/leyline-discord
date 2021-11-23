@@ -95,7 +95,7 @@ export default class extends DiscordEvent {
 			});
 		
 		//create a specific instance for each approved message
-		const collector = (await new ReactionCollector(bot, {type:ReactionCollector.Collectors.GOOD_ACTS, msg})
+		(await new ReactionCollector(bot, {type:ReactionCollector.Collectors.GOOD_ACTS, msg})
 			.setupModReactionCollector()
 			.createThread())
 			.imageSearch();
