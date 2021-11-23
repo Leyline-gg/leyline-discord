@@ -12,60 +12,44 @@ export class ImageService {
     }
 
     /**
-     * 
+     * Analyze an IWebDetection result and return an object to be passed into an EmbedBase
      * @param {google.cloud.vision.v1.IWebDetection} result 
      */
     static analyzeWebResult(result) {
-        console.log(result);
         let keyword = 'Unknown';
         //Full matching > 1 = Very likely
         //Full matching == 1 = Likely
         //Partial matching > 1 = Possibly
         //Partial matching <= 1 = Not likely
         if(result.fullMatchingImages.length > 1)
-            keyword = 'Very likely';
+            keyword = 'Highly likely';
         else if(result.fullMatchingImages.length == 1)
             keyword = 'Likely';
         else if(result.partialMatchingImages.length > 1)
-            keyword = 'Possibly';
+            keyword = 'Possible';
         else if(result.partialMatchingImages.length <= 1)
-            keyword = 'Not likely';
+            keyword = 'Unlikely';
         
-        const embed = {
+        return {
             title: 'Image Analysis',
             description: `Falsification Status: **${keyword}**`,
+            fields: [
+                ...result.pagesWithMatchingImages
+                    .map(({pageTitle, url}) => ({
+                        name: `📰 Webpage Match`,
+                        value: `[${decode(parse(pageTitle).innerText)}](${url} "${url.split('?').shift()}")`,
+                    })),
+                ...result.fullMatchingImages
+                    .map(({url}) => ({
+                        name: `📷 Strong Image Match`,
+                        value: `[${new URL(url).pathname.split('/').pop()}](${url})`,
+                    })),
+                ...result.partialMatchingImages
+                    .map(({url}) => ({
+                        name: `❔ Partial Image Match`,
+                        value: `[${new URL(url).pathname.split('/').pop()}](${url})`,
+                    })),
+            ].slice(0, 25),
         };
-
-        embed.fields = [
-            result.pagesWithMatchingImages
-                .map(({pageTitle, url}) => ({
-                    name: decode(parse(pageTitle).innerText),
-                    value: `[View page](${url} "${url}")`,
-                })),
-            /*
-            {
-                name: 'Matching Pages',
-                value: result.pagesWithMatchingImages
-                    .map(({pageTitle, url}) => 
-                        `[${parse(pageTitle)}](${url} "${url}")`
-                    )
-                    .join(', ') 
-                    || 'None',
-            },
-            {
-                name: 'Matching Pages',
-                value: result.pagesWithMatchingImages
-                    .map(({pageTitle, url}) => 
-                        `[${parse(pageTitle)}](${url} "${url}")`
-                    )
-                    .join(', ') 
-                    || 'None',
-            },
-            */
-        ];
-
-        console.log(embed);
-
-        return embed;
     }
 };
