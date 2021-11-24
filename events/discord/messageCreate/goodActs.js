@@ -95,7 +95,10 @@ export default class extends DiscordEvent {
 			});
 		
 		//create a specific instance for each approved message
-		new ReactionCollector(bot, {type:ReactionCollector.Collectors.GOOD_ACTS, msg}).setupModReactionCollector().createThread();
+		(await new ReactionCollector(bot, {type:ReactionCollector.Collectors.GOOD_ACTS, msg})
+			.setupModReactionCollector()
+			.createThread())
+			.imageSearch();
 		return;
 	}
 };

@@ -108,3 +108,6 @@ dist
 
 # cache files
 cache/
+
+# non-relevant image files
+images/good_acts/
