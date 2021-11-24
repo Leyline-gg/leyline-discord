@@ -58,9 +58,11 @@ export class ImageService {
     static storeImage(url, filename) {
         const ext = new URL(url).pathname.split('.').pop();
 
-        //function code taken from https://stackoverflow.com/a/62786397/8396479
+        //function adapted from https://stackoverflow.com/a/62786397/8396479
         const download = function(url, location) {
-            return new Promise((resolve, reject) => {
+            return new Promise(async (resolve, reject) => {
+                // ensure directory exists
+                await fs.promises.mkdir(location.split('/').slice(0, -1).join('/'), {recursive: true});
                 // Check file does not exist yet before hitting network
                 fs.access(location, fs.constants.F_OK, (err) => {
                     if (err === null) reject('File already exists');

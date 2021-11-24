@@ -1,7 +1,7 @@
 import * as Firebase from '../../api';
 import { EmbedBase, XPService, ReactionCollectorBase, CloudConfig, ImageService } from '..';
 
-const CTA_ROLE 			= '853414453206188063'; //role to ping when photo is approved
+const CTA_ROLE = '853414453206188063'; //role to ping when photo is approved
 
 export class GoodActsReactionCollector extends ReactionCollectorBase {
 	//override parent properties
@@ -11,6 +11,7 @@ export class GoodActsReactionCollector extends ReactionCollectorBase {
 		return CloudConfig.get('ReactionCollector').GoodActs.MOD_EMOJIS
 			.map(this.bot.constructEmoji)
 			.sort((a, b) => (
+				// this wonky syntax is because position is not a required prop
 				{position: Number.MAX_VALUE, ...a}.position -
 				{position: Number.MAX_VALUE, ...b}.position
 			));
