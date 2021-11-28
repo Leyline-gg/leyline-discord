@@ -175,10 +175,13 @@ const postInit = async function () {
         //Register command permissions
         await bot.leyline_guild.commands.permissions.set({ 
             fullPermissions: bot.commands
-                .filter(c => Object.keys(bot.config.command_perms).includes(c.category))
-                .map(({id, category}) => ({ 
+                .filter(c => Object.keys(bot.config.command_perms.categories).includes(c.category))
+                .map(({id, name, category}) => ({ 
                     id,
-                    permissions: bot.config.command_perms[category],
+                    permissions: [
+                        ...bot.config.command_perms.categories[category],
+                        ...bot.config.command_perms?.names?.[name] || [],
+                    ],
                 })),
         }).catch(err => bot.logger.error(`registerCommands err: ${err}`));
         bot.logger.log(`Registered ${cmds.size} out of ${bot.commands.size} commands to Discord`);

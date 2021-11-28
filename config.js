@@ -4,47 +4,59 @@ export default {
         return {
             // Which users/roles get access to all commands
             command_perms: {
-                moderator: [
-                    {   // Admin
-                        id: '784875278593818694',
-                        type: 'ROLE',
-                        permission: true,
-                    },
-                    {   // Moderator
-                        id: '752363863441145866',
-                        type: 'ROLE',
-                        permission: true,
-                    },
-                    {
-                        // Ollog10
-                        id: '139120967208271872',
-                        type: 'USER',
-                        permission: true,
-                    },
-                ],
-                admin: [
-                    {   // Admin
-                        id: '784875278593818694',
-                        type: 'ROLE',
-                        permission: true,
-                    },
-                    {   // Moderator
-                        id: '752363863441145866',
-                        type: 'ROLE',
-                        permission: true,
-                    },
-                    {
-                        // Ollog10
-                        id: '139120967208271872',
-                        type: 'USER',
-                        permission: true,
-                    },
-                    {   // Leyline staff
-                        id: '751919243062411385',
-                        type: 'ROLE',
-                        permission: true,
-                    },
-                ],
+                categories: {
+                    moderator: [
+                        {   // Admin
+                            id: '784875278593818694',
+                            type: 'ROLE',
+                            permission: true,
+                        },
+                        {   // Moderator
+                            id: '752363863441145866',
+                            type: 'ROLE',
+                            permission: true,
+                        },
+                        {
+                            // Ollog10
+                            id: '139120967208271872',
+                            type: 'USER',
+                            permission: true,
+                        },
+                    ],
+                    admin: [
+                        {   // Admin
+                            id: '784875278593818694',
+                            type: 'ROLE',
+                            permission: true,
+                        },
+                        {   // Moderator
+                            id: '752363863441145866',
+                            type: 'ROLE',
+                            permission: true,
+                        },
+                        {
+                            // Ollog10
+                            id: '139120967208271872',
+                            type: 'USER',
+                            permission: true,
+                        },
+                        {   // Leyline staff
+                            id: '751919243062411385',
+                            type: 'ROLE',
+                            permission: true,
+                        },
+                    ],
+                },
+                names: {
+                    awardnft: [
+                        {
+                            // *drops
+                            id: '139120967208271872',
+                            type: 'ROLE',
+                            permission: true,
+                        },
+                    ],
+                },
             },
             leyline_guild_id: '751913089271726160',
             channels: {
@@ -85,63 +97,73 @@ export default {
     },
     get development() {
         return {
-            // Which users/roles get access to all commands
-            command_perms: {
-                moderator: [
-                    {
-                        // Moderator
-                        id: '904095889558212660',
-                        type: 'ROLE',
-                        permission: true,
-                    },
-                ],
-                admin: [
-                    {
-                        // Moderator
-                        id: '904095889558212660',
-                        type: 'ROLE',
-                        permission: true,
-                    },
-                    {   // Leyline staff
-                        id: '858144532318519326',
-                        type: 'ROLE',
-                        permission: true,
-                    },
-                ],
-            },
-            leyline_guild_id: '857839180608307210',
-            channels: {
-                private_log: '858141871788392448',
-                public_log: '858141914841481246',
-                reward_log: '904081593029759006',
-                mod_log: '892268882285457439',  //private mod log
-                submission_log: '903055896173764659',   //private submission log
-                ama_vc: '869993145499287604',
-                polls: '877229054456107069',
-            },
-            events: {
-                goodActs: {
-                    target_channel: '877229121086840912',
+			// Which users/roles get access to all commands
+			command_perms: {
+				categories: {
+					moderator: [
+						{
+							// Moderator
+							id: '904095889558212660',
+							type: 'ROLE',
+							permission: true,
+						},
+					],
+					admin: [
+						{
+							// Moderator
+							id: '904095889558212660',
+							type: 'ROLE',
+							permission: true,
+						},
+						{
+							// Leyline staff
+							id: '858144532318519326',
+							type: 'ROLE',
+							permission: true,
+						},
+					],
+				},
+                names: {
+                    awardnft: [
+                        {
+                            // *drops
+                            id: '914642168939962378',
+                            type: 'ROLE',
+                            permission: true,
+                        },
+                    ],
                 },
-                kindWords: {
-                    target_channel: '877229143786422323',
-                },
-                addAlphaTesterRole: {
-                    alpha_role: '879817566799925298',
-                },
-            },
-            emoji: {
-                leyline_logo: '<:LeylineLogo:859111140696391680>',
-            },
-            mod_roles: [
-                '858144532318519326',   //Leyline Staff
-            ],
-            self_roles: [
-                '873234204706631720',
-                '865629785015320608',
-            ],
-            muted_role: '894741083186139156',
-        };
+			},
+			leyline_guild_id: '857839180608307210',
+			channels: {
+				private_log: '858141871788392448',
+				public_log: '858141914841481246',
+				reward_log: '904081593029759006',
+				mod_log: '892268882285457439', //private mod log
+				submission_log: '903055896173764659', //private submission log
+				ama_vc: '869993145499287604',
+				polls: '877229054456107069',
+			},
+			events: {
+				goodActs: {
+					target_channel: '877229121086840912',
+				},
+				kindWords: {
+					target_channel: '877229143786422323',
+				},
+				addAlphaTesterRole: {
+					alpha_role: '879817566799925298',
+				},
+			},
+			emoji: {
+				leyline_logo: '<:LeylineLogo:859111140696391680>',
+			},
+			mod_roles: [
+				'858144532318519326', //Leyline Staff
+			],
+			self_roles: ['873234204706631720', '865629785015320608'],
+			muted_role: '894741083186139156',
+		};
     },
     get staging() {
         return {
