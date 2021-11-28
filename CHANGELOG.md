@@ -1,3 +1,11 @@
+# [2.5.1](https://github.com/Leyline-gg/leyline-discord/releases/tag/v2.5.1) (2021-11-28)
+
+## Dev Notes
+Permissions update in preparation for future Discord events.
+
+## Exisiting Feature Changes
+- Modified how permissions are stored and applied
+
 # [2.5.0](https://github.com/Leyline-gg/leyline-discord/releases/tag/v2.5.0) (2021-10-31)
 
 ## Dev Notes
