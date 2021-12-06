@@ -249,8 +249,9 @@ class awardnft extends Command {
             thumbnail: { url: nft.thumbnailUrl },
             fields: [
                 {
-                    name: `🎉 You Earned A NFT!`,
-                    value: `You have been awarded a(n) ${nft.rarity.toLowerCase()} **${nft.name}**!`
+                    name: `🎉 You Earned an NFT!`,
+                    value: `You have been awarded a(n) ${nft.rarity.toLowerCase()} **${nft.name}**!
+                        Check it out on your [Leyline profile](https://leyline.gg/profile)!`,
                 },
             ],	
         })});
