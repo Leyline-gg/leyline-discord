@@ -51,7 +51,7 @@ export default {
                     awardnft: [
                         {
                             // *drops
-                            id: '139120967208271872',
+                            id: '914629494319501332',
                             type: 'ROLE',
                             permission: true,
                         },
