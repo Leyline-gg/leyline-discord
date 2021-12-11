@@ -23,6 +23,10 @@ export class Command {
         throw new Error(`Command ${this.constructor.name} doesn't provide a run method.`);
     }
 
+    async autocomplete({intr, opts}) {
+        throw new Error(`Command ${this.constructor.name} doesn't provide an autocomplete method.`);
+    }
+
     /**
      * Adds all the properties of a registered `ApplicationCommand` to this `Command`
      * @param {ApplicationCommand} appcmd A registered `ApplicationCommand`
