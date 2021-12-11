@@ -1,4 +1,4 @@
-import { DiscordEvent, EmbedBase } from "../../../classes";
+import { DiscordEvent } from "../../../classes";
 
 export default class extends DiscordEvent {
     constructor(bot) {
@@ -18,6 +18,7 @@ export default class extends DiscordEvent {
 
         const command = bot.commands.get(intr.commandName.replaceAll(' ', ''));
 
+        //implementations of autocomplete will need to check opts.getFocused(true) for the specific option that is being autocompleted
         try {
             bot.logger.cmd(`Autocompleting command ${intr.commandName} for user ${intr.user.tag} (${intr.user.id})`);
             await command.autocomplete({intr, opts: intr.options});

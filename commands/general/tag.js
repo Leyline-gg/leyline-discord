@@ -1,4 +1,4 @@
-import { Command, FirebaseCache, GoodActsReactionCollector } from '../../classes';
+import { Command, FirebaseCache } from '../../classes';
 
 class tag extends Command {
     constructor(bot) {
@@ -57,7 +57,10 @@ class tag extends Command {
     }
 
     async autocomplete({intr, opts}) {
-        const { bot, TAGS } = this;
+        //only allow autocompletes for the 'tagname' option
+        if(opts.getFocused(true).name !== this.options[0].name) return;
+        
+        const { TAGS } = this;
         await TAGS.awaitReady();   //ensure tags have been loaded
 
         //get the value the user is currently typing
