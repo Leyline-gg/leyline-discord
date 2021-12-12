@@ -89,18 +89,15 @@ export const storeUserReaction = async function ({collector, user}) {
  * @returns {Promise<Number>}
  */
 export const getDiscordReactions = async function (uid) {
-    let res = 0;
-    const collectors = await admin
+    console.time('Fetching all collectors 2');
+    const user_reactions = await admin
         .firestore()
-        .collection('discord/bot/reaction_collectors')
-        //.where('author', '==', uid)
-        .where('approved', '==', true)
+        .collectionGroup('reacted_users')
+        .where('reacted', '==', true)
         .get();
+    console.timeEnd('Fetching all collectors 2');
 
-    for(const c of collectors.docs)
-        for(const doc of (await c.ref.collection('reacted_users').get()).docs)
-            doc.id === uid && res++;
-    return res;
+    return user_reactions.docs.filter(doc => doc.id === uid).length;
 }
 
 /**
