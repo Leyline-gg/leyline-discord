@@ -1,5 +1,5 @@
 import * as Firebase from '../../api';
-import { EmbedBase, CloudConfig } from '../';
+import { EmbedBase, CloudConfig, ImageService } from '../';
 
 export class ReactionCollectorBase {
     get APPROVAL_WINDOW() { return CloudConfig.get('ReactionCollector').APPROVAL_WINDOW; }	//(hours) how long the mods have to approve a photo
@@ -293,14 +293,15 @@ export class ReactionCollectorBase {
 	 * Assumes all checks have been previously applied. 
 	 * @param {Object} args Destructured arguments
      * @param {User} args.user Discord user
+     * @param {User} args.approver Discord mod that approved the photo
      * @param {string} args.pog "Proof of good" - message to display in GP history
 	 */
-	async awardApprovalGP({user, pog}) {
+	async awardApprovalGP({user, approver, pog}) {
 		const { bot, msg } = this;
 
 		await Firebase.awardPoints(await Firebase.getLeylineUID(user.id), this.APPROVAL_GP, {
 			category: pog,
-			comment: `User's Discord ${this.media_type} (${msg.id}) was approved by ${user.tag}`,
+			comment: `User's Discord ${this.media_type} (${msg.id}) was approved by ${approver.tag}`,
 		});
 
 		//send dm to author
@@ -408,19 +409,21 @@ export class ReactionCollectorBase {
 	 * Synchronously create a thread for this submission from a template format
 	 * @param {Object} args Destructured args
 	 * @param {number} [args.duration] Duration of the thread, in days
-	 * @returns {Promise<ThreadChannel>} The thread that was created
+	 * @param {boolean} [args.return_thread] Whether or not to return the thread that was created
+ 	 * @returns {Promise<ReactionCollectorBase | ThreadChannel>} If `return_thread`, the thread that was created, otherwise the reaction collector that was created class this was called upon
 	 */
-	createThread({duration = 1} = {}) {
+	async createThread({duration = 1, return_thread=false} = {}) {
 		duration *= 24 * 60;	//convert days to minutes
 		const { bot, msg, media_type } = this;
-		return msg.startThread({
+		return await msg.startThread({
 			name: `${media_type[0].toUpperCase() + media_type.slice(1)} from ${msg.member.displayName}`.substr(0, 100),
 			autoArchiveDuration: duration,
 		}).then(thread => {
+			this.thread = thread;
 			bot.sendEmbed({msg:thread.lastMessage, embed: new EmbedBase(bot, {
 				description: `⚠ **Please keep all discussion about ${msg.member.toString()}'s ${media_type} inside this thread to avoid cluttering the main channel.** Thank you!`
 			}).Warn()});
-			return thread;
+			return return_thread ? thread : this;
 		});
 	}
 
@@ -433,7 +436,7 @@ export class ReactionCollectorBase {
      * @returns {Promise<boolean>} Promise that resolves to boolean
      */
 	async hasUserPreviouslyReacted({reaction, user, checkMsgReactions = true} = {}) {
-        const msg = this.msg;
+        const { msg } = this;
 
         //allow any reactions, but only allow users who have not previously reacted
         return await (async () => {
@@ -464,7 +467,7 @@ export class ReactionCollectorBase {
      * @returns {Promise<void>} Resolves when user has been stored in cloud
      */
 	async storeUserReaction(user) {
-		const msg = this.msg;
+		const { msg } = this;
 		if(msg._cache.reacted_users?.includes(user.id)) return;
 		msg._cache.reacted_users.push(user.id);	//store reaction locally
 
@@ -483,4 +486,27 @@ export class ReactionCollectorBase {
         this.msg._cache.reacted_users = (await doc.ref.collection('reacted_users').get()).docs.map(d => d.id);
         return this;
     }
+
+	/**
+	 * Perform a reverse image search on the first message attachment.
+	 * Includes both web detection and local detection.
+	 * @returns {Promise<ReactionCollectorBase>} the current class, for chaining
+	 */
+	async imageSearch() {
+		//can be expaned to multiple images by iterating through msg.attachments
+		const { bot, msg, thread } = this;
+		try {
+			if(!msg.attachments.size) throw new Error('No attachments found on msg');
+			const res = await ImageService.searchWeb(msg.attachments.first().url);
+			const embed = new EmbedBase(bot, {
+				...ImageService.analyzeWebResult(res),
+				thumbnail: { url: msg.attachments.first().url },
+			});
+			bot.sendEmbed({msg:thread.lastMessage, embed});
+		} catch(err) {
+			throw new Error(`imageSearch error: ${err}`);
+		}
+
+		return this;
+	}
 }

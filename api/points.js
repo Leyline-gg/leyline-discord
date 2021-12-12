@@ -40,12 +40,10 @@ export const getTotalEarnedPoints = async function (uid) {
         .limit(1)
         .get();
 
-    const userRankingRef = 
-        await admin.firestore()
+    const userRankDoc = await admin.firestore()
         .collection(`${'leaderboards'}/${snapshotRef.docs[0].id}/timeframes/all/categories/earned_llp/ranking`)
+        .doc(uid)
         .get();
-
-    const userRankDoc = userRankingRef.docs.find((doc) => doc.id === uid);
 
     return userRankDoc?.data()?.score || 0;
 }

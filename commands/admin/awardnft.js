@@ -163,6 +163,7 @@ class awardnft extends Command {
             await Firebase.rewardNFT(lluser.uid, nft.id);
             //Log success
             update_intr && bot.intrReply({intr, embed: new EmbedBase(bot, {
+                thumbnail: { url: nft.thumbnailUrl },
                 description: `✅ **NFT succesfully minted for Leyline user [${lluser.username}](${lluser.profile_url})**`,
             }).Success()});
             const reward_embed = new EmbedBase(bot, {
@@ -248,8 +249,9 @@ class awardnft extends Command {
             thumbnail: { url: nft.thumbnailUrl },
             fields: [
                 {
-                    name: `🎉 You Earned A NFT!`,
-                    value: `You have been awarded a(n) ${nft.rarity.toLowerCase()} **${nft.name}**!`
+                    name: `🎉 You Earned an NFT!`,
+                    value: `You have been awarded a(n) ${nft.rarity.toLowerCase()} **${nft.name}**!
+                        Check it out on your [Leyline profile](https://leyline.gg/profile)!`,
                 },
             ],	
         })});
@@ -320,6 +322,7 @@ class awardnft extends Command {
 
         const embed = new EmbedBase(bot, {
             description: `**${awarded.length} out of ${connected.length} NFTs** were awarded`,
+            thumbnail: { url: nft.thumbnailUrl },
             fields: [
                 ...(!!awarded.length ? [
                     {

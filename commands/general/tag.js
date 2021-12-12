@@ -12,6 +12,7 @@ class tag extends Command {
                     name: 'tagname',
                     description: 'The name of the tag',
                     required: false,
+                    autocomplete: true,
                 },
                 {
                     type: 'USER',
@@ -53,6 +54,31 @@ class tag extends Command {
         const target = opts.getUser('target');
         
         bot.intrReply({intr, content: `${!!target ? `_Tag suggestion for ${target.toString()}:_\n` : ''}${parseResponse(tag.response)}`});
+    }
+
+    async autocomplete({intr, opts}) {
+        //only allow autocompletes for the 'tagname' option
+        if(opts.getFocused(true).name !== this.options[0].name) return;
+        
+        const { TAGS } = this;
+        await TAGS.awaitReady();   //ensure tags have been loaded
+
+        //get the value the user is currently typing
+        const val = opts.getFocused().toLowerCase();
+
+        //get the list of tags that contain the value
+        const tags = [
+			...TAGS.keys().filter((tag) => tag.toLowerCase().startsWith(val)),
+			...TAGS.values().reduce((acc, tag) => acc.concat(tag?.aliases?.filter((alias) => alias.startsWith(val)) || []), []),
+		];
+
+        //respond with the first 25 options (25 is a Discord API limit)
+        intr.respond(tags.slice(0, 25).map(tag => ({
+            name: tag,
+            value: tag,
+        })));
+
+        return;
     }
 }
 
