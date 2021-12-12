@@ -168,7 +168,7 @@ export class GoodActsReactionCollector extends ReactionCollectorBase {
 			msg.reactions.cache.each(reaction => reaction.users.remove(bot.user));
 
 			//store the image locally
-			ImageService.storeImage(msg.attachments.first().url, `good_acts/${msg.id}`);
+			this.media_type === 'photo' && ImageService.storeImage(msg.attachments.first().url, `good_acts/${msg.id}`);
 			return this;
 		} catch(err) { 
 			bot.logger.error(err);
