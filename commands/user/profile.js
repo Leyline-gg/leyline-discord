@@ -20,7 +20,6 @@ class profile extends Command {
     }
 
     async run({intr, opts}) {
-        const start = performance.now();
         const { bot } = this;
         // Functions
         /**
@@ -44,27 +43,12 @@ class profile extends Command {
             //easter egg if user tries to check the profile of the bot
             if(target_user.id === bot.user.id) return bot.intrReply({intr, content: 'My Leyline profile is beyond your capacity of comprehension'});
 
-            console.time('Getting LeylineUser')
             const user = await getLeylineInfo(target_user.id);
-            console.timeEnd('Getting LeylineUser')
-
-            console.time('Getting user level')
-            const level = await XPService.getUserLevel(target_user.id);
-            console.timeEnd('Getting user level')
-
-            console.time('Getting user posts')
-            const posts = await XPService.getUserPosts(target_user.id);
-            console.timeEnd('Getting user posts')
-
-            console.time('Getting user reactions')
-            const reactions = await Firebase.getDiscordReactions(target_user.id);
-            console.timeEnd('Getting user reactions')
-            
             bot.intrReply({intr, embed: new EmbedBase(bot, {
                 //title: 'Leyline Profile',
                 url: user.profile_url,
                 author: {
-                    name: `${user.username} - Level ${(level).number}`,
+                    name: `${user.username} - Level ${(await XPService.getUserLevel(target_user.id)).number}`,
                     icon_url: user.avatar_url,
                     url: user.profile_url
                 },
@@ -123,13 +107,13 @@ class profile extends Command {
                     },
                     {
                         name: '👍  Discord Good Acts',
-                        value: `**${posts || 0}** Posts Approved\n\u200b`,
+                        value: `**${await XPService.getUserPosts(target_user.id) || 0}** Posts Approved\n\u200b`,
                         inline: true,
                     },
                     //{ name: '\u200b', value: '\u200b', inline: false },
                     {
                         name: '🙏  Discord Moral Support',
-                        value: `**${reactions || 0}** Reactions Given\n\u200b`,
+                        value: `**${await Firebase.getDiscordReactions(target_user.id) || 0}** Reactions Given\n\u200b`,
                         inline: true,
                     },
                     {
@@ -171,8 +155,6 @@ class profile extends Command {
                 }
             bot.logger.error(JSON.stringify(err));
         }
-
-        console.log(`Took ${performance.now() - start}ms to run`);
     }
 }
 
