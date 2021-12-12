@@ -89,13 +89,11 @@ export const storeUserReaction = async function ({collector, user}) {
  * @returns {Promise<Number>}
  */
 export const getDiscordReactions = async function (uid) {
-    console.time('Fetching all collectors 2');
     const user_reactions = await admin
         .firestore()
         .collectionGroup('reacted_users')
         .where('reacted', '==', true)
         .get();
-    console.timeEnd('Fetching all collectors 2');
 
     return user_reactions.docs.filter(doc => doc.id === uid).length;
 }
