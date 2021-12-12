@@ -1,3 +1,29 @@
+# [2.6.0](https://github.com/Leyline-gg/leyline-discord/releases/tag/v2.6.0) (2021-12-11)
+
+## Dev Notes
+This update features many quality of life changes, from bug fixes to the implementation of Discord's new slash command autocompletion feature. Most notably, however, is the introduction of Good Acts Falsification Reports. This new feature will send all photos posted in #good-acts to Google's Cloud Vision API, where they are rapidly compared with billions of other images across the web. Within a matter of seconds, the results are sent back to @Leyline, processed, then nicely presented as a "Falsification Analysis" embed, sent in the original submission's thread. The purpose of this feature is to significantly improve the moderation team's ability to detect fake #good-acts submissions by removing the manual search process.
+
+## New Features
+- Good Acts submissions Falsification Analysis
+    - All new good-acts submissions will be analyzed by AI-driven image software
+    - Every submission will receive a falsification report from the @Leyline bot in the submission's thread
+        - This falsification report will be referred to by moderators during the approval process
+- `tag` command autocompletion
+    - When filling out the `tagname` option, a list of autocompleted options will appear
+        - These correspond to existing tags
+    - This feature also autocompletes tag aliases
+    - As always, a full list of tags can be viewed by running `/tag` without any options
+
+## Existing Feature Changes
+- The final embed displayed after using the `awardnft` command will now include an image of the NFT that was dropped
+
+## Bug Fixes
+- Incorrect comment in Proof of Good ledger (@jayeclark)
+- The `profile` command performance has been improved
+- The "Approve Good Act" context menu button was not displaying immediately after its release
+- A typo in the "🎉 You earned A NFT!" automated message
+
+
 # [2.5.1](https://github.com/Leyline-gg/leyline-discord/releases/tag/v2.5.1) (2021-11-28)
 
 ## Dev Notes
