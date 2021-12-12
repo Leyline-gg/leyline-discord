@@ -23,7 +23,6 @@ This update features many quality of life changes, from bug fixes to the impleme
 - The "Approve Good Act" context menu button was not displaying immediately after its release
 - A typo in the "🎉 You earned A NFT!" automated message
 
-
 # [2.5.1](https://github.com/Leyline-gg/leyline-discord/releases/tag/v2.5.1) (2021-11-28)
 
 ## Dev Notes
