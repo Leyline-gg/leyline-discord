@@ -18,8 +18,7 @@ export const getUserRankings = async function (uid) {
 
     // function to query the latest snapshot for the doc count in the provided category
     const getCategoryRankings = async (category) => {
-        const rankingDocsRef = 
-            await admin.firestore()
+        const rankingDocsRef = await admin.firestore()
             .collection(`${'leaderboards'}/${snapshotRef.docs[0].id}/timeframes/all/categories/${category}/ranking`)
             .get();
 
@@ -48,7 +47,11 @@ export const getUserRankings = async function (uid) {
         rank: donatedHoursRanking,
         score: donatedHoursScore,
     } = await getCategoryRankings('donated_hours');
-    const { total: sleepTotalUsers, rank: sleepRanking, score: sleepScore } = await getCategoryRankings('sleep');
+    const { 
+        total: sleepTotalUsers,
+        rank: sleepRanking,
+        score: sleepScore,
+    } = await getCategoryRankings('sleep');
 
     return {
         bloodDonationRanking,
