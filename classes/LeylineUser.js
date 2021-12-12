@@ -6,15 +6,34 @@ export class LeylineUser {
     // avatar, total items in inventory
     constructor(uid) {
         return (async () => {
+            console.time('Fetching doc')
             const doc = await Firebase.getLeylineDoc(uid);
+            console.timeEnd('Fetching doc')
+
             this.uid = uid;
             //this.discord_uid = discord_uid || (await Firebase.getDiscordDoc(uid, true)).id;
             this._username = doc?.username;
+            
+            console.time('Fetching gp')
             this.gp = await Firebase.getPointsBalance(uid);
+            console.timeEnd('Fetching gp')
+
+            console.time('Fetching total_gp')
             this.total_gp = await Firebase.getTotalEarnedPoints(uid);
+            console.timeEnd('Fetching total_gp')
+
+            console.time('Fetching volunteer_gp')
             this.volunteer_gp = await Firebase.getVolunteerPoints(uid);
+            console.timeEnd('Fetching volunteer_gp')
+
+            console.time('Fetching userRankings')
             this.rankings = await Firebase.getUserRankings(uid);
+            console.timeEnd('Fetching userRankings')
+
+            console.time('Fetching inventory')
             this.inventory = await Firebase.getInventoryItems(uid);
+            console.timeEnd('Fetching inventory')
+
             this.profile_url = `https://leyline.gg/profile/${doc?.profile_id}`;
 
             return this;
