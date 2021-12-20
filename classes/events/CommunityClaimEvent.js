@@ -1,5 +1,5 @@
 import { Collection } from 'discord.js';
-import { EmbedBase } from '..';
+import { EmbedBase, LeylineUser } from '..';
 import * as Firebase from '../../api';
 
 /**
@@ -62,11 +62,8 @@ export class CommunityClaimEvent {
         //locally store whatever was written to Firebase
         this.claim_cache.set(claim.user.id, data);
 
-        //add xp
-        await XPService.addPollClaim({uid: claim.user.id, poll_id: this.id});
-
         //Update the embed field
-        this.#updatePollEmbedClaims();
+        //this.#updatePollEmbedClaims();
         //Publish changes
         await this.#updateMessageEmbed(); 
 
@@ -87,6 +84,102 @@ export class CommunityClaimEvent {
     #updateEventEmbedClaims() {
         //this.embed.fields = []
     }
+    
+    /**
+     * perform the whole NFT awardal process, including logs
+     * @param {Object} params Destructured params
+     * @param {Interaction} params.intr Discord.js `Interaction` that initiated the cmd
+     * @param {Object} [params.nft] NFT object retrieved from Firestore
+     * @param {User} params.user Discord.js User object, receipient of NFT
+     * @param {LeylineUser} params.lluser User that will receive the NFT
+     * @returns {Promise<boolean>} `true` if NFT was awarded and logs succesfully issued, `false` otherwise
+     */
+     async #awardNFT({intr, nft=this.nft, user, lluser} = {}) {
+        const { bot } = this;
+        try {
+            //Award NFT to LL user
+            await Firebase.rewardNFT(lluser.uid, nft.id);
+
+            const reward_embed = new EmbedBase(bot, {
+                thumbnail: { url: nft.cloudinaryImageUrl },
+                title: 'NFT Awarded',
+                fields: [
+                    {
+                        name: `Leyline User`,
+                        value: `[${lluser.username}](${lluser.profile_url})`,
+                        inline: true
+                    },
+                    {
+                        name: `Discord User`,
+                        value: bot.formatUser(user),
+                        inline: true
+                    },
+                    { name: '\u200b', value: '\u200b', inline: true },
+                    {
+                        name: `NFT Info`,
+                        value: `${nft.name} (\`${nft.id}\`)`,
+                        inline: true
+                    },
+                    { name: '\u200b', value: '\u200b', inline: true },
+                ],
+            });
+            bot.logReward({embed: reward_embed});
+            return true;
+        } catch(err) {
+            bot.logger.error(`Error awarding NFT with id ${nft.id} to LL user ${lluser.uid}`);
+            bot.logger.error(err);
+            bot.logDiscord({embed: new EmbedBase(bot, {
+                thumbnail: { url: nft.cloudinaryImageUrl },
+                title: 'NFT __NOT__ Awarded',
+                description: `**Error**: ${err}`,
+                fields: [
+                    {
+                        name: `Leyline User`,
+                        value: `[${lluser.username}](${lluser.profile_url})`,
+                        inline: true
+                    },
+                    {
+                        name: `Discord User`,
+                        value: bot.formatUser(user),
+                        inline: true
+                    },
+                    { name: '\u200b', value: '\u200b', inline: true },
+                    {
+                        name: `NFT Info`,
+                        value: `${nft.name} (\`${nft.id}\`)`,
+                        inline: true
+                    },
+                    { name: '\u200b', value: '\u200b', inline: true },
+                ],
+            }).Error()}).then(m => //chained so we can include the URL of the private log msg
+                bot.intrReply({intr, embed: new EmbedBase(bot, {
+                    description: `❌ **I ran into an error, please check the log [message](${m.url}) for more information**`,
+                }).Error(), ephemeral: true}));
+            return false;
+        }
+    }
+
+    /**
+     * Message a user with a dynamic NFT awardal message
+     * @param {Object} params Desctructured params
+     * @param {User} params.user Discord.js user to receive message
+     * @param {Object} [params.nft] NFT object, retrieved from Firestore
+     * @returns {Promise<true>} Promise that resolves to true after message has been sent (not delivered) 
+     */
+     async #messageUser({user, nft=this.nft} = {}) {
+        const { bot } = this;
+        bot.sendDM({user, embed: new EmbedBase(bot, {
+            thumbnail: { url: nft.cloudinaryImageUrl },
+            fields: [
+                {
+                    name: `🎉 You Earned an NFT!`,
+                    value: `You have been awarded a(n) ${nft.rarity.toLowerCase()} **${nft.name}**!
+                        Check it out on your [Leyline profile](https://leyline.gg/profile)!`,
+                },
+            ],	
+        })});
+        return true;
+    }
 
     /**
      * Checks the local cache to see if a user has already claimed
@@ -97,35 +190,49 @@ export class CommunityClaimEvent {
         return this.claim_cache.has(user.id);
     }
 
-    createCollector({msg, duration}) {
+    createCollector(msg=this.msg) {
         const { bot } = this;
         this.msg ||= msg;
         this.id ||= msg.id;
 
         msg.createMessageComponentCollector({
             filter: (i) => i.customId === 'event-claim-btn',
-            time: duration,
+            time: this.duration,
         }).on('collect', async (intr) => {
-            if(this.hasUserClaimed(intr.user))
+            const { user } = intr;
+            if(this.hasUserClaimed(user))
                 return bot.intrReply({
                     intr, 
                     embed: new EmbedBase(bot).ErrorDesc('You already claimed an NFT!'), 
                     ephemeral: true,
                 });
+            
+            if(!(await Firebase.isUserConnectedToLeyline(user.id)))
+                return bot.intrReply({
+                    intr,
+                    embed: new EmbedBase(bot).ErrorDesc('You have not connected your Leyline & Discord accounts!'),
+                    ephemeral: true,
+                });
             //state: user is already trying to claim, prevent them from clicking the button again
             
             //record claim
-            await this.#storeClaim(claim);
+            await this.#storeClaim(intr);
+
+            //award NFT and send log messages
+            const lluser = await new LeylineUser(await Firebase.getLeylineUID(user.id));
+            await this.#awardNFT({intr, user, lluser}) &&
+                await this.#messageUser({user});
+
             //log claim
             bot.logDiscord({embed: new EmbedBase(bot, {
                 fields: [{
-                    name: 'User Claimd on Poll',
-                    value: `${bot.formatUser(claim.user)} claimd for option number \`${claim.customId}\` on the [poll](${this.msg.url}) with the question \`${this.question}\``,
+                    name: 'User Claimed NFT',
+                    value: `${bot.formatUser(user)} claimed the NFT for the \`${this.title}\` event`,
                 }],
             })});
 
-            return bot.intrUpdate({intr: claim, embed: new EmbedBase(bot, {
-                description: `✅ **Claim Submitted**`,
+            return bot.intrUpdate({intr, embed: new EmbedBase(bot, {
+                description: `✅ **NFT Claimed Successfully**`,
             }).Success()});
         }).once('end', () => this.end());
     }
@@ -144,7 +251,7 @@ export class CommunityClaimEvent {
 
     /**
      * Send an event and watch for claims
-     * @returns {Promise<Message>} the poll `Message` that was sent
+     * @returns {Promise<Message>} the event `Message` that was sent
      */
     async publish({channel}) {
         const { bot } = this;
@@ -165,7 +272,7 @@ export class CommunityClaimEvent {
                     },
                 ],
                 type: 1,
-            }]
+            }],
         });
 
         this.msg = msg;
@@ -180,11 +287,9 @@ export class CommunityClaimEvent {
         bot.logDiscord({embed: new EmbedBase(bot, {
             fields: [{
                 name: 'Event Started',
-                value: `${bot.formatUser(this.author)} started a new [event](${this.msg.url}) called \`${'Winter 2021'}\`, set to expire on ${bot.formatTimestamp(Date.now() + this.duration, 'F')}`,
+                value: `${bot.formatUser(this.author)} started a new [event](${this.msg.url}) called \`${this.title}\`, set to expire on ${bot.formatTimestamp(Date.now() + this.duration, 'F')}`,
             }],
         })});
-
-        this.createThread();
 
         return this.msg;
     }

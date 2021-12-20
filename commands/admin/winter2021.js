@@ -1,5 +1,5 @@
 import parse from 'parse-duration';
-import { Command, EmbedBase } from '../../classes';
+import { Command, EmbedBase, CommunityClaimEvent } from '../../classes';
 import * as Firebase from '../../api';
 
 class winter2021 extends Command {
@@ -58,7 +58,7 @@ class winter2021 extends Command {
             ? Date.now() + parsed_dur 
             : null;
 
-        return { channel, nft, duration, text, expires };
+        return { channel, nft, duration: parsed_dur, text, expires };
     }
 
     async run({intr, opts}) {
@@ -73,59 +73,25 @@ class winter2021 extends Command {
         //claimed collection
         //docs are ids of users that have claimed with 'claimed' prop = true
 
-        const embed = new EmbedBase(bot, {
+        //generate and send event preview
+        const event = new CommunityClaimEvent(bot, {
             title: 'Winter 2021 Event',
             description: text,
-            image: {
-                url: nft.cloudinaryImageUrl,
-            },
-            //footer: `Organized by ${this.author?.tag}`,
+            duration,
+            author: intr.user,
+            nft: nft,            
         });
 
-        //send and store message
-        const msg = await bot.channels.resolve(channel).send({
-            embeds: [embed],
-            components: [{
-                components: [
-                    {
-                        type: 2,
-                        style: 1,
-                        custom_id: 'event-claim-btn',
-                        disabled: false,
-                        label: 'Claim',
-                        emoji: {
-                            name: '📝',
-                        },
-                    },
-                ],
-                type: 1,
-            }],
-        });
+        if(!(await bot.intrConfirm({intr, embed: event.embed, content: `Confirm this is the embed that will be sent to ${channel}`})))
+            return bot.intrReply({intr, embed: new EmbedBase(bot).ErrorDesc('Event canceled'), content: '\u200b'});
 
-        //store event in database
-        await Firebase.createEvent({
-            id: 'winter2021',
-            metadata: {
-                nft_id: nft.id,
-                expires,
-                msg: msg.id,
-            },
-        });
-        
-        this.createCollector(msg);
+        //send poll
+        await event.publish({channel});
 
-        //log event creation
-        bot.logDiscord({embed: new EmbedBase(bot, {
-            fields: [{
-                name: 'Event Started',
-                value: `${bot.formatUser(intr.user)} started a new [event](${msg.url}) called \`${'Winter 2021'}\`, set to expire on ${bot.formatTimestamp(expires, 'F')}`,
-            }],
-        })});
-
-
+        //edit response with msg id
         bot.intrReply({intr, embed: new EmbedBase(bot, {
-            description: `✅ **Event created**`,
-        }).Success()});
+            description: `✅ **Event Published Succesfully** ([Click to view](${event.msg.url}))`,
+        }).Success(), content: '\u200b'});
     }
 }
 
