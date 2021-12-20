@@ -1,3 +1,11 @@
+# [2.7.0](https://github.com/Leyline-gg/leyline-discord/releases/tag/v2.7.0) (2021-12-20)
+
+## Dev Notes
+Lays the foundation for "Community Claim Events"
+
+## New Features
+- `event` command for server staff members to initiate an NFT drop event
+
 # [2.6.0](https://github.com/Leyline-gg/leyline-discord/releases/tag/v2.6.0) (2021-12-11)
 
 ## Dev Notes
