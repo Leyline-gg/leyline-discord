@@ -19,5 +19,3 @@ export class DiscordEvent {
         throw new Error(`DiscordEvent ${this.name} doesn't provide a run method.`);
     }
 }
-
-

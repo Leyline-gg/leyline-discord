@@ -7,7 +7,8 @@ import { Intents, Message } from 'discord.js';
 import admin from 'firebase-admin';
 import klaw from 'klaw';
 import path from 'path';
-import { LeylineBot, EmbedBase, CommunityPoll, ReactionCollector, SentenceService, CloudConfig } from './classes';
+import * as Firebase from './api';
+import { LeylineBot, EmbedBase, CommunityPoll, ReactionCollector, SentenceService, CloudConfig, CommunityClaimEvent } from './classes';
 //formally, dotenv shouldn't be used in prod, but because staging and prod share a VM, it's an option I elected to go with for convenience
 import { config as dotenv_config } from 'dotenv';
 dotenv_config();
@@ -266,6 +267,37 @@ const postInit = async function () {
             }   
         }
         bot.logger.log(`Imported ${succesfully_imported} sentences from Firestore`);
+        return;
+    })();
+
+    //import active CommunityClaimEvents
+    await (async function importCommunityClaimEvents() {
+        let succesfully_imported = 0; 
+        const events = await admin
+            .firestore()
+			.collection(`discord/bot/community_events/`)
+			.where('expires', '>', Date.now())
+            .get();
+        for (const doc of events.docs) {
+            try {
+                const ch = await bot.channels.fetch(doc.data().channel, true, true);
+                const msg = await ch.messages.fetch(doc.id, true, true);
+                const embed = msg.embeds[0];
+                if(!embed) throw new Error('No embeds found on the fetched message');
+                await new CommunityClaimEvent(bot, {
+                    embed,
+                    author: await bot.users.fetch(doc.data().created_by),
+                    title: embed.title, 
+                    description: embed.descripition,
+                    duration: doc.data().expires - Date.now(),
+                    nft: await Firebase.getNFT(doc.data().nft),
+                }).createCollector(msg).importFirestoreData(doc);
+                succesfully_imported++;
+            } catch (err) {
+                bot.logger.error(`importCommunityClaimEvents error with doc id ${doc.id}: ${err}`);
+            }   
+        }
+        bot.logger.log(`Imported ${succesfully_imported} CommunityClaimEvents from Firestore`);
         return;
     })();
 

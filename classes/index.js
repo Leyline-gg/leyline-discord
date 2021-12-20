@@ -12,6 +12,7 @@ export * from './components/ConfirmInteraction';
 export * from './components/EmbedBase';
 export * from './events/DiscordEvent';
 export * from './events/FirebaseEvent';
+export * from './events/CommunityClaimEvent';
 export * from './services/XPService';
 export * from './services/SentenceService';
 export * from './services/ImageService'

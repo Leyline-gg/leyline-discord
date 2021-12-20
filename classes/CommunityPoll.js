@@ -266,5 +266,3 @@ export class CommunityPoll {
         return this.msg;
     }
 }
-
-

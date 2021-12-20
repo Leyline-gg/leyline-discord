@@ -15,5 +15,3 @@ export class FirebaseEvent {
     onModify(doc) { return; }
     onRemove(doc) { return; }
 }
-
-
