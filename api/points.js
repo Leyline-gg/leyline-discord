@@ -71,7 +71,7 @@ export const getVolunteerPoints = async function (uid) {
  */
 export const awardPoints = async function (uid, amount, metadata = {}) {
     return await admin.firestore().collection('leyline_points').add({
-        uid: uid,
+        uid,
         leyline_points: amount,
         created: Date.now(),
         metadata: {
