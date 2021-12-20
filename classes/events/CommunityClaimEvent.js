@@ -32,6 +32,18 @@ export class CommunityClaimEvent {
             image: {
                 url: this.nft.cloudinaryImageUrl,
             },
+            fields: [
+                {
+                    name: 'Claims',
+                    value: '0',
+                    inline: true,
+                },
+                {
+                    name: 'Ends On',
+                    value: bot.formatTimestamp(Date.now() + this.duration, 'F'),
+                    inline: true,
+                },
+            ],
             footer: `Organized by ${this.author?.tag}`,
         });
         this.claim_cache = new Collection();
@@ -47,8 +59,6 @@ export class CommunityClaimEvent {
             }],
         })});
         this.msg.disableComponents();
-        this.embed.description = this.embed.description.replace('expires', 'expired');
-        this.#updateMessageEmbed();
     }
 
     /**
@@ -63,7 +73,7 @@ export class CommunityClaimEvent {
         this.claim_cache.set(claim.user.id, data);
 
         //Update the embed field
-        //this.#updatePollEmbedClaims();
+        this.#updateEventEmbedClaims();
         //Publish changes
         await this.#updateMessageEmbed(); 
 
@@ -82,7 +92,14 @@ export class CommunityClaimEvent {
      * Update the fields on the local embed object that display number of claims
      */
     #updateEventEmbedClaims() {
-        //this.embed.fields = []
+        this.embed.fields = this.embed.fields.map(obj => {
+            switch (obj.name) {
+                case 'Claims':
+                    obj.value = this.claim_cache.size.toString();
+                    break;
+            }
+            return obj;
+        })
     }
     
     /**
@@ -199,6 +216,8 @@ export class CommunityClaimEvent {
             filter: (i) => i.customId === 'event-claim-btn',
             time: this.duration,
         }).on('collect', async (intr) => {
+            await intr.deferReply({ ephemeral: true});
+            
             const { user } = intr;
             if(this.hasUserClaimed(user))
                 return bot.intrReply({
@@ -231,9 +250,13 @@ export class CommunityClaimEvent {
                 }],
             })});
 
-            return bot.intrUpdate({intr, embed: new EmbedBase(bot, {
-                description: `✅ **NFT Claimed Successfully**`,
-            }).Success()});
+            return bot.intrReply({
+                intr,
+                embed: new EmbedBase(bot, {
+                    description: `✅ **NFT Claimed Successfully**`,
+                }).Success(),
+                ephemeral: true,
+            });
         }).once('end', () => this.end());
     }
 
@@ -267,7 +290,7 @@ export class CommunityClaimEvent {
                         disabled: false,
                         label: 'Claim',
                         emoji: {
-                            name: '📝',
+                            name: '🎁',
                         },
                     },
                 ],
