@@ -13,6 +13,7 @@ import admin from 'firebase-admin';
 			created_on: event?.msg?.createdTimestamp || Date.now(),
 			created_by: event.author.id,
 			nft: event.nft.id,
+            channel: event.channel,
 		});
 	return;
 };

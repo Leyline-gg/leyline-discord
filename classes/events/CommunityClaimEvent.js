@@ -216,13 +216,13 @@ export class CommunityClaimEvent {
             filter: (i) => i.customId === 'event-claim-btn',
             time: this.duration,
         }).on('collect', async (intr) => {
-            await intr.deferReply({ ephemeral: true});
+            await intr.deferReply({ ephemeral: true });
             
             const { user } = intr;
             if(this.hasUserClaimed(user))
                 return bot.intrReply({
                     intr, 
-                    embed: new EmbedBase(bot).ErrorDesc('You already claimed an NFT!'), 
+                    embed: new EmbedBase(bot).ErrorDesc('You have already claimed an NFT!'), 
                     ephemeral: true,
                 });
             
@@ -258,6 +258,8 @@ export class CommunityClaimEvent {
                 ephemeral: true,
             });
         }).once('end', () => this.end());
+
+        return this;
     }
 
     /**
@@ -300,6 +302,7 @@ export class CommunityClaimEvent {
 
         this.msg = msg;
         this.id = msg.id;
+        this.channel = channel.id;
 
         //store event in database
         await Firebase.createEvent(this);
