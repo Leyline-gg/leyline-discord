@@ -2,12 +2,18 @@ import parse from 'parse-duration';
 import { Command, EmbedBase, CommunityClaimEvent } from '../../classes';
 import * as Firebase from '../../api';
 
-class winter2021 extends Command {
+class event extends Command {
     constructor(bot) {
         super(bot, {
-            name: 'winter2021',
-            description: 'Begin the winter 2021 event',
+            name: 'event',
+            description: 'Create a Community Claim Event',
             options: [
+                {
+                    type: 'STRING',
+                    name: 'title',
+                    description: 'The title of the event',
+                    required: true,
+                },
                 {
                     type: 'CHANNEL',
                     name: 'channel',
@@ -42,7 +48,8 @@ class winter2021 extends Command {
     }
 
     async parseInput(opts) {
-        const [channel, nft, duration, text] = [
+        const [title, channel, nft, duration, text] = [
+            opts.getString('title'),
             opts.getChannel('channel'),
             await Firebase.getNFT(opts.getInteger('nft-id').toString()),
             opts.getString('duration'),
@@ -58,13 +65,13 @@ class winter2021 extends Command {
             ? Date.now() + parsed_dur 
             : null;
 
-        return { channel, nft, duration: parsed_dur, text, expires };
+        return { title, channel, nft, duration: parsed_dur, text, expires };
     }
 
     async run({intr, opts}) {
         const { bot } = this;
 
-        const { channel, nft, duration, text, expires } = await this.parseInput(opts);
+        const { title, channel, nft, duration, text, expires } = await this.parseInput(opts);
 
         //events collection in firestore
         //event with id 'winter2021'
@@ -75,7 +82,7 @@ class winter2021 extends Command {
 
         //generate and send event preview
         const event = new CommunityClaimEvent(bot, {
-            title: 'Winter 2021 Event',
+            title,
             description: text,
             duration,
             author: intr.user,
@@ -95,4 +102,4 @@ class winter2021 extends Command {
     }
 }
 
-export default winter2021;
+export default event;
