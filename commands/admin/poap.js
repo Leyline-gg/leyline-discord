@@ -99,7 +99,7 @@ class poap extends Command {
                 download(msg.attachments.first().url, `cache/poap/${Date.now()}.txt`);
             };
 
-            const watcher = bot.on('messageCreate', msgFilter);
+            bot.on('messageCreate', msgFilter);
         },
         drop: async ({intr, opts}) => {
             const { bot } = this;
