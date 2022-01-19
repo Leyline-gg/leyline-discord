@@ -96,8 +96,22 @@ class poap extends Command {
                 //delete the message
                 msg.delete();
 
-                download(msg.attachments.first().url, `cache/poap/${Date.now()}.txt`);
+                await download(msg.attachments.first().url, `cache/poap/${Date.now()}.txt`);
+
+                bot.intrUpdate({
+                    intr, 
+                    embed: new EmbedBase(bot, {
+                        description: 'Codes loaded successfully. You may now run `/poap drop`',
+                    }).Success(),
+                });
             };
+
+            bot.intrReply({
+                intr, 
+                embed: new EmbedBase(bot, {
+                    description: 'Please upload the text file containing the POAP codes',
+                }),
+            });
 
             bot.on('messageCreate', msgFilter);
         },
