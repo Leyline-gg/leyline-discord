@@ -1,7 +1,6 @@
-import { Command, EmbedBase, LeylineUser, } from '../../classes';
+import { Command, EmbedBase, } from '../../classes';
 import fs from 'node:fs';
 import https from 'node:https';
-import * as Firebase from '../../api';
 
 class poap extends Command {
     constructor(bot) {
@@ -76,7 +75,7 @@ class poap extends Command {
             //thumbnail: { url: nft.thumbnailUrl },
             fields: [
                 {
-                    name: `🎉 You Earned an POAP!`,
+                    name: `🎉 You Earned a POAP!`,
                     value: code,
                 },
             ],	
@@ -93,6 +92,9 @@ class poap extends Command {
                     
                 //disable this watcher
                 bot.off('messageCreate', msgFilter);
+
+                //delete the message
+                msg.delete();
 
                 download(msg.attachments.first().url, `cache/poap/${Date.now()}.txt`);
             };
@@ -135,13 +137,34 @@ class poap extends Command {
                 members.filter(m => !m.awarded)
             ];
 
-            console.log(awarded.length);
+            const embed = new EmbedBase(bot, {
+                description: `**${awarded.length} out of ${members.length} POAPs** were awarded`,
+                //thumbnail: { url: nft.thumbnailUrl },
+                fields: [
+                    ...(!!awarded.length ? [
+                        {
+                            name: '✅ Users Awarded',
+                            value: awarded.map(m => bot.formatUser(m.user)).join('\n'),
+                            inline: false
+                        }
+                    ] : []),
+                    ...(!!unawarded.length ? [
+                        {
+                            name: '❌ Users NOT Awarded',
+                            value: unawarded.map(m => bot.formatUser(m.user)).join('\n'),
+                            inline: false
+                        }
+                    ] : []),
+                ],
+            });
+            !unawarded.length ? embed.Success() : embed.Warn();
+            bot.intrReply({intr, embed});
+
+            return;
         },
     }
 
     async run({intr, opts}) {
-        const { bot } = this;
-
         this.subcommands[opts.getSubcommand()]({intr, opts});
     }
 }
