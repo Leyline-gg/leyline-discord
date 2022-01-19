@@ -70,14 +70,23 @@ class poap extends Command {
         });
     };
 
+    awardPOAP({user, code}) {
+        const { bot } = this;
+        return bot.sendDM({user, embed: new EmbedBase(bot, {
+            //thumbnail: { url: nft.thumbnailUrl },
+            fields: [
+                {
+                    name: `🎉 You Earned an POAP!`,
+                    value: code,
+                },
+            ],	
+        })}).then(() => true).catch(() => false);
+    }
+
     subcommands = {
         load: ({intr}) => {
             const { bot, download } = this;
             const msgFilter = async function (msg) {
-                console.log(msg.id);
-                console.log(msg.channel.id !== intr.channelId)
-                console.log(msg.author.id !== intr.user.id)
-                console.log(!msg.attachments?.first()?.url?.toLowerCase()?.endsWith('.txt'))
                 if(msg.channel.id !== intr.channelId ||
                     msg.author.id !== intr.user.id ||
                     !msg.attachments?.first()?.url?.toLowerCase()?.endsWith('.txt')) return;
@@ -89,6 +98,44 @@ class poap extends Command {
             };
 
             const watcher = bot.on('messageCreate', msgFilter);
+        },
+        drop: async ({intr, opts}) => {
+            const { bot } = this;
+            const files = await fs.promises.readdir('cache/poap');
+            const file = files.sort((a, b) => Number(b.split('.')[0]) - Number(a.split('.')[0]))[0];
+            const codes = (await fs.promises.readFile(`cache/poap/${file}`, 'utf8')).split('\r\n');
+
+            const ch = opts.getChannel('channel');
+            const members = [...(await bot.channels.fetch(ch.id, {force: true})).members.values()];
+            if(!members.length)
+                return bot.intrReply({
+                    intr, 
+                    embed: new EmbedBase(bot).ErrorDesc(`There are no users in the ${ch.toString()} voice channel!`),
+                });
+            if(codes.length < members.length)
+                return bot.intrReply({
+                    intr, 
+                    embed: new EmbedBase(bot).ErrorDesc(`There are not enough codes for the number of users in the ${ch.toString()} voice channel!`),
+                });
+
+            //start typing in channel because award process will take some time
+            //this improves user experience
+            intr.channel.sendTyping();
+
+            for(const member of members) {
+                member.awarded = await this.awardPOAP({
+                    user: member,
+                    code: codes.shift(),
+                });
+            }
+            
+            //sort award results into arrays for the follow-up response
+            const [awarded, unawarded] = [
+                members.filter(m => m.awarded),
+                members.filter(m => !m.awarded)
+            ];
+
+            console.log(awarded.length);
         },
     }
 
