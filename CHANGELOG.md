@@ -1,3 +1,11 @@
+# [2.8.0](https://github.com/Leyline-gg/leyline-discord/releases/tag/v2.8.0) (2021-12-20)
+
+## Dev Notes
+Introduces POAP Drop Functionality
+
+## New Features
+- `poap` command for server staff members to load & initiate a POAP drop
+
 # [2.7.0](https://github.com/Leyline-gg/leyline-discord/releases/tag/v2.7.0) (2021-12-20)
 
 ## Dev Notes
