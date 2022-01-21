@@ -132,6 +132,14 @@ export default {
                             permission: true,
                         },
                     ],
+                    poap: [
+                        {
+                            // *drops
+                            id: '914642168939962378',
+                            type: 'ROLE',
+                            permission: true,
+                        },
+                    ],
                 },
 			},
 			leyline_guild_id: '857839180608307210',
