@@ -10,19 +10,25 @@ class awardgp extends Command {
                 {
                     type: 'SUB_COMMAND',
                     name: 'user',
-                    description: 'Award a single NFT to a single Discord user',
+                    description: 'Award a good points to a single Discord user',
                     options: [
                         {
                             type: 'USER',
                             name: 'user',
-                            description: 'The Discord user to receive the NFT',
+                            description: 'The Discord user to receive the GP',
                             required: true,
                         },
                         {
                             type: 'INTEGER',
-                            name: 'attendee-gp',
-                            description: 'The amount of GP to be awarded',
-                            required: false,
+                            name: 'gp',
+                            description: 'The amount of GP to be awarded to the user',
+                            required: true,
+                        },
+                        {
+                            type: 'STRING',
+                            name: 'ledger-message',
+                            description: 'The reason for awarding GP - this will appear in the user\'s permanent GP ledger',
+                            required: true,
                         },
                     ],
                 },
@@ -74,23 +80,27 @@ class awardgp extends Command {
     }
 
     subcommands = {
-        user: async ({intr, nft, opts}) => {
+        user: async ({intr, opts}) => {
             const { bot } = this;
-            const user = opts.getUser('user');
+            const [user, gp, ledger_message] = [
+                opts.getUser('user'),
+                opts.getInteger('gp'),
+                opts.getString('ledger-message'),
+            ];
             if(!(await Firebase.isUserConnectedToLeyline(user.id))) return bot.intrReply({intr, embed: new EmbedBase(bot, {
                 description: `❌ **That user has not connected their Leyline & Discord accounts**`,
             }).Error()});
 
             const lluser = await new LeylineUser(await Firebase.getLeylineUID(user.id));
             //send Confirm prompt
-            if(!(await this.sendConfirmPrompt({intr, nft, lluser})))
+            if(!(await this.sendConfirmPrompt({intr, ledger_message, gp, lluser})))
                 return bot.intrReply({intr, embed: new EmbedBase(bot, {
-                    description: `❌ **NFT Award Canceled**`,
+                    description: `❌ **GP Award Canceled**`,
                 }).Error()});
 
-            //award NFT and send log messages
-            await this.awardGP({intr, nft, user, lluser}) &&
-                await this.messageUser({user, nft});
+            //award GP and send log messages
+            await this.awardGP({intr, gp, ledger_message, user, lluser}) &&
+                await this.messageUser({user, gp});
             return;
         },
         channel: ({intr, opts}) => {
@@ -123,7 +133,7 @@ class awardgp extends Command {
      * Send a prompt to the user confirming the GP awardal
      * @param {Object} params Destructured params
      * @param {Interaction} params.intr Discord.js `Interaction` that initiated the cmd
-     * @param {Object} params.ledger_message Message to be displayed in the GP ledger
+     * @param {string} params.ledger_message Message to be displayed in the GP ledger
      * @param {number} params.gp amount of GP to be displayed in the prompt
      * @param {LeylineUser} params.lluser LeylineUser that will receive the GP
      * @param {boolean} params.event Whether or not this prompt is in the context of a live event awardal
@@ -165,6 +175,7 @@ class awardgp extends Command {
      * @param {Object} params Destructured params
      * @param {Interaction} params.intr Discord.js `Interaction` that initiated the cmd
      * @param {number} params.gp amount of GP to be awarded to the user
+     * @param {string} params.ledger_message Message to be displayed in the GP ledger
      * @param {User} params.user Discord.js User object, receipient of GP
      * @param {LeylineUser} params.lluser User that will receive the GP
      * @param {boolean} [params.update_intr] Should the original interaction message be updated with the result of the GP awardal
@@ -384,9 +395,6 @@ class awardgp extends Command {
     }
 
     async run({intr, opts}) {
-        //TODO: update method docs
-        const { bot } = this;
-
         //TODO: add common option filtering?
 
         this.subcommands[opts.getSubcommand()]({intr, opts});
