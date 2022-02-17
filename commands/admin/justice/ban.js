@@ -12,6 +12,15 @@ class ban extends JusticeCommand {
     //Override parent
     async executeSentence({intr, user, expires, reason}) {
         const { bot, sentence_type } = this;
+        //log sentence BEFORE banning user, to prevent DM error
+        await SentenceService.logSentence({
+            bot,
+            user,
+            mod: intr.user,
+            sentence_type,
+            expires,
+            reason,
+        });
         //issue sentence
         await SentenceService.banUser({
             bot,
@@ -20,15 +29,7 @@ class ban extends JusticeCommand {
             expires,
             reason,
         });
-        //log sentence
-        /*await*/ SentenceService.logSentence({
-            bot,
-            user,
-            mod: intr.user,
-            sentence_type,
-            expires,
-            reason,
-        });
+        
         return bot.intrReply({intr, embed: new EmbedBase(bot, {
             description: `⚖ **Sentence Successfully Issued**`,
         }).Sentence(), ephemeral: true});
