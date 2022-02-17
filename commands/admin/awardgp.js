@@ -114,17 +114,18 @@ class awardgp extends Command {
                 description: `❌ **That's not a voice channel!**`,
             }).Error()});
 
-            this.gpDropVC({intr, event_name, attendee_gp, mentor, mentor_gp, ch});
+            this.gpDropVC({intr, event_name, attendee_gp, ch, mentor, mentor_gp});
             return;
         },
     };
 
     /**
-     * Send a prompt to the user confirming the NFT awardal
+     * Send a prompt to the user confirming the GP awardal
      * @param {Object} params Destructured params
      * @param {Interaction} params.intr Discord.js `Interaction` that initiated the cmd
-     * @param {Object} params.nft NFT object retrieved from Firestore
-     * @param {LeylineUser} params.lluser LeylineUser that will receive the NFT
+     * @param {Object} params.ledger_message Message to be displayed in the GP ledger
+     * @param {number} params.gp amount of GP to be displayed in the prompt
+     * @param {LeylineUser} params.lluser LeylineUser that will receive the GP
      * @param {boolean} params.event Whether or not this prompt is in the context of a live event awardal
      * @returns {Promise<boolean>} `true` if the prompt was confirmed by the user, `false` otherwise
      */
@@ -160,14 +161,14 @@ class awardgp extends Command {
     }
 
     /**
-     * perform the whole NFT awardal process, including logs
+     * perform the whole GP awardal process, including logs
      * @param {Object} params Destructured params
      * @param {Interaction} params.intr Discord.js `Interaction` that initiated the cmd
-     * @param {Object} params.nft NFT object retrieved from Firestore
-     * @param {User} params.user Discord.js User object, receipient of NFT
-     * @param {LeylineUser} params.lluser User that will receive the NFT
-     * @param {boolean} [params.update_intr] Should the original interaction message be updated with the result of the NFT awardal
-     * @returns {Promise<boolean>} `true` if NFT was awarded and logs succesfully issued, `false` otherwise
+     * @param {number} params.gp amount of GP to be awarded to the user
+     * @param {User} params.user Discord.js User object, receipient of GP
+     * @param {LeylineUser} params.lluser User that will receive the GP
+     * @param {boolean} [params.update_intr] Should the original interaction message be updated with the result of the GP awardal
+     * @returns {Promise<boolean>} `true` if GP was awarded and logs succesfully issued, `false` otherwise
      */
     async awardGP({intr, gp, ledger_message, user, lluser, update_intr=true} = {}) {
         const { bot } = this;
@@ -260,10 +261,10 @@ class awardgp extends Command {
     }
 
     /**
-     * Message a user with a dynamic NFT awardal message
+     * Message a user with a dynamic GP awardal message
      * @param {Object} params Desctructured params
      * @param {User} params.user Discord.js user to receive message
-     * @param {Object} params.nft NFT object, retrieved from Firestore
+     * @param {number} params.gp amount of GP to be awarded to the user
      * @returns {Promise<true>} Promise that resolves to true after message has been sent (not delivered) 
      */
     async messageUser({user, gp} = {}) {
@@ -281,14 +282,17 @@ class awardgp extends Command {
     }
     
     /**
-     * Function specifically for awarding event NFTs to every user in the specified voice channel
+     * Function specifically for awarding Good Points to every user in the specified voice channel
      * @param {Object} params Desctructured params
      * @param {CommandInteraction} params.intr The interaction that instantiated this command
-     * @param {Object} params.nft NFT object, retrieved from Firestore
+     * @param {string} params.event_name Name of the to be included in the ledger history
+     * @param {number} params.attendee_gp amount of GP to be awarded to the attendees
      * @param {BaseGuildVoiceChannel} params.ch The voice channel to pull users from
+     * @param {User} [params.mentor] Discord.js User - mentor of the event (to receive mentor_gp)
+     * @param {number} [params.mentor_gp] amount of GP to be awarded to the mentor
      * @returns {Promise<void>} promise that resolves when function execution is complete
      */
-    async gpDropVC({intr, event_name, attendee_gp, mentor, mentor_gp, ch} = {}) {
+    async gpDropVC({intr, event_name, attendee_gp, ch, mentor=null, mentor_gp=null} = {}) {
         const { bot } = this;
         const [connected, unconnected] = [[], []];
         const ledger_message = `Attended ${event_name} Discord Event`;
@@ -339,7 +343,7 @@ class awardgp extends Command {
 				update_intr: false,
 			};
             //explicitly award mentor GP
-            if(member.id == mentor.id) award_gp_obj = {
+            if(member.id == mentor?.id) award_gp_obj = {
                 ...award_gp_obj,
                 gp: mentor_gp,
                 ledger_message: `Mentored ${event_name} Discord Event`,
@@ -362,14 +366,14 @@ class awardgp extends Command {
                         name: '✅ Users Awarded',
                         value: awarded.map(m => bot.formatUser(m.user)).join('\n'),
                         inline: false,
-                    }
+                    },
                 ] : []),
                 ...(!!unawarded.length ? [
                     {
                         name: '❌ Users NOT Awarded',
                         value: unawarded.map(m => bot.formatUser(m.user)).join('\n'),
                         inline: false,
-                    }
+                    },
                 ] : []),
             ],
         });
