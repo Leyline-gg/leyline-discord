@@ -43,8 +43,8 @@ class awardgp extends Command {
                         },
                         {
                             type: 'STRING',
-                            name: 'ledger-reason',
-                            description: 'The reason that will appear on the attendees\' good points ledgers',
+                            name: 'event-name',
+                            description: 'The name of the event - this will appear in the user\'s permanent GP ledger', 
                             required: true,
                         },
                         {
@@ -54,7 +54,7 @@ class awardgp extends Command {
                             required: false,
                         },
                         {
-                            type: 'INTEGER',
+                            type: 'USER',
                             name: 'mentor',
                             description: 'The mentor for the event',
                             required: false,
@@ -96,8 +96,8 @@ class awardgp extends Command {
         channel: ({intr, opts}) => {
             const { bot } = this;
 
-            const [ledger_reason, attendee_gp, mentor, mentor_gp] = [
-                opts.getString('ledger-reason'),
+            const [event_name, attendee_gp, mentor, mentor_gp] = [
+                opts.getString('event-name'),
                 opts.getInteger('attendee-gp') || 500,
                 opts.getUser('mentor'),
                 opts.getInteger('mentor-gp') || 1000,
@@ -114,7 +114,7 @@ class awardgp extends Command {
                 description: `❌ **That's not a voice channel!**`,
             }).Error()});
 
-            this.gpDropVC({intr, ledger_reason, attendee_gp, mentor, mentor_gp, ch});
+            this.gpDropVC({intr, event_name, attendee_gp, mentor, mentor_gp, ch});
             return;
         },
     };
@@ -128,7 +128,7 @@ class awardgp extends Command {
      * @param {boolean} params.event Whether or not this prompt is in the context of a live event awardal
      * @returns {Promise<boolean>} `true` if the prompt was confirmed by the user, `false` otherwise
      */
-    sendConfirmPrompt({intr, ledger_reason, gp, lluser, event=false, ...other} = {}) {
+    sendConfirmPrompt({intr, ledger_message, gp, lluser, event=false, ...other} = {}) {
         const { bot } = this;
         return bot.intrConfirm({intr, embed: new EmbedBase(bot, {
             title: 'Confirm GP Award',
@@ -151,8 +151,8 @@ class awardgp extends Command {
                     inline: true,
                 },
                 {
-                    name: `Ledger Reason`,
-                    value: ledger_reason,
+                    name: `Ledger Message`,
+                    value: ledger_message,
                     inline: true,
                 },
             ],
@@ -169,12 +169,12 @@ class awardgp extends Command {
      * @param {boolean} [params.update_intr] Should the original interaction message be updated with the result of the NFT awardal
      * @returns {Promise<boolean>} `true` if NFT was awarded and logs succesfully issued, `false` otherwise
      */
-    async awardGP({intr, gp, ledger_reason, user, lluser, update_intr=true} = {}) {
+    async awardGP({intr, gp, ledger_message, user, lluser, update_intr=true} = {}) {
         const { bot } = this;
         try {
             //Award good points to the user
             await Firebase.awardPoints(lluser.uid, gp, {
-                category: ledger_reason,
+                category: ledger_message,
                 comment: `Requested by ${bot.formatUser(intr.user)} via Discord`,
             });
             //Log success
@@ -201,8 +201,8 @@ class awardgp extends Command {
                         inline: true,
                     },
                     {
-                        name: `Ledger Reason`,
-                        value: ledger_reason,
+                        name: `Ledger Message`,
+                        value: ledger_message,
                         inline: true,
                     },
                     {
@@ -240,8 +240,8 @@ class awardgp extends Command {
                         inline: true,
                     },
                     {
-                        name: `Ledger Reason`,
-                        value: ledger_reason,
+                        name: `Ledger Message`,
+                        value: ledger_message,
                         inline: true,
                     },
                     {
@@ -288,9 +288,10 @@ class awardgp extends Command {
      * @param {BaseGuildVoiceChannel} params.ch The voice channel to pull users from
      * @returns {Promise<void>} promise that resolves when function execution is complete
      */
-    async gpDropVC({intr, ledger_reason, attendee_gp, mentor, mentor_gp, ch} = {}) {
+    async gpDropVC({intr, event_name, attendee_gp, mentor, mentor_gp, ch} = {}) {
         const { bot } = this;
         const [connected, unconnected] = [[], []];
+        const ledger_message = `Attended ${event_name} Discord Event`;
         //add a custom 'leyline' prop to each GuildMember in the vc
         for(const member of (await bot.channels.fetch(ch.id, {force: true})).members.values())
             await Firebase.isUserConnectedToLeyline(member.id)
@@ -304,7 +305,7 @@ class awardgp extends Command {
         //send confirm prompt with some custom values
         if(!(await this.sendConfirmPrompt({
             intr,
-            ledger_reason,
+            ledger_message,
             gp: attendee_gp,
             event: true,
             description: `**${connected.length} out of the ${connected.length + unconnected.length} users** in the voice channel have connected their Leyline & Discord accounts`,
@@ -326,17 +327,25 @@ class awardgp extends Command {
         //this improves user experience
         intr.channel.sendTyping();
 
-        // award each member an NFT, and log in private channels
-        // store a prop noting whether the NFT was awarded or not
+        // award each member GP and log in private channels
+        // store a prop noting whether the GP was awarded or not
         for(const member of connected) {
-            member.awarded = await this.awardGP({
+            let award_gp_obj = {
 				intr,
 				gp: attendee_gp,
-                ledger_reason,
+                ledger_message,
 				user: member.user,
 				lluser: await new LeylineUser(await Firebase.getLeylineUID(member.id)),
 				update_intr: false,
-			}) && await this.messageUser({gp: attendee_gp, user: member.user});
+			};
+            //explicitly award mentor GP
+            if(member.id == mentor.id) award_gp_obj = {
+                ...award_gp_obj,
+                gp: mentor_gp,
+                ledger_message: `Mentored ${event_name} Discord Event`,
+            };
+            member.awarded = await this.awardGP(award_gp_obj) 
+                && await this.messageUser(award_gp_obj);
         }
 
         //sort award results into arrays for the follow-up response
