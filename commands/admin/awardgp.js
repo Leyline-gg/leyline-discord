@@ -130,10 +130,10 @@ class awardgp extends Command {
         channel: ({intr, opts}) => {
             const { bot } = this;
 
-            const [event_name, attendee_gp, mentor, mentor_gp] = [
+            const [event_name, attendee_gp, mentors, mentor_gp] = [
                 opts.getString('event-name'),
                 opts.getInteger('attendee-gp') || 500,
-                opts.getUser('mentor'),
+                [opts.getUser('mentor1'), opts.getUser('mentor2'), opts.getUser('mentor3'), opts.getUser('mentor4'), opts.getUser('mentor5')],
                 opts.getInteger('mentor-gp') || 1000,
             ];
             const ch = opts.getChannel('channel');
@@ -148,7 +148,7 @@ class awardgp extends Command {
                 description: `❌ **That's not a voice channel!**`,
             }).Error()});
 
-            this.gpDropVC({intr, event_name, attendee_gp, ch, mentor, mentor_gp});
+            this.gpDropVC({intr, event_name, attendee_gp, ch, mentors, mentor_gp});
             return;
         },
     };
@@ -323,11 +323,11 @@ class awardgp extends Command {
      * @param {string} params.event_name Name of the to be included in the ledger history
      * @param {number} params.attendee_gp amount of GP to be awarded to the attendees
      * @param {BaseGuildVoiceChannel} params.ch The voice channel to pull users from
-     * @param {User} [params.mentor] Discord.js User - mentor of the event (to receive mentor_gp)
+     * @param {Array<User>} [params.mentors] Array of Discord.js Users - mentors for the event (to receive mentor_gp)
      * @param {number} [params.mentor_gp] amount of GP to be awarded to the mentor
      * @returns {Promise<void>} promise that resolves when function execution is complete
      */
-    async gpDropVC({intr, event_name, attendee_gp, ch, mentor=null, mentor_gp=null} = {}) {
+    async gpDropVC({intr, event_name, attendee_gp, ch, mentors=[], mentor_gp=null} = {}) {
         const { bot } = this;
         const [connected, unconnected] = [[], []];
         const ledger_message = `Attended ${event_name} Discord Event`;
@@ -350,12 +350,18 @@ class awardgp extends Command {
             description: `**${connected.length} out of the ${connected.length + unconnected.length} users** in the voice channel have connected their Leyline & Discord accounts`,
             connected: !!connected.length ? [{
                 name: '✅ Will Receive GP',
-                value: connected.map(m => bot.formatUser(m.user)).join('\n'),
+                value: connected.map(m => 
+                    `${mentors.some(mentor => mentor?.id == m.id) ? '**[M]**' : ''} \
+                     ${bot.formatUser(m.user)}`
+                ).join('\n'),
                 inline: false,
             }] : [],
             unconnected: !!unconnected.length ? [{
                 name: '❌ Will NOT Receive GP',
-                value: unconnected.map(m => bot.formatUser(m.user)).join('\n'),
+                value: unconnected.map(m => 
+                    `${mentors.some(mentor => mentor?.id == m.id) ? '**[M]**' : ''} \
+                     ${bot.formatUser(m.user)}`
+                ).join('\n'),
                 inline: false,
             }] : [],
         }))) return bot.intrReply({intr, embed: new EmbedBase(bot, {
@@ -378,7 +384,7 @@ class awardgp extends Command {
 				update_intr: false,
 			};
             //explicitly award mentor GP
-            if(member.id == mentor?.id) award_gp_obj = {
+            if(mentors.some(mentor => mentor?.id == member.id)) award_gp_obj = {
                 ...award_gp_obj,
                 gp: mentor_gp,
                 ledger_message: `Mentored ${event_name} Discord Event`,
@@ -399,14 +405,20 @@ class awardgp extends Command {
                 ...(!!awarded.length ? [
                     {
                         name: '✅ Users Awarded',
-                        value: awarded.map(m => bot.formatUser(m.user)).join('\n'),
+                        value: awarded.map(m => 
+                            `${mentors.some(mentor => mentor?.id == m.id) ? '**[M]**' : ''} \
+                             ${bot.formatUser(m.user)}`
+                        ).join('\n'),
                         inline: false,
                     },
                 ] : []),
                 ...(!!unawarded.length ? [
                     {
                         name: '❌ Users NOT Awarded',
-                        value: unawarded.map(m => bot.formatUser(m.user)).join('\n'),
+                        value: unawarded.map(m => 
+                            `${mentors.some(mentor => mentor?.id == m.id) ? '**[M]**' : ''} \
+                             ${bot.formatUser(m.user)}`
+                        ).join('\n'),
                         inline: false,
                     },
                 ] : []),
