@@ -506,7 +506,6 @@ export class ReactionCollectorBase {
 					  )}`
 					: attachment.url
 			);
-			console.log(res);
 			const embed = new EmbedBase(bot, {
 				...ImageService.analyzeWebResult(res),
 				thumbnail: { url: attachment.url },
