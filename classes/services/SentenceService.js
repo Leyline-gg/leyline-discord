@@ -49,7 +49,7 @@ export class SentenceService {
      * @param {number} [args.expires] Unix timestamp for when sentence should expire. `null` if no expiration
      * @param {string} [args.reason] Mod-provided reason for why sentence was issued. `null` if no reason
      * @param {number} [args.timestamp] Unix timestamp of when sentence was issued. Defaults to `Date.now()`
-     * @returns Resolves to added doc
+     * @returns Resolves after all log messages have been sent
      */
     static async logSentence({bot, user, mod, sentence_type: type, expires=null, reason=null, timestamp=Date.now()} = {}) {
         const { SENTENCE_TYPES } = this;
@@ -104,6 +104,8 @@ export class SentenceService {
             await bot.logDiscord({embed});
         //log privately
         await bot.logSentence({embed});
+
+        return;
     }
 
     /**

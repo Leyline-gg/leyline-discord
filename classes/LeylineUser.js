@@ -39,5 +39,3 @@ export class LeylineUser {
         return url;
     }
 }
-
-

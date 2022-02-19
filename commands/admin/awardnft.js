@@ -94,10 +94,10 @@ class awardnft extends Command {
      * @param {Interaction} params.intr Discord.js `Interaction` that initiated the cmd
      * @param {Object} params.nft NFT object retrieved from Firestore
      * @param {LeylineUser} params.lluser LeylineUser that will receive the NFT
-     * @param {boolean} params.ama Whether or not this prompt is in the context of weekly ama awardal
+     * @param {boolean} params.event Whether or not this prompt is in the context of a live event awardal
      * @returns {Promise<boolean>} `true` if the prompt was confirmed by the user, `false` otherwise
      */
-    sendConfirmPrompt({intr, nft, lluser, ama=false, ...other} = {}) {
+    sendConfirmPrompt({intr, nft, lluser, event=false, ...other} = {}) {
         const { bot } = this;
         return bot.intrConfirm({intr, embed: new EmbedBase(bot, {
             title: 'Confirm NFT Award',
@@ -105,16 +105,16 @@ class awardnft extends Command {
                 url: nft.thumbnailUrl,
             },
             //to whoever happens to read this in the future: sorry for the syntax :(
-            ...ama && { description: other.description },
+            ...event && { description: other.description },
             fields: [
-                ...(ama ? [
+                ...(event ? [
                     other.connected,
                     other.unconnected,
                     { name:'\u200b', value:'\u200b' },
                 ] : []),
                 {
-                    name: `To User`,
-                    value: ama ? 'See above list' : `[${lluser.username}](${lluser.profile_url})`,
+                    name: `To User${event ? 's' : ''}`,
+                    value: event ? 'See above list' : `[${lluser.username}](${lluser.profile_url})`,
                     inline: true
                 },
                 {
@@ -259,7 +259,7 @@ class awardnft extends Command {
     }
     
     /**
-     * Function specifically for awarding ama NFTs to every user in the specified voice channel
+     * Function specifically for awarding event NFTs to every user in the specified voice channel
      * @param {Object} params Desctructured params
      * @param {CommandInteraction} params.intr The interaction that instantiated this command
      * @param {Object} params.nft NFT object, retrieved from Firestore
@@ -282,7 +282,7 @@ class awardnft extends Command {
         if(!(await this.sendConfirmPrompt({
             intr,
             nft,
-            ama: true,
+            event: true,
             description: `**${connected.length} out of the ${connected.length + unconnected.length} users** in the voice channel have connected their Leyline & Discord accounts`,
             connected: !!connected.length ? [{
                 name: '✅ Will Receive NFT',

@@ -14,10 +14,11 @@ jobs:
               uses: fifsky/ssh-action@master
               with:
                   command: |
-                      rm -rf leyline-discord/
-                      git clone -b production --single-branch git@github.com:Leyline-gg/leyline-discord.git
-                      cd leyline-discord/
-                      npm install
+                      cd leyline-discord
+                      git checkout production
+                      git reset --hard origin/production
+                      git pull
+                      npm ci
                       pm2 delete all
                       npm run deploy
                   host: ${{ secrets.SSH_HOST }}
