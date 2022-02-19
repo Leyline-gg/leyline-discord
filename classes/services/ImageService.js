@@ -6,8 +6,6 @@ import { decode } from 'html-entities';
 const vision = new visionClient.ImageAnnotatorClient();
 
 export class ImageService {
-    nums_unicode = ['0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];
-
     static async searchWeb(uri) {
         const [{webDetection}] = await vision.webDetection(uri);
         return webDetection;

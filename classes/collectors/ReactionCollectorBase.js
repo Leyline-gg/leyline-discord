@@ -168,7 +168,7 @@ export class ReactionCollectorBase {
 						inline: true,
 					},
 				],
-				thumbnail: { url: this.media_type === 'photo' ? msg.attachments.first().url : this.media_placeholder },
+				thumbnail: { url: this.media_type === 'photo' ? this.attachment.url : this.media_placeholder },
 				...embed_data,
 			}).Success(),
 		});
@@ -207,7 +207,7 @@ export class ReactionCollectorBase {
 						inline: true,
 					},
 				],
-				thumbnail: { url: this.media_type === 'photo' ? msg.attachments.first().url : this.media_placeholder },
+				thumbnail: { url: this.media_type === 'photo' ? this.attachment.url : this.media_placeholder },
 				...embed_data,
 			}).Error(),
 		});
@@ -240,11 +240,13 @@ export class ReactionCollectorBase {
 
 	/**
 	 * Ensure an attachment meets the specified criteria, also updates the `media_type` property
-	 * @param {String} url
+	 * @param {MessageAttachment} attachment
 	 * @returns {boolean} `true` if an attachment was detected & stored, `false` otherwise
 	 */
-	processAttachment(url) {
-		url ||= '';
+	processAttachment(attachment) {
+		this.attachment = attachment;
+		if(!attachment) return false;
+		const { url } = attachment;
 		if (url.endsWith('.png') || url.endsWith('.jpg') || url.endsWith('.jpeg') || url.endsWith('.webp')) {
 			this.media_type = 'photo';
 			return true;
@@ -494,13 +496,19 @@ export class ReactionCollectorBase {
 	 */
 	async imageSearch() {
 		//can be expaned to multiple images by iterating through msg.attachments
-		const { bot, msg, thread } = this;
+		const { bot, thread, attachment } = this;
 		try {
-			if(!msg.attachments.size) throw new Error('No attachments found on msg');
-			const res = await ImageService.searchWeb(msg.attachments.first().url);
+			if(!attachment) throw new Error('No attachments found on msg');
+			const res = await ImageService.searchWeb(
+				attachment.size > 10485760
+					? `${attachment.proxyURL}?width=${Math.round(attachment.width / 2)}&height=${Math.round(
+							attachment.height / 2
+					  )}`
+					: attachment.url
+			);
 			const embed = new EmbedBase(bot, {
 				...ImageService.analyzeWebResult(res),
-				thumbnail: { url: msg.attachments.first().url },
+				thumbnail: { url: attachment.url },
 			});
 			bot.sendEmbed({msg:thread.lastMessage, embed});
 		} catch(err) {
