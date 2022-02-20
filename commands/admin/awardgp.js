@@ -352,22 +352,22 @@ class awardgp extends Command {
             gp: attendee_gp,
             event: true,
             description: `**Pre-Drop Summary**`,
-            eligible: !!eligible.length ? [{
+            eligible: !!eligible.length ? EmbedBase.splitField({
                 name: '✅ ELIGIBLE to Receive GP',
                 value: eligible.map(m => 
                     `${mentors.some(mentor => mentor?.id == m.id) ? '**[M]**' : ''} \
                      ${bot.formatUser(m.user)}`
                 ).join('\n'),
                 inline: false,
-            }] : [],
-            ineligible: !!ineligible.length ? [{
+            }) : [],
+            ineligible: !!ineligible.length ? EmbedBase.splitField({
                 name: '❌ INELIGIBLE to Receive GP',
                 value: ineligible.map(m => 
                     `${mentors.some(mentor => mentor?.id == m.id) ? '**[M]**' : ''} \
                      ${bot.formatUser(m.user)}`
                 ).join('\n'),
                 inline: false,
-            }] : [],
+            }) : [],
         }))) return bot.intrReply({intr, embed: new EmbedBase(bot, {
                 description: `❌ **GP Award Canceled**`,
             }).Error()});
@@ -403,27 +403,19 @@ class awardgp extends Command {
         const embed = new EmbedBase(bot, {
             description: `**${awarded.length} out of ${eligible.length} users** received their GP`,
             fields: [
-                ...(!!awarded.length ? [
-                    {
-                        name: '✅ Users Awarded',
-                        value: awarded.map(m => bot.formatUser(m.user)).join('\n'),
-                        inline: false
-                    }
-                ] : []),
-                ...(!!unawarded.length ? [
-                    {
-                        name: '⚠ Users Award FAILED',
-                        value: unawarded.map(m => bot.formatUser(m.user)).join('\n'),
-                        inline: false
-                    }
-                ] : []),
-                ...(!!ineligible.length ? [
-                    {
-                        name: '❌ Users Award INELIGIBLE',
-                        value: ineligible.map(m => bot.formatUser(m.user)).join('\n'),
-                        inline: false
-                    }
-                ] : []),
+                ...(!!awarded.length ? EmbedBase.splitField({
+                    name: '✅ Users Awarded',
+                    value: awarded.map(m => bot.formatUser(m.user)).join('\n'),
+                }) : []),
+                ...(!!unawarded.length ? EmbedBase.splitField({
+                    name: '⚠ Users Award FAILED',
+                    value: unawarded.map(m => bot.formatUser(m.user)).join('\n'),
+                 }) : []),
+                ...(!!ineligible.length ? EmbedBase.splitField({
+                    name: '❌ Users Award INELIGIBLE',
+                    value: ineligible.map(m => bot.formatUser(m.user)).join('\n'),
+                    inline: false
+                }) : []),
             ],
         });
         !unawarded.length ? embed.Success() : embed.Warn();

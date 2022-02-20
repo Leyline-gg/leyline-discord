@@ -289,16 +289,16 @@ class awardnft extends Command {
             nft,
             event: true,
             description: `**Pre-Drop Summary**`,
-            eligible: !!eligible.length ? [{
+            eligible: !!eligible.length ? EmbedBase.splitField({
                 name: '✅ ELIGIBLE to Receive NFT',
                 value: eligible.map(m => bot.formatUser(m.user)).join('\n'),
                 inline: false
-            }] : [],
-            ineligible: !!ineligible.length ? [{
+            }) : [],
+            ineligible: !!ineligible.length ? EmbedBase.splitField({
                 name: '❌ INELIGIBLE to Receive NFT',
                 value: ineligible.map(m => bot.formatUser(m.user)).join('\n'),
                 inline: false
-            }] : [],
+            }) : [],
         }))) return bot.intrReply({intr, embed: new EmbedBase(bot, {
                 description: `❌ **NFT Award Canceled**`,
             }).Error()});
@@ -326,27 +326,19 @@ class awardnft extends Command {
             description: `**${awarded.length} out of ${eligible.length} NFTs** were awarded`,
             thumbnail: { url: nft.thumbnailUrl },
             fields: [
-                ...(!!awarded.length ? [
-                    {
-                        name: '✅ Users Awarded',
-                        value: awarded.map(m => bot.formatUser(m.user)).join('\n'),
-                        inline: false
-                    }
-                ] : []),
-                ...(!!unawarded.length ? [
-                    {
-                        name: '⚠ Users Award FAILED',
-                        value: unawarded.map(m => bot.formatUser(m.user)).join('\n'),
-                        inline: false
-                    }
-                ] : []),
-                ...(!!ineligible.length ? [
-                    {
-                        name: '❌ Users Award INELIGIBLE',
-                        value: ineligible.map(m => bot.formatUser(m.user)).join('\n'),
-                        inline: false
-                    }
-                ] : []),
+                ...(!!awarded.length ? EmbedBase.splitField({
+                    name: '✅ Users Awarded',
+                    value: awarded.map(m => bot.formatUser(m.user)).join('\n'),
+                }) : []),
+                ...(!!unawarded.length ? EmbedBase.splitField({
+                    name: '⚠ Users Award FAILED',
+                    value: unawarded.map(m => bot.formatUser(m.user)).join('\n'),
+                 }) : []),
+                ...(!!ineligible.length ? EmbedBase.splitField({
+                    name: '❌ Users Award INELIGIBLE',
+                    value: ineligible.map(m => bot.formatUser(m.user)).join('\n'),
+                    inline: false
+                }) : []),
             ],
         });
         !unawarded.length ? embed.Success() : embed.Warn();
