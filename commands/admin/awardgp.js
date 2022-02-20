@@ -1,5 +1,6 @@
 import { Command, EmbedBase, LeylineUser, } from '../../classes';
 import * as Firebase from '../../api';
+import { partition } from 'lodash-es';
 
 class awardgp extends Command {
     constructor(bot) {
@@ -171,8 +172,8 @@ class awardgp extends Command {
             ...event && { description: other.description },
             fields: [
                 ...(event ? [
-                    other.connected,
-                    other.unconnected,
+                    other.eligible,
+                    other.ineligible,
                     { name:'\u200b', value:'\u200b' },
                 ] : []),
                 {
@@ -329,41 +330,52 @@ class awardgp extends Command {
      */
     async gpDropVC({intr, event_name, attendee_gp, ch, mentors=[], mentor_gp=null} = {}) {
         const { bot } = this;
-        const [connected, unconnected] = [[], []];
+        const voice_members = [];
         const ledger_message = `Attended ${event_name} Discord Event`;
-        //add a custom 'leyline' prop to each GuildMember in the vc
-        for(const member of (await bot.channels.fetch(ch.id, {force: true})).members.values())
-            await Firebase.isUserConnectedToLeyline(member.id)
-                ? connected.push(member)
-                : unconnected.push(member);
-        if(!connected.length && !unconnected.length) 
+        for(const member of (await bot.channels.fetch(ch.id, {force: true})).members.values()) {
+            voice_members.push(Object.assign(member, {
+                connected: await Firebase.isUserConnectedToLeyline(member.id),
+            }));
+        }
+        
+        if(!voice_members.length) 
             return bot.intrReply({intr, embed: new EmbedBase(bot, {
                 description: `❌ **There are no users in the ${ch.toString()} voice channel!**`,
             }).Error()});
 
+        const [eligible, ineligible] = partition(voice_members, m => m.connected && !m.voice.selfDeaf);
+
+        // this whole embed awardal thing needs to be refactored into its own class
+        const determineIneligibleEmoji = function (member) {
+            if(member?.voice?.selfDeaf) return bot.config.emoji.deafened;
+            if(member?.connected === false) return bot.config.emoji.unconnected;
+            return '❓';
+        };
+        
         //send confirm prompt with some custom values
         if(!(await this.sendConfirmPrompt({
             intr,
             ledger_message,
             gp: attendee_gp,
             event: true,
-            description: `**${connected.length} out of the ${connected.length + unconnected.length} users** in the voice channel have connected their Leyline & Discord accounts`,
-            connected: !!connected.length ? [{
-                name: '✅ Will Receive GP',
-                value: connected.map(m => 
+            description: `**Pre-Drop Summary**`,
+            eligible: !!eligible.length ? EmbedBase.splitField({
+                name: '✅ ELIGIBLE to Receive GP',
+                value: eligible.map(m => 
                     `${mentors.some(mentor => mentor?.id == m.id) ? '**[M]**' : ''} \
                      ${bot.formatUser(m.user)}`
                 ).join('\n'),
                 inline: false,
-            }] : [],
-            unconnected: !!unconnected.length ? [{
-                name: '❌ Will NOT Receive GP',
-                value: unconnected.map(m => 
-                    `${mentors.some(mentor => mentor?.id == m.id) ? '**[M]**' : ''} \
+            }) : [],
+            ineligible: !!ineligible.length ? EmbedBase.splitField({
+                name: '❌ INELIGIBLE to Receive GP',
+                value: ineligible.map(m => 
+                    `${determineIneligibleEmoji(m)} \
+                     ${mentors.some(mentor => mentor?.id == m.id) ? '**[M]**' : ''} \
                      ${bot.formatUser(m.user)}`
                 ).join('\n'),
                 inline: false,
-            }] : [],
+            }) : [],
         }))) return bot.intrReply({intr, embed: new EmbedBase(bot, {
                 description: `❌ **GP Award Canceled**`,
             }).Error()});
@@ -374,7 +386,7 @@ class awardgp extends Command {
 
         // award each member GP and log in private channels
         // store a prop noting whether the GP was awarded or not
-        for(const member of connected) {
+        for(const member of eligible) {
             let award_gp_obj = {
 				intr,
 				gp: attendee_gp,
@@ -394,34 +406,34 @@ class awardgp extends Command {
         }
 
         //sort award results into arrays for the follow-up response
-        const [awarded, unawarded] = [
-            connected.filter(m => m.awarded),
-            connected.filter(m => !m.awarded),
-        ];
+        const [awarded, unawarded] = partition(eligible, m => m.awarded);
 
         const embed = new EmbedBase(bot, {
-            description: `**${awarded.length} out of ${connected.length} users** received their GP`,
+            description: `**${awarded.length} out of ${eligible.length} users** received their GP`,
             fields: [
-                ...(!!awarded.length ? [
-                    {
-                        name: '✅ Users Awarded',
-                        value: awarded.map(m => 
-                            `${mentors.some(mentor => mentor?.id == m.id) ? '**[M]**' : ''} \
-                             ${bot.formatUser(m.user)}`
-                        ).join('\n'),
-                        inline: false,
-                    },
-                ] : []),
-                ...(!!unawarded.length ? [
-                    {
-                        name: '❌ Users NOT Awarded',
-                        value: unawarded.map(m => 
-                            `${mentors.some(mentor => mentor?.id == m.id) ? '**[M]**' : ''} \
-                             ${bot.formatUser(m.user)}`
-                        ).join('\n'),
-                        inline: false,
-                    },
-                ] : []),
+                ...(!!awarded.length ? EmbedBase.splitField({
+                    name: '✅ Users Awarded',
+                    value: awarded.map(m => 
+                        `${mentors.some(mentor => mentor?.id == m.id) ? '**[M]**' : ''} \
+                         ${bot.formatUser(m.user)}`
+                    ).join('\n'),
+                }) : []),
+                ...(!!unawarded.length ? EmbedBase.splitField({
+                    name: '⚠ Users Award FAILED',
+                    value: unawarded.map(m => 
+                        `${mentors.some(mentor => mentor?.id == m.id) ? '**[M]**' : ''} \
+                         ${bot.formatUser(m.user)}`
+                    ).join('\n'),
+                 }) : []),
+                ...(!!ineligible.length ? EmbedBase.splitField({
+                    name: '❌ Users Award INELIGIBLE',
+                    value: ineligible.map(m => 
+                        `${determineIneligibleEmoji(m)} \
+                         ${mentors.some(mentor => mentor?.id == m.id) ? '**[M]**' : ''} \
+                         ${bot.formatUser(m.user)}`
+                    ).join('\n'),
+                    inline: false
+                }) : []),
             ],
         });
         !unawarded.length ? embed.Success() : embed.Warn();
