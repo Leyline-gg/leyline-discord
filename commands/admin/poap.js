@@ -70,6 +70,13 @@ class poap extends Command {
         });
     };
 
+    async loadLatestCodes() {
+        const files = await fs.promises.readdir('cache/poap');
+        const file = files.sort((a, b) => Number(b.split('.')[0]) - Number(a.split('.')[0]))[0];
+        const codes = (await fs.promises.readFile(`cache/poap/${file}`, 'utf8')).split('\n');
+        return codes.filter(c => c.startsWith('http://POAP.xyz/claim/') || c.startsWith('https://POAP.xyz/claim/'));
+    }
+
     awardPOAP({user, code}) {
         const { bot } = this;
         return bot.sendDM({user, embed: new EmbedBase(bot, {
@@ -88,24 +95,30 @@ class poap extends Command {
 
     subcommands = {
         load: ({intr}) => {
-            const { bot, download } = this;
+            const { bot, download, loadLatestCodes } = this;
             const msgFilter = async function (msg) {
                 if(msg.channel.id !== intr.channelId ||
                     msg.author.id !== intr.user.id ||
                     !msg.attachments?.first()?.url?.toLowerCase()?.endsWith('.txt')) return;
                     
-                //disable this watcher
+                //disable this watcher & the inactivity timeout
                 bot.off('messageCreate', msgFilter);
+                clearTimeout(inactivity);
 
                 //delete the message
                 msg.delete();
 
+                //download the file
                 await download(msg.attachments.first().url, `cache/poap/${Date.now()}.txt`);
 
+                //load the file
+                const codes = await loadLatestCodes();
+                
+                //respond to user
                 bot.intrUpdate({
                     intr, 
                     embed: new EmbedBase(bot, {
-                        description: 'Codes loaded successfully. You may now run `/poap drop`',
+                        description: `✅ **I have successfully loaded ${codes.length} POAP codes and they are ready to be dropped.**`,
                     }).Success(),
                 });
             };
@@ -120,7 +133,7 @@ class poap extends Command {
             bot.on('messageCreate', msgFilter);
 
             //stop watching for messages after a period of time
-            setTimeout(() => {
+            const inactivity = setTimeout(() => {
                 bot.off('messageCreate', msgFilter);
                 bot.intrUpdate({
                     intr, 
@@ -129,11 +142,9 @@ class poap extends Command {
             }, 20000);
         },
         drop: async ({intr, opts}) => {
-            const { bot } = this;
-            const files = await fs.promises.readdir('cache/poap');
-            const file = files.sort((a, b) => Number(b.split('.')[0]) - Number(a.split('.')[0]))[0];
-            const codes = (await fs.promises.readFile(`cache/poap/${file}`, 'utf8')).split('\n');
-
+            const { bot, loadLatestCodes } = this;
+            
+            const codes = await loadLatestCodes();
             const ch = opts.getChannel('channel');
             const voice_members = [...(await bot.channels.fetch(ch.id, {force: true})).members.values()];
             if(!voice_members.length)
