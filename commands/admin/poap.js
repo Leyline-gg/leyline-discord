@@ -118,7 +118,7 @@ class poap extends Command {
                 bot.intrUpdate({
                     intr, 
                     embed: new EmbedBase(bot, {
-                        description: `✅ **I have successfully loaded ${codes.length} POAP codes and they are ready to be dropped.**`,
+                        description: `✅ **I have successfully loaded ${codes.length} POAP codes and they are ready to be dropped**`,
                     }).Success(),
                 });
             };

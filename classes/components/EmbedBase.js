@@ -40,14 +40,15 @@ export class EmbedBase extends MessageEmbed {
     // Ensure an embed stays within Discord's embed limits
     // https://discord.com/developers/docs/resources/channel#embed-limits
     cleanup() {
-        this.title &&= truncate(this.title, 255);
-        this.description &&= truncate(this.description, 4095);
+        this.title &&= truncate(this.title.trim(), 255);
+        this.description &&= truncate(this.description.trim(), 4095);
         this.fields = this.fields.slice(0, 25).map(f => ({
-            name: truncate(f.name, 255),
-            value: truncate(f.value, 1023),
+            ...f,
+            name: truncate(f.name.trim(), 255),
+            value: truncate(f.value.trim(), 1023),
         }));
-        this.footer.text &&= truncate(this.footer.text, 2047);
-        this.author.name &&= truncate(this.author.name, 255);
+        this.footer.text &&= truncate(this.footer.text.trim(), 2047);
+        this.author.name &&= truncate(this.author.name.trim(), 255);
 
         //TODO: if total sum of chars > 6000, embed is rejected
 
@@ -56,7 +57,8 @@ export class EmbedBase extends MessageEmbed {
 
     /**
      * Splits a single embed field into multiple fields if it exceeds the Discord embed limits.
-     * Each embed field will have the passed `args.name` with " (x of y)" appended to it.
+     * Each embed field will have the passed `args.name` with " (x of y)" appended to it,
+     * if multiple fields are created.
      * @param {Object} args Destructured arguments
      * @param {string} args.name Name of the embed field
      * @param {string} args.value Value of the embed field
@@ -74,7 +76,7 @@ export class EmbedBase extends MessageEmbed {
                 return acc;
             }, [[]])
             .map((v, i, a) => ({
-                name: `${name} (${i + 1} of ${a.length})`,
+                name: `${name} ${a.length > 1 ? `(${i + 1} of ${a.length})` : ''}`,
                 value: v.join(separator),
                 inline,
             }));
