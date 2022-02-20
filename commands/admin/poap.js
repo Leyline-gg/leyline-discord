@@ -1,6 +1,7 @@
 import { Command, EmbedBase, } from '../../classes';
 import fs from 'node:fs';
 import https from 'node:https';
+import { partition } from 'lodash-es';
 
 class poap extends Command {
     constructor(bot) {
@@ -125,37 +126,36 @@ class poap extends Command {
             const codes = (await fs.promises.readFile(`cache/poap/${file}`, 'utf8')).split('\n');
 
             const ch = opts.getChannel('channel');
-            const members = [...(await bot.channels.fetch(ch.id, {force: true})).members.values()];
-            if(!members.length)
+            const voice_members = [...(await bot.channels.fetch(ch.id, {force: true})).members.values()];
+            if(!voice_members.length)
                 return bot.intrReply({
                     intr, 
                     embed: new EmbedBase(bot).ErrorDesc(`There are no users in the ${ch.toString()} voice channel!`),
                 });
-            if(codes.length < members.length)
+            if(codes.length < voice_members.length)
                 return bot.intrReply({
                     intr, 
                     embed: new EmbedBase(bot).ErrorDesc(`There are not enough codes for the number of users in the ${ch.toString()} voice channel!`),
                 });
 
+            const [eligible, ineligible] = partition(voice_members, m => !m.voice.selfDeaf);
+
             //start typing in channel because award process will take some time
             //this improves user experience
             intr.channel.sendTyping();
 
-            for(const member of members) {
+            for(const member of eligible) 
                 member.awarded = await this.awardPOAP({
                     user: member,
                     code: codes.shift(),
                 });
-            }
+            
             
             //sort award results into arrays for the follow-up response
-            const [awarded, unawarded] = [
-                members.filter(m => m.awarded),
-                members.filter(m => !m.awarded)
-            ];
+            const [awarded, unawarded] = partition(eligible, m => m.awarded);
 
             const embed = new EmbedBase(bot, {
-                description: `**${awarded.length} out of ${members.length} POAPs** were awarded`,
+                description: `**${awarded.length} out of ${eligible.length} POAPs** were awarded`,
                 //thumbnail: { url: nft.thumbnailUrl },
                 fields: [
                     ...(!!awarded.length ? [
@@ -167,8 +167,15 @@ class poap extends Command {
                     ] : []),
                     ...(!!unawarded.length ? [
                         {
-                            name: '❌ Users NOT Awarded',
+                            name: '⚠ Users Award FAILED',
                             value: unawarded.map(m => bot.formatUser(m.user)).join('\n'),
+                            inline: false
+                        }
+                    ] : []),
+                    ...(!!ineligible.length ? [
+                        {
+                            name: '❌ Users Award INELIGIBLE',
+                            value: ineligible.map(m => bot.formatUser(m.user)).join('\n'),
                             inline: false
                         }
                     ] : []),
