@@ -118,6 +118,15 @@ class poap extends Command {
             });
 
             bot.on('messageCreate', msgFilter);
+
+            //stop watching for messages after a period of time
+            setTimeout(() => {
+                bot.off('messageCreate', msgFilter);
+                bot.intrUpdate({
+                    intr, 
+                    embed: new EmbedBase(bot).ErrorDesc('Load command cancelled due to inactivity'),
+                });
+            }, 20000);
         },
         drop: async ({intr, opts}) => {
             const { bot } = this;
