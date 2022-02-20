@@ -89,6 +89,8 @@ export default {
             },
             emoji: {
                 leyline_logo: '<:LeylineLogo:846152082226282506>',
+                deafened: '<:deafened:945040413901852723>',
+                unconnected: '<:unconnected:945042216764727326>',
             },
             // LeylineBot.checkMod() returns true if user has any of these roles
             mod_roles: [
@@ -173,6 +175,8 @@ export default {
 			},
 			emoji: {
 				leyline_logo: '<:LeylineLogo:859111140696391680>',
+                deafened: '<:deafened:945042605438279723>',
+                unconnected: '<:unconnected:945042427624955904>',
 			},
 			mod_roles: [
 				'858144532318519326', //Leyline Staff

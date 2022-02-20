@@ -270,11 +270,11 @@ class awardnft extends Command {
     async nftDropVC({intr, nft, ch} = {}) {
         const { bot } = this;
         const voice_members = [];
-        for(const member of (await bot.channels.fetch(ch.id, {force: true})).members.values()) 
-            voice_members.push({
-                ...member,
+        for(const member of (await bot.channels.fetch(ch.id, {force: true})).members.values()) {
+            voice_members.push(Object.assign(member, {
                 connected: await Firebase.isUserConnectedToLeyline(member.id),
-            });
+            }));
+        }
         
         if(!voice_members.length) 
             return bot.intrReply({intr, embed: new EmbedBase(bot, {
@@ -282,6 +282,13 @@ class awardnft extends Command {
             }).Error()});
 
         const [eligible, ineligible] = partition(voice_members, m => m.connected && !m.voice.deaf);
+
+        // this whole embed awardal thing needs to be refactored into its own class
+        const determineIneligibleEmoji = function (member) {
+            if(member?.voice?.selfDeaf) return bot.config.emoji.deafened;
+            if(member?.connected === false) return bot.config.emoji.unconnected;
+            return '❓';
+        };
 
         //send confirm prompt with some custom values
         if(!(await this.sendConfirmPrompt({
@@ -296,7 +303,7 @@ class awardnft extends Command {
             }) : [],
             ineligible: !!ineligible.length ? EmbedBase.splitField({
                 name: '❌ INELIGIBLE to Receive NFT',
-                value: ineligible.map(m => bot.formatUser(m.user)).join('\n'),
+                value: ineligible.map(m => `${determineIneligibleEmoji(m)} ${bot.formatUser(m.user)}`).join('\n'),
                 inline: false
             }) : [],
         }))) return bot.intrReply({intr, embed: new EmbedBase(bot, {
@@ -336,7 +343,7 @@ class awardnft extends Command {
                  }) : []),
                 ...(!!ineligible.length ? EmbedBase.splitField({
                     name: '❌ Users Award INELIGIBLE',
-                    value: ineligible.map(m => bot.formatUser(m.user)).join('\n'),
+                    value: ineligible.map(m => `${determineIneligibleEmoji(m)} ${bot.formatUser(m.user)}`).join('\n'),
                     inline: false
                 }) : []),
             ],

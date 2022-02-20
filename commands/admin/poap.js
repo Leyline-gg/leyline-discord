@@ -174,6 +174,12 @@ class poap extends Command {
             //sort award results into arrays for the follow-up response
             const [awarded, unawarded] = partition(eligible, m => m.awarded);
 
+            // this whole embed awardal thing needs to be refactored into its own class
+            const determineIneligibleEmoji = function (member) {
+                if(member?.voice?.selfDeaf) return bot.config.emoji.deafened;
+                if(member?.connected === false) return bot.config.emoji.unconnected;
+                return '❓';
+            };
             const embed = new EmbedBase(bot, {
                 description: `**${awarded.length} out of ${eligible.length} POAPs** were awarded`,
                 //thumbnail: { url: nft.thumbnailUrl },
@@ -188,8 +194,8 @@ class poap extends Command {
                      }) : []),
                     ...(!!ineligible.length ? EmbedBase.splitField({
                         name: '❌ Users Award INELIGIBLE',
-                        value: ineligible.map(m => bot.formatUser(m.user)).join('\n'),
-                        inline: false
+                        value: ineligible.map(m => `${determineIneligibleEmoji(m)} ${bot.formatUser(m.user)}`).join('\n'),
+                        inline: false,
                     }) : []),
                 ],
             });

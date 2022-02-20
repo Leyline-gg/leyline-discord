@@ -345,6 +345,13 @@ class awardgp extends Command {
 
         const [eligible, ineligible] = partition(voice_members, m => m.connected && !m.voice.selfDeaf);
 
+        // this whole embed awardal thing needs to be refactored into its own class
+        const determineIneligibleEmoji = function (member) {
+            if(member?.voice?.selfDeaf) return bot.config.emoji.deafened;
+            if(member?.connected === false) return bot.config.emoji.unconnected;
+            return '❓';
+        };
+        
         //send confirm prompt with some custom values
         if(!(await this.sendConfirmPrompt({
             intr,
@@ -363,7 +370,8 @@ class awardgp extends Command {
             ineligible: !!ineligible.length ? EmbedBase.splitField({
                 name: '❌ INELIGIBLE to Receive GP',
                 value: ineligible.map(m => 
-                    `${mentors.some(mentor => mentor?.id == m.id) ? '**[M]**' : ''} \
+                    `${determineIneligibleEmoji(m)} \
+                     ${mentors.some(mentor => mentor?.id == m.id) ? '**[M]**' : ''} \
                      ${bot.formatUser(m.user)}`
                 ).join('\n'),
                 inline: false,
@@ -405,15 +413,25 @@ class awardgp extends Command {
             fields: [
                 ...(!!awarded.length ? EmbedBase.splitField({
                     name: '✅ Users Awarded',
-                    value: awarded.map(m => bot.formatUser(m.user)).join('\n'),
+                    value: awarded.map(m => 
+                        `${mentors.some(mentor => mentor?.id == m.id) ? '**[M]**' : ''} \
+                         ${bot.formatUser(m.user)}`
+                    ).join('\n'),
                 }) : []),
                 ...(!!unawarded.length ? EmbedBase.splitField({
                     name: '⚠ Users Award FAILED',
-                    value: unawarded.map(m => bot.formatUser(m.user)).join('\n'),
+                    value: unawarded.map(m => 
+                        `${mentors.some(mentor => mentor?.id == m.id) ? '**[M]**' : ''} \
+                         ${bot.formatUser(m.user)}`
+                    ).join('\n'),
                  }) : []),
                 ...(!!ineligible.length ? EmbedBase.splitField({
                     name: '❌ Users Award INELIGIBLE',
-                    value: ineligible.map(m => bot.formatUser(m.user)).join('\n'),
+                    value: ineligible.map(m => 
+                        `${determineIneligibleEmoji(m)} \
+                         ${mentors.some(mentor => mentor?.id == m.id) ? '**[M]**' : ''} \
+                         ${bot.formatUser(m.user)}`
+                    ).join('\n'),
                     inline: false
                 }) : []),
             ],
