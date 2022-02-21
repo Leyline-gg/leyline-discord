@@ -246,7 +246,7 @@ export class ReactionCollectorBase {
 	processAttachment(attachment) {
 		this.attachment = attachment;
 		if(!attachment) return false;
-		const { url } = attachment;
+		const url = attachment.url.toLowerCase();
 		if (url.endsWith('.png') || url.endsWith('.jpg') || url.endsWith('.jpeg') || url.endsWith('.webp')) {
 			this.media_type = 'photo';
 			return true;
