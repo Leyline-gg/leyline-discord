@@ -28,7 +28,7 @@ export class GoodActsReactionCollector extends ReactionCollectorBase {
 			msg,
 		});
 		this.msg._cache = { reacted_users: [] }; 
-		this.processAttachment(msg.attachments.first()?.url);   //set media vars
+		this.processAttachment(msg.attachments.first());   //set media vars
 	}
 
 	// Callback specific to this Collector class
@@ -73,7 +73,7 @@ export class GoodActsReactionCollector extends ReactionCollectorBase {
 				content: `<@&${CTA_ROLE}> 🚨 **NEW APPROVED ${this.media_type.toUpperCase()}!!** 🚨`,
 				embed: new EmbedBase(bot, {
 					description: `A new ${this.media_type} was approved! Click [here](${msg.url} 'view message') to view the message.\nBe sure to react within 24 hours to get your GP!`,
-					thumbnail: { url: this.media_type === 'photo' ? msg.attachments.first().url : this.media_placeholder },
+					thumbnail: { url: this.media_type === 'photo' ? this.attachment.url : this.media_placeholder },
 				}),
 			});
 
@@ -168,7 +168,7 @@ export class GoodActsReactionCollector extends ReactionCollectorBase {
 			msg.reactions.cache.each(reaction => reaction.users.remove(bot.user));
 
 			//store the image locally
-			this.media_type === 'photo' && ImageService.storeImage(msg.attachments.first().url, `good_acts/${msg.id}`);
+			this.media_type === 'photo' && ImageService.storeImage(this.attachment.url, `good_acts/${msg.id}`);
 			return this;
 		} catch(err) { 
 			bot.logger.error(err);

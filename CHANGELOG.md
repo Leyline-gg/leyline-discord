@@ -1,4 +1,40 @@
-# [2.8.0](https://github.com/Leyline-gg/leyline-discord/releases/tag/v2.8.0) (2021-12-20)
+# [2.9.0](https://github.com/Leyline-gg/leyline-discord/releases/tag/v2.9.0) (2022-02-20)
+
+## Dev Notes
+This update includes several QoL changes and bug fixes. Most changes are targeted at the automated drop system for live events.
+For the purpose of these release notes, "awardal commands" refers to the command trio `awardnft`, `awardgp`, and `poap`.
+
+## New Features
+- `awardgp` command for server staff members to award Good Points straight from Discord
+  - Two subcommands: `channel` and `user` (very similar in practice to `awardnft`)
+  - `channel` subcommand:
+    - Automatic Good Point drops during live events
+    - Requires an `event-name` parameter which will be displayed in the attendee's permanent GP ledger
+    - Supports 0-5 mentors with a separate mentor GP input
+    - Default attendee GP is 500, default mentor GP is 1000
+  - `user` subcommand:
+    - Manual Good Point awardal to individual users
+    - Requires a `ledger-message` which will be displayed in the user's permanent GP ledger
+- `poap load` now displays the number of codes after loading a codes file
+
+## Existing Feature Changes
+- Awardal commands that include a Pre-Drop Summary now display a more detailed list of users eligible for drops
+  - Ineligibility reasons are included in this summary
+- The Post-Drop Summary for awardal commands now includes three fields for the following categories:
+  - Users who successfully received an award
+  - Users who unsuccessfully received an award (programmatic error)
+  - Users who were ineligible to receive an award (repeat of the previously sent pre-drop summary)
+- Improved handling of POAP codes during the loading & distribution processes
+
+## Bug Fixes
+- Embeds not being sent during certain commands, notably `poap drop`
+- #good-acts submission analysis not being performed for valid submissions
+- Rare cases of valid #good-acts submissions being automatically rejected for invalid attachment type
+- `ban` command not logging properly
+- `poap load` command indefinitely waiting for a codes file (now stops waiting after 20sec)
+- Cached files being deleted during new releases
+
+# [2.8.0](https://github.com/Leyline-gg/leyline-discord/releases/tag/v2.8.0) (2022-01-21)
 
 ## Dev Notes
 Introduces POAP Drop Functionality

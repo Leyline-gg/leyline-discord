@@ -16,6 +16,7 @@ export default class extends DiscordEvent {
 	 * @returns {boolean}
 	 */
 	 validateAttachment(url) {
+		url = url.toLowerCase();
 		if (url.endsWith('.png') || url.endsWith('.jpg') || url.endsWith('.jpeg') || url.endsWith('.webp'))
 			return true;
 		if (url.endsWith('.mp4') || url.endsWith('.mpg') || url.endsWith('.mov'))
