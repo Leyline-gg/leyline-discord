@@ -34,7 +34,7 @@ For the purpose of these release notes, "awardal commands" refers to the command
 - `poap load` command indefinitely waiting for a codes file (now stops waiting after 20sec)
 - Cached files being deleted during new releases
 
-# [2.8.0](https://github.com/Leyline-gg/leyline-discord/releases/tag/v2.8.0) (2021-12-20)
+# [2.8.0](https://github.com/Leyline-gg/leyline-discord/releases/tag/v2.8.0) (2022-01-21)
 
 ## Dev Notes
 Introduces POAP Drop Functionality
