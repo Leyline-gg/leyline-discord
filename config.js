@@ -56,6 +56,14 @@ export default {
                             permission: true,
                         },
                     ],
+                    awardgp: [
+                        {
+                            // *drops
+                            id: '914629494319501332',
+                            type: 'ROLE',
+                            permission: true,
+                        },
+                    ],
                     poap: [
                         {
                             // *drops
