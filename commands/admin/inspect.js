@@ -35,40 +35,40 @@ class inspect extends Command {
                 {
                     name: 'User Joined Discord',
                     value: bot.formatTimestamp(user.createdTimestamp),
-                    inline: true
+                    inline: true,
                 },
                 {
                     name: 'User Joined Server',
                     value: bot.formatTimestamp(member.joinedTimestamp),
-                    inline: true
+                    inline: true,
                 },
-                { name: '\u200b', value: '\u200b', inline: true },
+                { name: '\u200b', value: '\u200b', inline: true, },
                 {
                     name: 'Leyline Acct Connected',
                     value: `${!!lldoc ? bot.formatTimestamp((await Firebase.getDiscordDoc(user.id)).connectedLeylineAt.toMillis()) : 'N/A'}`,
-                    inline: true
+                    inline: true,
                 },
                 {
                     name: 'Leyline Username',
                     value: `${!!lldoc ? lldoc?.username || `leylite#${llid}`.substring(0, 15) : 'N/A'}`,
-                    inline: true
+                    inline: true,
                 },
-                { name: '\u200b', value: '\u200b', inline: true },
+                { name: '\u200b', value: '\u200b', inline: true, },
                 {
                     name: 'GP Balance',
                     value: `${!!lldoc ? await Firebase.getPointsBalance(llid) : 'N/A'}`,
-                    inline: true
+                    inline: true,
                 },
                 {
                     name: 'Leyline Email',
                     value: `${!!lldoc ? (await Firebase.getFirestoreUser(llid))?.email : 'N/A'}`,
-                    inline: true
+                    inline: true,
                 },
-                { name: '\u200b', value: '\u200b', inline: true },                
+                { name: '\u200b', value: '\u200b', inline: true, },                
                 {
                     name: 'Metamask Wallet',
                     value: `${!!lldoc ? lldoc?.metamaskAddress : 'N/A'}`,
-                    inline: true
+                    inline: true,
                 },
             ],
         })});
