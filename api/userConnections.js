@@ -38,6 +38,15 @@ export const getDiscordDoc = async function (discord_uid, include_metadata = fal
 }
 
 /**
+ * Retrieves the `UserRecord` for a given leyline user 
+ * @param {String} leyline_uid Leyline UID of the user to retrieve the `UserRecord` for
+ * @returns {Promise<UserRecord>} 
+ */
+export const getFirestoreUser = async function (leyline_uid) {
+    return await admin.auth().getUser(leyline_uid);
+};
+
+/**
  * Creates a discord user under discord/bot/users
  * @param {String} discord_uid UID of the discord user to create
  * @returns {Promise<boolean>} `true` if succesfully created, `false` if not
