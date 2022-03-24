@@ -67,7 +67,7 @@ class inspect extends Command {
                 { name: '\u200b', value: '\u200b', inline: true, },                
                 {
                     name: 'Metamask Wallet',
-                    value: `${!!lldoc ? lldoc?.metamaskAddress : 'N/A'}`,
+                    value: `${!!lldoc?.metamaskAddress ? lldoc.metamaskAddress : 'N/A'}`,
                     inline: true,
                 },
             ],
