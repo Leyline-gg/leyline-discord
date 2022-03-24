@@ -27,19 +27,29 @@ export class EmbedBase extends MessageEmbed {
             image,
             timestamp,
             footer: {
-                text: `${footer &&= footer + '  •  '}LeylineBot ${bot.CURRENT_VERSION}`,
+                text: `${typeof footer === 'string' ? footer &&= footer + '  •  ' : ''}LeylineBot ${bot.CURRENT_VERSION}`,
                 icon_url: bot.user.avatarURL(),
             },
             ...other,
         });
-        this.cleanup();
+        return this.cleanup(bot);
+    }
+
+    get char_count() {
+        // console.log(this.fields.reduce((acc, f) => acc + f.name.length + f.value.length, 0));
+        // console.log(this.fields);
+        return (this.title?.length || 0) + 
+            (this.description?.length || 0) + 
+            (this.footer.text?.length || 0) + 
+            (this.author.name?.length || 0) + 
+            this.fields.reduce((acc, f) => acc + f.name.length + f.value.length, 0);
     }
 
     // --------- Utility ---------
     
     // Ensure an embed stays within Discord's embed limits
     // https://discord.com/developers/docs/resources/channel#embed-limits
-    cleanup() {
+    cleanup(bot=null) {
         this.title &&= truncate(this.title.trim(), 255);
         this.description &&= truncate(this.description.trim(), 4095);
         this.fields = this.fields.slice(0, 25).map(f => ({
@@ -50,9 +60,26 @@ export class EmbedBase extends MessageEmbed {
         this.footer.text &&= truncate(this.footer.text.trim(), 2047);
         this.author.name &&= truncate(this.author.name.trim(), 255);
 
-        //TODO: if total sum of chars > 6000, embed is rejected
+        if(this.char_count > 6000) 
+            return this.splitEmbed({bot, ...this});
 
         return this;
+    }
+
+    /**
+     * Recursively splits an embed into multiple embeds if it exceeds the Discord embed limits.
+     * @returns {EmbedBase[]} An array of split embeds
+     */
+    splitEmbed({bot, fields=this.fields, embeds=[], ...other} = {}) {
+        if(!fields.length) return embeds;
+        const embed = new EmbedBase(bot, other);
+        embeds.push(embed);
+        while(embed.char_count < 6000 && !!fields.length) {
+            embed.fields.push(fields.shift());
+        }
+        //remove the last field of this embed because we ended up going over 6000 when exiting the loop
+        if(embed.char_count > 6000) fields.unshift(embed.fields.pop());
+        return this.splitEmbed({bot, fields, embeds});
     }
 
     /**

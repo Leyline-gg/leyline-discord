@@ -24,6 +24,7 @@ class inspect extends Command {
         const user = opts.getUser('user') || intr.user;
         const member = await bot.leyline_guild.members.fetch(user);
         const llid = await Firebase.getLeylineUID(user.id);
+        const lldoc = !!llid && await Firebase.getLeylineDoc(llid);
 
         bot.intrReply({intr, embed: new EmbedBase(bot, {
             author: {
@@ -34,28 +35,40 @@ class inspect extends Command {
                 {
                     name: 'User Joined Discord',
                     value: bot.formatTimestamp(user.createdTimestamp),
-                    inline: true
+                    inline: true,
                 },
                 {
                     name: 'User Joined Server',
                     value: bot.formatTimestamp(member.joinedTimestamp),
-                    inline: true
+                    inline: true,
                 },
-                { name: '\u200b', value: '\u200b', inline: true },
+                { name: '\u200b', value: '\u200b', inline: true, },
                 {
                     name: 'Leyline Acct Connected',
-                    value: `${!!llid ? bot.formatTimestamp((await Firebase.getDiscordDoc(user.id)).connectedLeylineAt.toMillis()) : 'N/A'}`,
-                    inline: true
+                    value: `${!!lldoc ? bot.formatTimestamp((await Firebase.getDiscordDoc(user.id)).connectedLeylineAt.toMillis()) : 'N/A'}`,
+                    inline: true,
                 },
                 {
                     name: 'Leyline Username',
-                    value: `${!!llid ? (await Firebase.getLeylineDoc(llid))?.username || `leylite#${llid}`.substring(0, 15) : 'N/A'}`,
-                    inline: true
+                    value: `${!!lldoc ? lldoc?.username || `leylite#${llid}`.substring(0, 15) : 'N/A'}`,
+                    inline: true,
                 },
+                { name: '\u200b', value: '\u200b', inline: true, },
                 {
                     name: 'GP Balance',
-                    value: `${!!llid ? await Firebase.getPointsBalance(llid) : 'N/A'}`,
-                    inline: true
+                    value: `${!!lldoc ? await Firebase.getPointsBalance(llid) : 'N/A'}`,
+                    inline: true,
+                },
+                {
+                    name: 'Leyline Email',
+                    value: `${!!lldoc ? (await Firebase.getFirestoreUser(llid))?.email : 'N/A'}`,
+                    inline: true,
+                },
+                { name: '\u200b', value: '\u200b', inline: true, },                
+                {
+                    name: 'Metamask Wallet',
+                    value: `${!!lldoc ? lldoc?.metamaskAddress : 'N/A'}`,
+                    inline: true,
                 },
             ],
         })});

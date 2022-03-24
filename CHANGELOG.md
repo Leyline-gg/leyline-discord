@@ -1,3 +1,15 @@
+# [2.9.1](https://github.com/Leyline-gg/leyline-discord/releases/tag/v2.9.1) (2022-03-23)
+
+## Dev Notes
+A minor update to address some small QoL issues.
+
+## New Features
+- `inspect` command now shows the target user's Leyline email and Metamask wallet address, if connected
+
+## Bug Fixes
+- `awardgp` command result embed formatting improperly, sometimes causing the command to not work
+- Embeds for other commands and events being formatted improperly
+
 # [2.9.0](https://github.com/Leyline-gg/leyline-discord/releases/tag/v2.9.0) (2022-02-20)
 
 ## Dev Notes
