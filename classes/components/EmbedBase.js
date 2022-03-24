@@ -27,7 +27,7 @@ export class EmbedBase extends MessageEmbed {
             image,
             timestamp,
             footer: {
-                text: `${footer &&= footer + '  •  '}LeylineBot ${bot.CURRENT_VERSION}`,
+                text: `${typeof footer === 'string' ? footer &&= footer + '  •  ' : ''}LeylineBot ${bot.CURRENT_VERSION}`,
                 icon_url: bot.user.avatarURL(),
             },
             ...other,
