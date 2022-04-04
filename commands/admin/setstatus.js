@@ -34,7 +34,6 @@ class setstatus extends Command {
     }
 
     run({intr, opts}) {
-        const { bot } = this;
         const status_name = opts.getString('text');
 
         bot.user.setPresence({activities:[

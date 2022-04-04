@@ -106,7 +106,6 @@ class awardgp extends Command {
 
     subcommands = {
         user: async ({intr, opts}) => {
-            const { bot } = this;
             const [user, gp, ledger_message] = [
                 opts.getUser('user'),
                 opts.getInteger('gp'),
@@ -129,7 +128,6 @@ class awardgp extends Command {
             return;
         },
         channel: ({intr, opts}) => {
-            const { bot } = this;
 
             const [event_name, attendee_gp, mentors, mentor_gp] = [
                 opts.getString('event-name'),
@@ -165,7 +163,6 @@ class awardgp extends Command {
      * @returns {Promise<boolean>} `true` if the prompt was confirmed by the user, `false` otherwise
      */
     sendConfirmPrompt({intr, ledger_message, gp, lluser, event=false, ...other} = {}) {
-        const { bot } = this;
         return bot.intrConfirm({intr, embed: new EmbedBase(bot, {
             title: 'Confirm GP Award',
             //to whoever happens to read this in the future: sorry for the syntax :(
@@ -207,7 +204,6 @@ class awardgp extends Command {
      * @returns {Promise<boolean>} `true` if GP was awarded and logs succesfully issued, `false` otherwise
      */
     async awardGP({intr, gp, ledger_message, user, lluser, update_intr=true} = {}) {
-        const { bot } = this;
         try {
             //Award good points to the user
             await Firebase.awardPoints(lluser.uid, gp, {
@@ -304,7 +300,6 @@ class awardgp extends Command {
      * @returns {Promise<true>} Promise that resolves to true after message has been sent (not delivered) 
      */
     async messageUser({user, gp} = {}) {
-        const { bot } = this;
         bot.sendDM({user, embed: new EmbedBase(bot, {
             fields: [
                 {
@@ -329,7 +324,6 @@ class awardgp extends Command {
      * @returns {Promise<void>} promise that resolves when function execution is complete
      */
     async gpDropVC({intr, event_name, attendee_gp, ch, mentors=[], mentor_gp=null} = {}) {
-        const { bot } = this;
         const voice_members = [];
         const ledger_message = `Attended ${event_name} Discord Event`;
         for(const member of (await bot.channels.fetch(ch.id, {force: true})).members.values()) {

@@ -15,7 +15,6 @@ class history extends JusticeCommand {
 
     //Override parent
     async executeSentence({intr, user}) {
-        const { bot } = this;
         const mod = bot.checkMod(user.id);  //we use this twice below
         return bot.intrReply({
             intr, 
@@ -32,7 +31,7 @@ class history extends JusticeCommand {
     }
 
     async run({intr, opts}) {
-        const { bot, sentence_type } = this;
+        const { sentence_type } = this;
         const { SENTENCE_TYPES } = SentenceService;
 
         const { user } = super.parseInput(opts);

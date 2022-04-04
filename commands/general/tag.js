@@ -29,7 +29,7 @@ class tag extends Command {
     }
 
     async run({intr, opts}) {
-        const { bot, TAGS } = this;
+        const { TAGS } = this;
         await TAGS.awaitReady();   //ensure tags have been loaded
 
         const tagname = opts.getString('tagname');

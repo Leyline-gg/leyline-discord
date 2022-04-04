@@ -11,7 +11,6 @@ class ApproveGoodAct extends Command {
     }
 
     async run({intr, msg}) {
-        const { bot } = this;
 
         //Input Validations
         const cloud_collector = await Firebase.fetchCollector(msg.id);

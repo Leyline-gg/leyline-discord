@@ -1,5 +1,6 @@
 import * as Firebase from '../../api';
 import { EmbedBase, CloudConfig, ImageService } from '../';
+import bot from '../../bot';
 
 export class ReactionCollectorBase {
     get APPROVAL_WINDOW() { return CloudConfig.get('ReactionCollector').APPROVAL_WINDOW; }	//(hours) how long the mods have to approve a photo
@@ -17,7 +18,7 @@ export class ReactionCollectorBase {
 	} */
 	get MOD_EMOJIS() { 
 		return CloudConfig.get('ReactionCollector').MOD_EMOJIS
-			.map(this.bot.constructEmoji)
+			.map(bot.constructEmoji)
 			.sort((a, b) => (
 				{position: Number.MAX_VALUE, ...a}.position -
 				{position: Number.MAX_VALUE, ...b}.position
@@ -31,7 +32,6 @@ export class ReactionCollectorBase {
 		type,	//ReactionCollector.Collectors
 		...other
     }) {
-        this.bot = bot;
 		this.msg = msg;
 		this.id = msg.id;
 		this.type = type;
@@ -62,7 +62,7 @@ export class ReactionCollectorBase {
 	}
 
 	setupModReactionCollector({from_firestore = false, duration = this.APPROVAL_WINDOW * 3600 * 1000} = {}) {
-		const { bot, msg } = this;
+		const { msg } = this;
 
 		//create Firestore doc only if it we aren't already loading one from cache
         !from_firestore && /*await*/ Firebase.createCollector(this);
@@ -109,7 +109,7 @@ export class ReactionCollectorBase {
 	 * @returns {ReactionCollectorBase} This class itself
 	 */
 	setupApprovedCollector({duration = this.REACTION_WINDOW * 3600 * 1000} = {}) {
-		const { bot, msg } = this;
+		const { msg } = this;
         //create collector to watch for user reactions
 		this.collector = msg.createReactionCollector({ 
 			filter: async (reaction, user) => !(await this.hasUserPreviouslyReacted({reaction, user})),
@@ -144,7 +144,7 @@ export class ReactionCollectorBase {
 	 * @param {Object} [args.embed_data] Embed data to be sent in the approval message
 	 */
 	logApproval({user, embed_data} = {}) {
-		const { bot, msg } = this;
+		const { msg } = this;
 
 		//log rejection using bot method
 		bot.logSubmission({
@@ -183,7 +183,7 @@ export class ReactionCollectorBase {
 	 * @param {Object} [args.embed_data] Embed data to be sent in the rejection message
 	 */
 	logRejection({user, embed_data} = {}) {
-		const { bot, msg } = this;
+		const { msg } = this;
 
 		//log rejection using bot method
 		bot.logSubmission({
@@ -221,7 +221,7 @@ export class ReactionCollectorBase {
 	 * @param {User} args.user Discord.js `User` that rejected the submission
 	 */
 	rejectSubmission({user}) {
-		const { bot, msg } = this;
+		const { msg } = this;
 
 		//end the modReactionCollector
 		this.collector.stop();
@@ -267,7 +267,6 @@ export class ReactionCollectorBase {
 	 * @returns 
 	 */
 	 handleUnconnectedAccount(user, {dm, log} = {}) {
-		const { bot } = this;
 		bot.sendDM({user, embed: new EmbedBase(bot, {
 			fields: [
 				{
@@ -299,7 +298,7 @@ export class ReactionCollectorBase {
      * @param {string} args.pog "Proof of good" - message to display in GP history
 	 */
 	async awardApprovalGP({user, approver, pog}) {
-		const { bot, msg } = this;
+		const { msg } = this;
 
 		await Firebase.awardPoints(await Firebase.getLeylineUID(user.id), this.APPROVAL_GP, {
 			category: pog,
@@ -338,7 +337,7 @@ export class ReactionCollectorBase {
      * @param {string} [args.pog] "Proof of good" - message to display in GP history
 	 */
 	async awardReactionGP({user, pog=`Discord <a href="${this.msg.url}">Moral Support</a>`}) {
-		const { bot, msg } = this;
+		const { msg } = this;
 
 		//new user reacted, award GP
 		await Firebase.awardPoints(await Firebase.getLeylineUID(user.id), this.REACTION_GP, {
@@ -376,7 +375,7 @@ export class ReactionCollectorBase {
      * @param {string} args.pog "Proof of good" - message to display in GP history
 	 */
 	async awardAuthorReactionGP({user, pog}) {
-		const { bot, msg } = this;
+		const { msg } = this;
 		//new user reacted, award GP
 		await Firebase.awardPoints(await Firebase.getLeylineUID(msg.author.id), this.REACTION_GP, {
 			category: pog,
@@ -416,7 +415,7 @@ export class ReactionCollectorBase {
 	 */
 	async createThread({duration = 1, return_thread=false} = {}) {
 		duration *= 24 * 60;	//convert days to minutes
-		const { bot, msg, media_type } = this;
+		const { msg, media_type } = this;
 		return await msg.startThread({
 			name: `${media_type[0].toUpperCase() + media_type.slice(1)} from ${msg.member.displayName}`.substr(0, 100),
 			autoArchiveDuration: duration,
@@ -496,7 +495,7 @@ export class ReactionCollectorBase {
 	 */
 	async imageSearch() {
 		//can be expaned to multiple images by iterating through msg.attachments
-		const { bot, thread, attachment } = this;
+		const { thread, attachment } = this;
 		try {
 			if(!attachment) throw new Error('No attachments found on msg');
 			const res = await ImageService.searchWeb(

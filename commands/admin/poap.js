@@ -78,7 +78,6 @@ class poap extends Command {
     }
 
     awardPOAP({user, code}) {
-        const { bot } = this;
         return bot.sendDM({user, embed: new EmbedBase(bot, {
             //thumbnail: { url: nft.thumbnailUrl },
             fields: [
@@ -95,7 +94,7 @@ class poap extends Command {
 
     subcommands = {
         load: ({intr}) => {
-            const { bot, download, loadLatestCodes } = this;
+            const { download, loadLatestCodes } = this;
             const msgFilter = async function (msg) {
                 if(msg.channel.id !== intr.channelId ||
                     msg.author.id !== intr.user.id ||
@@ -142,7 +141,7 @@ class poap extends Command {
             }, 20000);
         },
         drop: async ({intr, opts}) => {
-            const { bot, loadLatestCodes } = this;
+            const { loadLatestCodes } = this;
             
             const codes = await loadLatestCodes();
             const ch = opts.getChannel('channel');

@@ -76,7 +76,6 @@ class poll extends Command {
     }
 
     async run({intr, opts}) {
-        const { bot } = this;
         const [duration, question] = [opts.getNumber('duration'), opts.getString('question')];
         
         //validate args

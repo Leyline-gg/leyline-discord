@@ -20,7 +20,6 @@ class profile extends Command {
     }
 
     async run({intr, opts}) {
-        const { bot } = this;
         // Functions
         /**
          * @returns {Promise<LeylineUser>}

@@ -10,7 +10,6 @@ export default class extends DiscordEvent {
 	}
 
 	async run(msg) {
-		const { bot } = this;
 		// Ignore messages sent by other bots or sent in DM
 		if (msg.author.bot || !msg.guild) return;
 

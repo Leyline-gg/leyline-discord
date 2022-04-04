@@ -10,7 +10,6 @@ class embedtest extends Command {
     }
 
     async run({intr, opts}) {
-        const { bot } = this;
         let expires = false;
         bot.intrReply({intr, embed: new EmbedBase(bot, {
             title: 'Justice Served',

@@ -16,14 +16,13 @@ export class CommunityClaimEvent {
         author = null,
         embed = null,
     }) {
-        this.bot = bot;
         this.id = id.replace(' ', '-');
         this.title = title.trim(),
         this.description = description.trim();
         this.duration = duration;
         this.nft = nft;
         this.author = bot.users.resolve(author);
-        this.embed = new EmbedBase(this.bot, !!embed ? {
+        this.embed = new EmbedBase(bot, !!embed ? {
             ...embed.toJSON(),
             footer: `Organized by ${this.author.tag}`,
         } : {
@@ -50,7 +49,6 @@ export class CommunityClaimEvent {
     }
 
     end() {
-        const { bot } = this;
         //log event expiration
         bot.logDiscord({embed: new EmbedBase(bot, {
             fields: [{
@@ -112,7 +110,6 @@ export class CommunityClaimEvent {
      * @returns {Promise<boolean>} `true` if NFT was awarded and logs succesfully issued, `false` otherwise
      */
      async #awardNFT({intr, nft=this.nft, user, lluser} = {}) {
-        const { bot } = this;
         try {
             //Award NFT to LL user
             await Firebase.rewardNFT(lluser.uid, nft.id);
@@ -184,7 +181,6 @@ export class CommunityClaimEvent {
      * @returns {Promise<true>} Promise that resolves to true after message has been sent (not delivered) 
      */
      async #messageUser({user, nft=this.nft} = {}) {
-        const { bot } = this;
         bot.sendDM({user, embed: new EmbedBase(bot, {
             thumbnail: { url: nft.cloudinaryImageUrl },
             fields: [
@@ -208,7 +204,6 @@ export class CommunityClaimEvent {
     }
 
     createCollector(msg=this.msg) {
-        const { bot } = this;
         this.msg ||= msg;
         this.id ||= msg.id;
 
@@ -279,7 +274,6 @@ export class CommunityClaimEvent {
      * @returns {Promise<Message>} the event `Message` that was sent
      */
     async publish({channel}) {
-        const { bot } = this;
         //send and store message
         const msg = await bot.channels.resolve(channel).send({
             embeds: [this.embed],

@@ -9,7 +9,7 @@ export class GoodActsReactionCollector extends ReactionCollectorBase {
 	get APPROVAL_GP() { return CloudConfig.get('ReactionCollector').GoodActs.APPROVAL_GP; }
 	get MOD_EMOJIS() { 
 		return CloudConfig.get('ReactionCollector').GoodActs.MOD_EMOJIS
-			.map(this.bot.constructEmoji)
+			.map(bot.constructEmoji)
 			.sort((a, b) => (
 				// this wonky syntax is because position is not a required prop
 				{position: Number.MAX_VALUE, ...a}.position -
@@ -33,7 +33,7 @@ export class GoodActsReactionCollector extends ReactionCollectorBase {
 
 	// Callback specific to this Collector class
 	async reactionReceived({reaction, user}) {
-		const { bot, msg } = this;
+		const { msg } = this;
 
 		//check if user who reacted is msg author
 		if(user.id === msg.author.id) return;
@@ -53,7 +53,7 @@ export class GoodActsReactionCollector extends ReactionCollectorBase {
 	}
 
 	async approveSubmission({user, approval_emoji}) {
-		const { bot, msg } = this;
+		const { msg } = this;
 		try {
 			//store the activity type for GP award text both locally and in the cloud
 			msg._activityType = this.MOD_EMOJIS.find(e => e.toString() === approval_emoji.toString())?.keyword || 'Good Act';

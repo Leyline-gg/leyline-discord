@@ -7,7 +7,7 @@ export class DiscordEvent {
         description = null,
         event_type  = null,
     }) {
-        this.bot            = bot;
+        bot            = bot;
         this.name           = name;
         this.description    = description;
         this.event_type     = event_type;

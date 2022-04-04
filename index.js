@@ -9,7 +9,7 @@ import klaw from 'klaw';
 import path from 'path';
 import * as Firebase from './api';
 import { EmbedBase, CommunityPoll, ReactionCollector, SentenceService, CloudConfig, CommunityClaimEvent } from './classes';
-import bot from './LeylineBot';
+import bot from './bot';
 //formally, dotenv shouldn't be used in prod, but because staging and prod share a VM, it's an option I elected to go with for convenience
 import { config as dotenv_config } from 'dotenv';
 dotenv_config();

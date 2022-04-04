@@ -14,7 +14,7 @@ class warn extends JusticeCommand {
 
     //Override parent
     async executeSentence({intr, user, reason}) {
-        const { bot, sentence_type } = this;
+        const { sentence_type } = this;
         //issue sentence
         await SentenceService.warnUser({
             bot,
@@ -36,7 +36,7 @@ class warn extends JusticeCommand {
     }
 
     async run({intr, opts}) {
-        const { bot, sentence_type } = this;
+        const { sentence_type } = this;
         const { SENTENCE_TYPES } = SentenceService;
 
         const { user, reason } = super.parseInput(opts);

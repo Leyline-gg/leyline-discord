@@ -1,5 +1,5 @@
 import { Command, EmbedBase } from '../../classes';
-import bot from '../../LeylineBot';
+import bot from '../../bot';
 
 class ping extends Command {
     constructor() {

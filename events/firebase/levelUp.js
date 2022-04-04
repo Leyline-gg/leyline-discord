@@ -20,9 +20,9 @@ class LevelUp extends FirebaseEvent {
     }
 
     async generateLevelUpMsg({uid, level} = {}) {
-        return new EmbedBase(this.bot, {
+        return new EmbedBase(bot, {
             title: '⬆  User Leveled Up',
-            description: `${this.bot.formatUser(await this.bot.users.fetch(uid))} reached level **${level.number}**!\nWay to change the game & Leylight the way!`,
+            description: `${bot.formatUser(await bot.users.fetch(uid))} reached level **${level.number}**!\nWay to change the game & Leylight the way!`,
         });
     }
 
@@ -31,7 +31,6 @@ class LevelUp extends FirebaseEvent {
      * @param {FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>} doc 
      */
     async onAdd(doc) {
-        const { bot } = this;
         const uid = doc.data().uid;
         if(!uid) return bot.logger.error(`${this.name} onAdd() could not find a uid for doc ${doc.ref.path}`);
         const xp = await XPService.getUserXP(uid);

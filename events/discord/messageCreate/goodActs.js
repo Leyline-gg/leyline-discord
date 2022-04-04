@@ -25,7 +25,6 @@ export default class extends DiscordEvent {
 	}
 
 	rejectSubmission(msg) {
-		const { bot } = this;
 		bot.logSubmission({
 			embed: new EmbedBase(bot, {
 				title: 'Submission Auto-Rejected',
@@ -65,7 +64,6 @@ export default class extends DiscordEvent {
 	}
 
 	async run(msg) {
-		const { bot } = this;
 		// Ignore messages sent by other bots or sent in DM
 		if (msg.author.bot || !msg.guild) return;
 

@@ -11,7 +11,7 @@ class mute extends JusticeCommand {
 
     //Override parent
     async executeSentence({intr, user, expires, reason}) {
-        const { bot, sentence_type } = this;
+        const { sentence_type } = this;
         //issue sentence
         await SentenceService.muteUser({
             bot,
@@ -35,7 +35,7 @@ class mute extends JusticeCommand {
     }
 
     async run({intr, opts}) {
-        const { bot, sentence_type } = this;
+        const { sentence_type } = this;
         const { SENTENCE_TYPES } = SentenceService;
 
         const { user, reason, expires } = super.parseInput(opts);

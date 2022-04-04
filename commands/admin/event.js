@@ -69,7 +69,6 @@ class event extends Command {
     }
 
     async run({intr, opts}) {
-        const { bot } = this;
 
         const { title, channel, nft, duration, text, expires } = await this.parseInput(opts);
 

@@ -10,7 +10,6 @@ export default class extends DiscordEvent {
     }
     
     async run(intr) {
-        const { bot } = this;
 
         if(!intr.isAutocomplete()) return;
         // Ignore commands sent by other bots or sent in DM

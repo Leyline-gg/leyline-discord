@@ -60,7 +60,7 @@ export class JusticeCommand extends Command {
     }
 
     getModConfirmation({intr, user, reason}) {
-        const { bot, sentence_type } = this;
+        const { sentence_type } = this;
         return bot.intrConfirm({
             intr,
             ephemeral: true,
@@ -76,7 +76,7 @@ export class JusticeCommand extends Command {
     }
 
     checkEasterEgg({user, intr}) {
-        const { bot, sentence_type } = this;
+        const { sentence_type } = this;
         return (sentence_type !== 'HISTORY' && user.id === '139120967208271872')
             ? bot.intrReply({intr, embed: new EmbedBase(bot, {
                 title: 'Nice try!',
