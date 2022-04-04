@@ -17,4 +17,3 @@ export * from './services/XPService';
 export * from './services/SentenceService';
 export * from './services/ImageService'
 export * from './CloudConfig';
-export * from './LeylineBot';
