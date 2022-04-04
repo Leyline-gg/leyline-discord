@@ -1,8 +1,8 @@
 import { JusticeCommand, SentenceService, EmbedBase } from '../../../classes';
 
 class warn extends JusticeCommand {
-    constructor(bot) {
-        super(bot, {
+    constructor() {
+        super({
             name: 'warn',
             sentence_type: SentenceService.SENTENCE_TYPES.WARN,
             description: 'Issue a written warning to a Discord user',

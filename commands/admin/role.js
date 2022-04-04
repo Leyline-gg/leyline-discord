@@ -1,8 +1,8 @@
 import { Command, EmbedBase } from '../../classes';
 
 class role extends Command {
-    constructor(bot) {
-        super(bot, {
+    constructor() {
+        super({
             name: 'role',
             description: 'Add or remove roles from a Discord user',
             options: [

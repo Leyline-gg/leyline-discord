@@ -2,8 +2,8 @@ import { Command, EmbedBase } from '../../classes';
 import * as Firebase from '../../api';
 
 class inspect extends Command {
-    constructor(bot) {
-        super(bot, {
+    constructor() {
+        super({
             name: 'inspect',
             description: 'Conveniently view information about a Discord user that would otherwise be hard to find',
             options: [

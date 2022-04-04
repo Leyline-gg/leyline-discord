@@ -1,8 +1,8 @@
 import { JusticeCommand, SentenceService, EmbedBase } from '../../../classes';
 
 class ban extends JusticeCommand {
-    constructor(bot) {
-        super(bot, {
+    constructor() {
+        super({
             name: 'ban',
             sentence_type: SentenceService.SENTENCE_TYPES.BAN,
             description: 'Issue a temporary or permanent ban to a Discord user',

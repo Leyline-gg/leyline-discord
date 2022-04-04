@@ -1,8 +1,8 @@
 import { JusticeCommand, SentenceService, EmbedBase } from '../../../classes';
 
 class kick extends JusticeCommand {
-    constructor(bot) {
-        super(bot, {
+    constructor() {
+        super({
             name: 'kick',
             sentence_type: SentenceService.SENTENCE_TYPES.KICK,
             description: 'Remove a Discord user from the server',

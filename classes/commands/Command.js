@@ -1,5 +1,5 @@
 export class Command {
-    constructor(bot, {
+    constructor({
         name = null,
         description = '',   //cannot be empty for chat commands
         options = [],

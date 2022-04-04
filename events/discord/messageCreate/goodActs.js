@@ -2,8 +2,8 @@ import { DiscordEvent, EmbedBase, ReactionCollector } from '../../../classes';
 import * as Firebase from '../../../api';
 
 export default class extends DiscordEvent {
-	constructor(bot) {
-		super(bot, {
+	constructor() {
+		super({
 			name: 'goodActs',
 			description: 'Handler for good acts posted by users in a specific channel',
 			event_type: 'messageCreate',

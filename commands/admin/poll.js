@@ -1,8 +1,8 @@
 import { Command, EmbedBase, CommunityPoll, } from '../../classes';;
 
 class poll extends Command {
-    constructor(bot) {
-        super(bot, {
+    constructor() {
+        super({
             name: 'poll',
             description: 'Create an approved poll',
             options: [

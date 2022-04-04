@@ -1,8 +1,8 @@
 import { FirebaseEvent, EmbedBase, XPService } from '../../classes';
 
 class LevelUp extends FirebaseEvent {
-    constructor(bot) {
-        super(bot, {
+    constructor() {
+        super({
             name: 'LevelUp',
             description: 'Perform actions when a user levels up',
             collection: XPService.COLLECTION_PATH,

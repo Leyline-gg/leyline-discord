@@ -3,8 +3,8 @@ import * as Firebase from '../../api';
 import { partition } from 'lodash-es';
 
 class awardnft extends Command {
-    constructor(bot) {
-        super(bot, {
+    constructor() {
+        super({
             name: 'awardnft',
             description: "Mint & award NFTs to Leyline users through Discord",
             options: [

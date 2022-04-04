@@ -3,8 +3,8 @@ const { ActivityTypes } = Constants;
 import { Command, EmbedBase } from '../../classes';
 
 class setstatus extends Command {
-    constructor(bot) {
-        super(bot, {
+    constructor() {
+        super({
             name: 'setstatus',
             description: 'Set the Discord status of the bot',
             options: [

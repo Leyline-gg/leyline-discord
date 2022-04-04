@@ -1,8 +1,8 @@
 import { DiscordEvent, ReactionCollector } from '../../../classes';
 
 export default class extends DiscordEvent {
-	constructor(bot) {
-		super(bot, {
+	constructor() {
+		super({
 			name: 'kindWords',
 			description: 'Handler for kind words posted by users in a specific channel',
 			event_type: 'messageCreate',

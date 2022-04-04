@@ -4,8 +4,8 @@ import https from 'node:https';
 import { partition } from 'lodash-es';
 
 class poap extends Command {
-    constructor(bot) {
-        super(bot, {
+    constructor() {
+        super({
             name: 'poap',
             description: 'POAP event actions',
             options: [

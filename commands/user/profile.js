@@ -2,8 +2,8 @@ import { Command, EmbedBase, LeylineUser, XPService } from '../../classes';
 import * as Firebase from '../../api';
 
 class profile extends Command {
-    constructor(bot) {
-        super(bot, {
+    constructor() {
+        super({
             name: 'profile',
             description: 'View your Leyline profile or the profile of another user',
             options: [

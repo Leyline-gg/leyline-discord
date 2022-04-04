@@ -1,8 +1,8 @@
 import { Command, FirebaseCache } from '../../classes';
 
 class tag extends Command {
-    constructor(bot) {
-        super(bot, {
+    constructor() {
+        super({
             name: 'tag',
             description: 'Quickly send a pre-typed response using a reference keyword',
             category: 'general',

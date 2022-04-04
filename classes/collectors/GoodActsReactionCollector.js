@@ -20,10 +20,10 @@ export class GoodActsReactionCollector extends ReactionCollectorBase {
 	media_placeholder	//unfortunately, there is no easy way to extract the thumbnail from a video posted in discord
 		= 'https://cdn1.iconfinder.com/data/icons/growth-marketing/48/marketing_video_marketing-512.png';
 
-	constructor(bot, {
+	constructor({
 		msg,
 	}) {
-		super(bot, {
+		super({
 			type: 'GOOD_ACTS',
 			msg,
 		});

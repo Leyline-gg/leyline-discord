@@ -3,8 +3,8 @@ import * as Firebase from '../../api';
 import { partition } from 'lodash-es';
 
 class awardgp extends Command {
-    constructor(bot) {
-        super(bot, {
+    constructor() {
+        super({
             name: 'awardgp',
             description: 'Award good points to Leyline users through Discord',
             options: [

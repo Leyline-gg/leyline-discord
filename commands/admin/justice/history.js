@@ -1,8 +1,8 @@
 import { JusticeCommand, SentenceService, EmbedBase } from '../../../classes';
 
 class history extends JusticeCommand {
-    constructor(bot) {
-        super(bot, {
+    constructor() {
+        super({
             name: 'history',
             sentence_type: 'HISTORY',
             description: 'View the entire recorded sentence history for a Discord user',

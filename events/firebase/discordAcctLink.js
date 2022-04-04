@@ -2,8 +2,8 @@ import { FirebaseEvent, EmbedBase } from '../../classes';
 
 class DiscordAcctLink extends FirebaseEvent {
     alpha_role = '751919744528941126';
-    constructor(bot) {
-        super(bot, {
+    constructor() {
+        super({
             name: 'DiscordAcctLink',
             description: 'Watch when a Leyline user links their discord acct',
             collection: 'discord/webapp/users'

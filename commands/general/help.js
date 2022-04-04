@@ -1,8 +1,8 @@
 import { Command, EmbedBase } from '../../classes';
 
 class help extends Command {
-    constructor(bot) {
-        super(bot, {
+    constructor() {
+        super({
             name: 'help',
             description: 'Displays a traditional command menu, with each command sorted by its category',
             category: 'general',

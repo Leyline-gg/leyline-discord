@@ -2,7 +2,7 @@ import { Command, EmbedBase } from "..";
 import parse from 'parse-duration';
 
 export class JusticeCommand extends Command {
-    constructor(bot, {
+    constructor({
         name,
         description,
         sentence_type,   //uppercase string, see SENTENCE_TYPES
@@ -12,7 +12,7 @@ export class JusticeCommand extends Command {
             reason=true,
         } = {},
     } = {}) {
-        super(bot, {
+        super({
             name,
             description,
             options: [

@@ -14,7 +14,7 @@ export class ReactionCollector {
      * @param {ReactionCollectorBase} args.type The type of collector, see `this.Collectors`
      * @returns {ReactionCollectorBase}
      */
-    constructor(bot, {
+    constructor({
         type,
         ...rest
     }) {

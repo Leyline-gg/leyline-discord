@@ -3,8 +3,8 @@ import { Command, EmbedBase, CommunityClaimEvent } from '../../classes';
 import * as Firebase from '../../api';
 
 class event extends Command {
-    constructor(bot) {
-        super(bot, {
+    constructor() {
+        super({
             name: 'event',
             description: 'Create a Community Claim Event',
             options: [

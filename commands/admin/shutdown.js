@@ -1,8 +1,8 @@
 import { Command, EmbedBase } from '../../classes';
 
 class shutdown extends Command {
-    constructor(bot) {
-        super(bot, {
+    constructor() {
+        super({
             name: 'shutdown',
             description: "Terminates the bot's connection to Discord without killing the process",
             category: 'admin',

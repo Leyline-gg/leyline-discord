@@ -7,7 +7,7 @@ import * as Firebase from '../../api';
  * Code structure based heavily off of `CommunityPoll`
  */
 export class CommunityClaimEvent {
-    constructor(bot, {
+    constructor({
         id = '',
         title = '',
         description = '',

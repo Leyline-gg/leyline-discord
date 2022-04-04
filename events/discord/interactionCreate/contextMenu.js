@@ -1,8 +1,8 @@
 import { DiscordEvent, EmbedBase } from "../../../classes";
 
 export default class extends DiscordEvent {
-    constructor(bot) {
-        super(bot, {
+    constructor() {
+        super({
             name: 'contextMenu',
             description: 'Receive, parse, and execute context menu commands',
             event_type: 'interactionCreate',

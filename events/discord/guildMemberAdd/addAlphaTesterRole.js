@@ -2,8 +2,8 @@ import { DiscordEvent } from '../../../classes';
 import * as Firebase from '../../../api';
 
 export default class extends DiscordEvent {
-    constructor(bot) {
-        super(bot, {
+    constructor() {
+        super({
             name: 'addAlphaTesterRole',
             description: 'Give the alpha tester role to a user who linked their accts prior to joining the Leyline server',
             event_type: 'guildMemberAdd',

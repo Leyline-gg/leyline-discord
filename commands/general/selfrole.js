@@ -1,8 +1,8 @@
 import { Command, EmbedBase } from '../../classes';
 
 class selfrole extends Command {
-    constructor(bot) {
-        super(bot, {
+    constructor() {
+        super({
             name: 'selfrole',
             description: 'Give or take assignable roles from yourself',
             category: 'general',

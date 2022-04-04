@@ -2,8 +2,8 @@ import { Command, EmbedBase, ReactionCollector } from '../../classes';
 import * as Firebase from '../../api';
 
 class ApproveGoodAct extends Command {
-    constructor(bot) {
-        super(bot, {
+    constructor() {
+        super({
             name: 'Approve Good Act',
             category: 'moderator',
             type: 'MESSAGE',

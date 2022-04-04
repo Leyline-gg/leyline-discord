@@ -13,10 +13,10 @@ export class KindWordsReactionCollector extends ReactionCollectorBase {
 				{position: Number.MAX_VALUE, ...b}.position
 			));
 	}
-	constructor(bot, {
+	constructor({
 		msg,
 	}) {
-		super(bot, {
+		super({
 			type: 'KIND_WORDS',
 			msg,
 		});

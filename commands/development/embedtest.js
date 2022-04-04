@@ -1,8 +1,8 @@
 import { Command, EmbedBase } from '../../classes';
 
 class embedtest extends Command {
-    constructor(bot) {
-        super(bot, {
+    constructor() {
+        super({
             name: 'embedtest',
             description: 'Used for development embed testing',
             category: 'development',

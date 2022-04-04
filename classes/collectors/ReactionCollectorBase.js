@@ -26,7 +26,7 @@ export class ReactionCollectorBase {
 	
     media_type = 'submission';
 
-    constructor(bot, {
+    constructor({
         msg,
 		type,	//ReactionCollector.Collectors
 		...other

@@ -1,8 +1,8 @@
 import { Command, EmbedBase } from '../../classes';
 
 class sudosay extends Command {
-    constructor(bot) {
-        super(bot, {
+    constructor() {
+        super({
             name: 'sudosay',
             description: 'Force (sudo) the bot to say something in a specific channel',
             options: [

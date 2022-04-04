@@ -1,8 +1,8 @@
 import { Command, EmbedBase, XPService } from '../../classes';
 
 class level extends Command {
-    constructor(bot) {
-        super(bot, {
+    constructor() {
+        super({
             name: 'level',
             description: 'View your level or the level of another user',
             options: [

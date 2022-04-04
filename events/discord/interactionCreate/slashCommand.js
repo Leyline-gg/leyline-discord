@@ -1,8 +1,8 @@
 import { DiscordEvent, EmbedBase } from "../../../classes";
 
 export default class extends DiscordEvent {
-    constructor(bot) {
-        super(bot, {
+    constructor() {
+        super({
             name: 'slashCommand',
             description: 'Receive and execute slash commands',
             event_type: 'interactionCreate',

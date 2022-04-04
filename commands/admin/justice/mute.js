@@ -1,8 +1,8 @@
 import { JusticeCommand, SentenceService, EmbedBase } from '../../../classes';
 
 class mute extends JusticeCommand {
-    constructor(bot) {
-        super(bot, {
+    constructor() {
+        super({
             name: 'mute',
             sentence_type: SentenceService.SENTENCE_TYPES.MUTE,
             description: 'Issue a server mute to a Discord user',

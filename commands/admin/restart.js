@@ -1,8 +1,8 @@
 import { Command, EmbedBase } from '../../classes';
 
 class restart extends Command {
-    constructor(bot) {
-        super(bot, {
+    constructor() {
+        super({
             name: 'restart',
             description: 'Restarts the bot',
             category: 'admin',
