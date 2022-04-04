@@ -111,14 +111,14 @@ class awardgp extends Command {
                 opts.getInteger('gp'),
                 opts.getString('ledger-message'),
             ];
-            if(!(await Firebase.isUserConnectedToLeyline(user.id))) return bot.intrReply({intr, embed: new EmbedBase(bot, {
+            if(!(await Firebase.isUserConnectedToLeyline(user.id))) return bot.intrReply({intr, embed: new EmbedBase({
                 description: `❌ **That user has not connected their Leyline & Discord accounts**`,
             }).Error()});
 
             const lluser = await new LeylineUser(await Firebase.getLeylineUID(user.id));
             //send Confirm prompt
             if(!(await this.sendConfirmPrompt({intr, ledger_message, gp, lluser})))
-                return bot.intrReply({intr, embed: new EmbedBase(bot, {
+                return bot.intrReply({intr, embed: new EmbedBase({
                     description: `❌ **GP Award Canceled**`,
                 }).Error()});
 
@@ -137,13 +137,13 @@ class awardgp extends Command {
             ];
             const ch = opts.getChannel('channel');
             //validate args
-            if(attendee_gp <= 0) return bot.intrReply({intr, embed: new EmbedBase(bot, {
+            if(attendee_gp <= 0) return bot.intrReply({intr, embed: new EmbedBase({
                 description: `❌ **The attendee GP must be greater than 0!**`,
             }).Error()});
-            if(mentor_gp <= 0) return bot.intrReply({intr, embed: new EmbedBase(bot, {
+            if(mentor_gp <= 0) return bot.intrReply({intr, embed: new EmbedBase({
                 description: `❌ **The mentor GP must be greater than 0!**`,
             }).Error()});
-            if(!ch.isVoice()) return bot.intrReply({intr, embed: new EmbedBase(bot, {
+            if(!ch.isVoice()) return bot.intrReply({intr, embed: new EmbedBase({
                 description: `❌ **That's not a voice channel!**`,
             }).Error()});
 
@@ -163,7 +163,7 @@ class awardgp extends Command {
      * @returns {Promise<boolean>} `true` if the prompt was confirmed by the user, `false` otherwise
      */
     sendConfirmPrompt({intr, ledger_message, gp, lluser, event=false, ...other} = {}) {
-        return bot.intrConfirm({intr, embed: new EmbedBase(bot, {
+        return bot.intrConfirm({intr, embed: new EmbedBase({
             title: 'Confirm GP Award',
             //to whoever happens to read this in the future: sorry for the syntax :(
             ...event && { description: other.description },
@@ -211,10 +211,10 @@ class awardgp extends Command {
                 comment: `Requested by ${bot.formatUser(intr.user)} via Discord`,
             });
             //Log success
-            update_intr && bot.intrReply({intr, embed: new EmbedBase(bot, {
+            update_intr && bot.intrReply({intr, embed: new EmbedBase({
                 description: `✅ **GP succesfully awarded to Leyline user [${lluser.username}](${lluser.profile_url})**`,
             }).Success()});
-            const reward_embed = new EmbedBase(bot, {
+            const reward_embed = new EmbedBase({
                 title: 'GP Awarded',
                 fields: [
                     {
@@ -252,7 +252,7 @@ class awardgp extends Command {
         } catch(err) {
             bot.logger.error(`Error awarding GP to LL user ${lluser.uid}`);
             bot.logger.error(err);
-            bot.logDiscord({embed: new EmbedBase(bot, {
+            bot.logDiscord({embed: new EmbedBase({
                 title: 'NFT __NOT__ Awarded',
                 description: `**Error**: ${err}`,
                 fields: [
@@ -285,7 +285,7 @@ class awardgp extends Command {
                     //{ name: '\u200b', value: '\u200b', inline: true },
                 ],
             }).Error()}).then(m => //chained so we can include the URL of the private log msg
-                update_intr && bot.intrReply({intr, embed: new EmbedBase(bot, {
+                update_intr && bot.intrReply({intr, embed: new EmbedBase({
                     description: `❌ **I ran into an error, please check the log [message](${m.url}) for more information**`,
                 }).Error()}));
             return false;
@@ -300,7 +300,7 @@ class awardgp extends Command {
      * @returns {Promise<true>} Promise that resolves to true after message has been sent (not delivered) 
      */
     async messageUser({user, gp} = {}) {
-        bot.sendDM({user, embed: new EmbedBase(bot, {
+        bot.sendDM({user, embed: new EmbedBase({
             fields: [
                 {
                     name: `🎉 You Earned Some GP!`,
@@ -333,7 +333,7 @@ class awardgp extends Command {
         }
         
         if(!voice_members.length) 
-            return bot.intrReply({intr, embed: new EmbedBase(bot, {
+            return bot.intrReply({intr, embed: new EmbedBase({
                 description: `❌ **There are no users in the ${ch.toString()} voice channel!**`,
             }).Error()});
 
@@ -370,7 +370,7 @@ class awardgp extends Command {
                 ).join('\n'),
                 inline: false,
             }) : [],
-        }))) return bot.intrReply({intr, embed: new EmbedBase(bot, {
+        }))) return bot.intrReply({intr, embed: new EmbedBase({
                 description: `❌ **GP Award Canceled**`,
             }).Error()});
 
@@ -402,7 +402,7 @@ class awardgp extends Command {
         //sort award results into arrays for the follow-up response
         const [awarded, unawarded] = partition(eligible, m => m.awarded);
 
-        const embed = new EmbedBase(bot, {
+        const embed = new EmbedBase({
             description: `**${awarded.length} out of ${eligible.length} users** received their GP`,
             fields: [
                 ...(!!awarded.length ? EmbedBase.splitField({

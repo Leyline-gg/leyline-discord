@@ -43,7 +43,7 @@ class setstatus extends Command {
             }] : []), 
         ]});
 
-        bot.intrReply({intr, embed: new EmbedBase(bot, {
+        bot.intrReply({intr, embed: new EmbedBase({
             description: `✅ **Status updated**`,
         }).Success()});
     }

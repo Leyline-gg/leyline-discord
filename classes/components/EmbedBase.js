@@ -72,7 +72,7 @@ export class EmbedBase extends MessageEmbed {
      */
     splitEmbed({bot, fields=this.fields, embeds=[], ...other} = {}) {
         if(!fields.length) return embeds;
-        const embed = new EmbedBase(bot, other);
+        const embed = new EmbedBase(other);
         embeds.push(embed);
         while(embed.char_count < 6000 && !!fields.length) {
             embed.fields.push(fields.shift());

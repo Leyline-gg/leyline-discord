@@ -30,7 +30,7 @@ class kick extends JusticeCommand {
             sentence_type,
             reason,
         });
-        return bot.intrReply({intr, embed: new EmbedBase(bot, {
+        return bot.intrReply({intr, embed: new EmbedBase({
             description: `⚖ **Sentence Successfully Issued**`,
         }).Sentence(), ephemeral: true});
     }
@@ -47,7 +47,7 @@ class kick extends JusticeCommand {
                 return bot.intrReply({
                     intr,
                     ephemeral: true,
-                    embed: new EmbedBase(bot, {
+                    embed: new EmbedBase({
                         description: `❌ **Sentence canceled**`,
                     }).Error(),
                 });

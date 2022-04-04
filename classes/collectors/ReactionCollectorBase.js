@@ -148,7 +148,7 @@ export class ReactionCollectorBase {
 
 		//log rejection using bot method
 		bot.logSubmission({
-			embed: new EmbedBase(bot, {
+			embed: new EmbedBase({
 				title: 'Submission Approved',
 				url: msg.url,
 				fields: [
@@ -187,7 +187,7 @@ export class ReactionCollectorBase {
 
 		//log rejection using bot method
 		bot.logSubmission({
-			embed: new EmbedBase(bot, {
+			embed: new EmbedBase({
 				title: 'Submission Rejected',
 				url: msg.url,
 				fields: [
@@ -267,7 +267,7 @@ export class ReactionCollectorBase {
 	 * @returns 
 	 */
 	 handleUnconnectedAccount(user, {dm, log} = {}) {
-		bot.sendDM({user, embed: new EmbedBase(bot, {
+		bot.sendDM({user, embed: new EmbedBase({
 			fields: [
 				{
 					name: `❌ You need to Connect Your Leyline & Discord accounts!`,
@@ -277,7 +277,7 @@ export class ReactionCollectorBase {
 		}).Error()});
 		//Log in bot log
 		bot.logDiscord({
-			embed: new EmbedBase(bot, {
+			embed: new EmbedBase({
 				fields: [
 					{
 						name: `GP __NOT__ Awarded`,
@@ -306,7 +306,7 @@ export class ReactionCollectorBase {
 		});
 
 		//send dm to author
-		bot.sendDM({user, embed: new EmbedBase(bot, {
+		bot.sendDM({user, embed: new EmbedBase({
 			fields: [
 				{
 					name: `🎉 You Earned Some GP!`,
@@ -317,7 +317,7 @@ export class ReactionCollectorBase {
 
 		//log GP change in bot-log
 		bot.logDiscord({
-			embed: new EmbedBase(bot, {
+			embed: new EmbedBase({
 				fields: [
 					{
 						name: `GP Awarded`,
@@ -345,7 +345,7 @@ export class ReactionCollectorBase {
 			comment: `User reacted to Discord message (${msg.id})`,
 		});
 		//DM user informing them
-		bot.sendDM({user, embed: new EmbedBase(bot, {
+		bot.sendDM({user, embed: new EmbedBase({
 			fields: [
 				{
 					name: `🎉 You Earned Some GP!`,
@@ -355,7 +355,7 @@ export class ReactionCollectorBase {
 		})});
 		//Log in bot log
 		bot.logDiscord({
-			embed: new EmbedBase(bot, {
+			embed: new EmbedBase({
 				fields: [
 					{
 						name: `GP Awarded`,
@@ -384,7 +384,7 @@ export class ReactionCollectorBase {
 		//DM user informing them
 		bot.sendDM({ 
 			user: msg.author,
-			embed: new EmbedBase(bot, {
+			embed: new EmbedBase({
 				fields: [
 					{
 						name: `🎉 You Earned Some GP!`,
@@ -394,7 +394,7 @@ export class ReactionCollectorBase {
 		})});
 		//Log in bot log
 		bot.logDiscord({
-			embed: new EmbedBase(bot, {
+			embed: new EmbedBase({
 				fields: [
 					{
 						name: `GP Awarded`,
@@ -421,7 +421,7 @@ export class ReactionCollectorBase {
 			autoArchiveDuration: duration,
 		}).then(thread => {
 			this.thread = thread;
-			bot.sendEmbed({msg:thread.lastMessage, embed: new EmbedBase(bot, {
+			bot.sendEmbed({msg:thread.lastMessage, embed: new EmbedBase({
 				description: `⚠ **Please keep all discussion about ${msg.member.toString()}'s ${media_type} inside this thread to avoid cluttering the main channel.** Thank you!`
 			}).Warn()});
 			return return_thread ? thread : this;
@@ -505,7 +505,7 @@ export class ReactionCollectorBase {
 					  )}`
 					: attachment.url
 			);
-			const embed = new EmbedBase(bot, {
+			const embed = new EmbedBase({
 				...ImageService.analyzeWebResult(res),
 				thumbnail: { url: attachment.url },
 			});

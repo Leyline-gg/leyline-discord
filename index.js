@@ -141,7 +141,7 @@ const init = async function () {
     bot.login(process.env.BOT_TOKEN).then(() => {
         bot.logger.debug(`Bot succesfully initialized. Environment: ${process.env.NODE_ENV}. Version: ${bot.CURRENT_VERSION}`);
         process.env.NODE_ENV !== 'development' &&   //send message in log channel when staging/prod bot is online
-            bot.logDiscord({embed: new EmbedBase(bot, {
+            bot.logDiscord({embed: new EmbedBase({
                 description: `\`${process.env.NODE_ENV}\` environment online, running version ${bot.CURRENT_VERSION}`,
             }).Success()});
         bot.logger.log('Beginning post-initializtion sequence...');
@@ -184,7 +184,7 @@ const postInit = async function () {
             try {
                 const ch = await bot.channels.fetch(doc.data().channel, true, true);
                 const msg = await ch.messages.fetch(doc.id, true, true);
-                const collector = await new ReactionCollector(bot, {
+                const collector = await new ReactionCollector({
                     type: ReactionCollector.Collectors[doc.data().type],
                     msg,
                 }).loadMessageCache(doc);
@@ -214,7 +214,7 @@ const postInit = async function () {
                 const msg = await ch.messages.fetch(doc.id, true, true);
                 const embed = msg.embeds[0];
                 if(!embed) throw new Error('No embeds found on the fetched message');
-                await new CommunityPoll(bot, {
+                await new CommunityPoll({
                     embed,
                     author: await bot.users.fetch(doc.data().created_by),
                     question: embed.title, 
@@ -268,7 +268,7 @@ const postInit = async function () {
                 const msg = await ch.messages.fetch(doc.id, true, true);
                 const embed = msg.embeds[0];
                 if(!embed) throw new Error('No embeds found on the fetched message');
-                await new CommunityClaimEvent(bot, {
+                await new CommunityClaimEvent({
                     embed,
                     author: await bot.users.fetch(doc.data().created_by),
                     title: embed.title, 

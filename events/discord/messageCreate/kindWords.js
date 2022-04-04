@@ -17,7 +17,7 @@ export default class extends DiscordEvent {
 		if (msg.channel.id !== this.target_channel) return;
 		
 		//create a specific instance for each approved message
-		new ReactionCollector(bot, {type:ReactionCollector.Collectors.KIND_WORDS, msg}).setupModReactionCollector();
+		new ReactionCollector({type:ReactionCollector.Collectors.KIND_WORDS, msg}).setupModReactionCollector();
 		return;
 	}
 };

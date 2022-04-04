@@ -20,7 +20,7 @@ class LevelUp extends FirebaseEvent {
     }
 
     async generateLevelUpMsg({uid, level} = {}) {
-        return new EmbedBase(bot, {
+        return new EmbedBase({
             title: '⬆  User Leveled Up',
             description: `${bot.formatUser(await bot.users.fetch(uid))} reached level **${level.number}**!\nWay to change the game & Leylight the way!`,
         });
@@ -46,7 +46,7 @@ class LevelUp extends FirebaseEvent {
 
         const member = await bot.leyline_guild.members.fetch(uid);
         if(!member) 
-            return bot.logDiscord({ embed: new EmbedBase(bot, {
+            return bot.logDiscord({ embed: new EmbedBase({
                 fields: [{
                     name: '⬆ User Level Up',
                     value: `Discord user <@${doc.data().uid}> just leveled up, but I could not find them in the server`

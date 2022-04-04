@@ -11,7 +11,7 @@ class embedtest extends Command {
 
     async run({intr, opts}) {
         let expires = false;
-        bot.intrReply({intr, embed: new EmbedBase(bot, {
+        bot.intrReply({intr, embed: new EmbedBase({
             title: 'Justice Served',
             fields: [
                 {

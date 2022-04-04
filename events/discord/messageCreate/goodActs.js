@@ -26,7 +26,7 @@ export default class extends DiscordEvent {
 
 	rejectSubmission(msg) {
 		bot.logSubmission({
-			embed: new EmbedBase(bot, {
+			embed: new EmbedBase({
 				title: 'Submission Auto-Rejected',
 				description: 'The submission did not contain a description',
 				url: msg.url,
@@ -53,7 +53,7 @@ export default class extends DiscordEvent {
 
 		bot.sendDM({
 			user: msg.author,
-			embed: new EmbedBase(bot, {
+			embed: new EmbedBase({
 				fields:[{
 					name: `❌ Your submission was rejected`,
 					value: `Thank you for uploading a submission to <#${this.target_channel}>! Unfortunately, any submissions without a description are automatically rejected, \
@@ -84,7 +84,7 @@ export default class extends DiscordEvent {
 		if(!(await Firebase.isUserConnectedToLeyline(msg.author.id)))
 			bot.sendDM({
 				user: msg.author,
-				embed: new EmbedBase(bot, {
+				embed: new EmbedBase({
 					fields:[{
 						name: `Thank you for your submission!`,
 						value: `Please remember to connect your Leyline & Discord accounts so you can receive GP if your [submission](${msg.url}) is approved!
@@ -94,7 +94,7 @@ export default class extends DiscordEvent {
 			});
 		
 		//create a specific instance for each approved message
-		(await new ReactionCollector(bot, {type:ReactionCollector.Collectors.GOOD_ACTS, msg})
+		(await new ReactionCollector({type:ReactionCollector.Collectors.GOOD_ACTS, msg})
 			.setupModReactionCollector()
 			.createThread())
 			.imageSearch();

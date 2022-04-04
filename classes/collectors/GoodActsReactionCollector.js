@@ -71,7 +71,7 @@ export class GoodActsReactionCollector extends ReactionCollectorBase {
 			bot.sendReply({
 				msg,
 				content: `<@&${CTA_ROLE}> 🚨 **NEW APPROVED ${this.media_type.toUpperCase()}!!** 🚨`,
-				embed: new EmbedBase(bot, {
+				embed: new EmbedBase({
 					description: `A new ${this.media_type} was approved! Click [here](${msg.url} 'view message') to view the message.\nBe sure to react within 24 hours to get your GP!`,
 					thumbnail: { url: this.media_type === 'photo' ? this.attachment.url : this.media_placeholder },
 				}),

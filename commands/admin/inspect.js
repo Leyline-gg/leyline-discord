@@ -25,7 +25,7 @@ class inspect extends Command {
         const llid = await Firebase.getLeylineUID(user.id);
         const lldoc = !!llid && await Firebase.getLeylineDoc(llid);
 
-        bot.intrReply({intr, embed: new EmbedBase(bot, {
+        bot.intrReply({intr, embed: new EmbedBase({
             author: {
                 name: user.tag,
                 icon_url: user.avatarURL(),

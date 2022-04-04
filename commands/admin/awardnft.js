@@ -59,14 +59,14 @@ class awardnft extends Command {
     subcommands = {
         user: async ({intr, nft, opts}) => {
             const user = opts.getUser('user');
-            if(!(await Firebase.isUserConnectedToLeyline(user.id))) return bot.intrReply({intr, embed: new EmbedBase(bot, {
+            if(!(await Firebase.isUserConnectedToLeyline(user.id))) return bot.intrReply({intr, embed: new EmbedBase({
                 description: `❌ **That user has not connected their Leyline & Discord accounts**`,
             }).Error()});
 
             const lluser = await new LeylineUser(await Firebase.getLeylineUID(user.id));
             //send Confirm prompt
             if(!(await this.sendConfirmPrompt({intr, nft, lluser})))
-                return bot.intrReply({intr, embed: new EmbedBase(bot, {
+                return bot.intrReply({intr, embed: new EmbedBase({
                     description: `❌ **NFT Award Canceled**`,
                 }).Error()});
 
@@ -78,7 +78,7 @@ class awardnft extends Command {
         channel: ({intr, nft, opts}) => {
             const ch = opts.getChannel('channel');
             //validate args
-            if(!ch.isVoice()) return bot.intrReply({intr, embed: new EmbedBase(bot, {
+            if(!ch.isVoice()) return bot.intrReply({intr, embed: new EmbedBase({
                 description: `❌ **That's not a voice channel!**`,
             }).Error()});
 
@@ -97,7 +97,7 @@ class awardnft extends Command {
      * @returns {Promise<boolean>} `true` if the prompt was confirmed by the user, `false` otherwise
      */
     sendConfirmPrompt({intr, nft, lluser, event=false, ...other} = {}) {
-        return bot.intrConfirm({intr, embed: new EmbedBase(bot, {
+        return bot.intrConfirm({intr, embed: new EmbedBase({
             title: 'Confirm NFT Award',
             thumbnail: {
                 url: nft.thumbnailUrl,
@@ -159,11 +159,11 @@ class awardnft extends Command {
             //Award NFT to LL user
             await Firebase.rewardNFT(lluser.uid, nft.id);
             //Log success
-            update_intr && bot.intrReply({intr, embed: new EmbedBase(bot, {
+            update_intr && bot.intrReply({intr, embed: new EmbedBase({
                 thumbnail: { url: nft.thumbnailUrl },
                 description: `✅ **NFT succesfully minted for Leyline user [${lluser.username}](${lluser.profile_url})**`,
             }).Success()});
-            const reward_embed = new EmbedBase(bot, {
+            const reward_embed = new EmbedBase({
                 thumbnail: { url: nft.thumbnailUrl },
                 title: 'NFT Awarded',
                 fields: [
@@ -197,7 +197,7 @@ class awardnft extends Command {
         } catch(err) {
             bot.logger.error(`Error awarding NFT with id ${nft.id} to LL user ${lluser.uid}`);
             bot.logger.error(err);
-            bot.logDiscord({embed: new EmbedBase(bot, {
+            bot.logDiscord({embed: new EmbedBase({
                 thumbnail: { url: nft.thumbnailUrl },
                 title: 'NFT __NOT__ Awarded',
                 description: `**Error**: ${err}`,
@@ -226,7 +226,7 @@ class awardnft extends Command {
                     { name: '\u200b', value: '\u200b', inline: true },
                 ],
             }).Error()}).then(m => //chained so we can include the URL of the private log msg
-                update_intr && bot.intrReply({intr, embed: new EmbedBase(bot, {
+                update_intr && bot.intrReply({intr, embed: new EmbedBase({
                     description: `❌ **I ran into an error, please check the log [message](${m.url}) for more information**`,
                 }).Error()}));
             return false;
@@ -241,7 +241,7 @@ class awardnft extends Command {
      * @returns {Promise<true>} Promise that resolves to true after message has been sent (not delivered) 
      */
     async messageUser({user, nft} = {}) {
-        bot.sendDM({user, embed: new EmbedBase(bot, {
+        bot.sendDM({user, embed: new EmbedBase({
             thumbnail: { url: nft.thumbnailUrl },
             fields: [
                 {
@@ -271,7 +271,7 @@ class awardnft extends Command {
         }
         
         if(!voice_members.length) 
-            return bot.intrReply({intr, embed: new EmbedBase(bot, {
+            return bot.intrReply({intr, embed: new EmbedBase({
                 description: `❌ **There are no users in the ${ch.toString()} voice channel!**`,
             }).Error()});
 
@@ -300,7 +300,7 @@ class awardnft extends Command {
                 value: ineligible.map(m => `${determineIneligibleEmoji(m)} ${bot.formatUser(m.user)}`).join('\n'),
                 inline: false
             }) : [],
-        }))) return bot.intrReply({intr, embed: new EmbedBase(bot, {
+        }))) return bot.intrReply({intr, embed: new EmbedBase({
                 description: `❌ **NFT Award Canceled**`,
             }).Error()});
 
@@ -323,7 +323,7 @@ class awardnft extends Command {
         //sort award results into arrays for the follow-up response
         const [awarded, unawarded] = partition(eligible, m => m.awarded);
 
-        const embed = new EmbedBase(bot, {
+        const embed = new EmbedBase({
             description: `**${awarded.length} out of ${eligible.length} NFTs** were awarded`,
             thumbnail: { url: nft.thumbnailUrl },
             fields: [
@@ -352,7 +352,7 @@ class awardnft extends Command {
 
         //Filter out args
         const nft = await Firebase.getNFT(opts.getInteger('nft-id').toString());
-        if(!nft?.id) return bot.intrReply({intr, embed: new EmbedBase(bot, {
+        if(!nft?.id) return bot.intrReply({intr, embed: new EmbedBase({
             description: `❌ **I couldn't locate that NFT in Leyline's database**`,
         }).Error()});
 

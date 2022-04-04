@@ -29,7 +29,7 @@ class mute extends JusticeCommand {
             expires,
             reason,
         });
-        return bot.intrReply({intr, embed: new EmbedBase(bot, {
+        return bot.intrReply({intr, embed: new EmbedBase({
             description: `⚖ **Sentence Successfully Issued**`,
         }).Sentence(), ephemeral: true});
     }
@@ -46,7 +46,7 @@ class mute extends JusticeCommand {
                 return bot.intrReply({
                     intr,
                     ephemeral: true,
-                    embed: new EmbedBase(bot, {
+                    embed: new EmbedBase({
                         description: `❌ **Sentence canceled**`,
                     }).Error(),
                 });

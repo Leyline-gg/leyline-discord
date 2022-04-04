@@ -80,16 +80,16 @@ class poll extends Command {
         
         //validate args
         if(duration > 24)
-            return bot.intrReply({intr, embed: new EmbedBase(bot, {
+            return bot.intrReply({intr, embed: new EmbedBase({
                 description: `❌ **24 days is the maximum duration of the poll!**`,
             }).Error()});
         if(duration <= 0)
-            return bot.intrReply({intr, embed: new EmbedBase(bot, {
+            return bot.intrReply({intr, embed: new EmbedBase({
                 description: `❌ **The duration of the poll must be \`>\` 0 days**`,
             }).Error()});
 
         //generate and send poll preview
-        const com_pol = new CommunityPoll(bot, {
+        const com_pol = new CommunityPoll({
             question,
             duration: Math.round(duration * 24 * 3600 * 1000),
             author: intr.user,
@@ -97,7 +97,7 @@ class poll extends Command {
         });
 
         if(!(await bot.intrConfirm({intr, embed: com_pol.embed, content: `Confirm this is the poll that will be sent to <#${bot.config.channels.polls}>`})))
-            return bot.intrReply({intr, embed: new EmbedBase(bot, {
+            return bot.intrReply({intr, embed: new EmbedBase({
                 description: `❌ **Poll canceled**`,
             }).Error(), content: '\u200b'});
 
@@ -105,7 +105,7 @@ class poll extends Command {
         await com_pol.publish();
 
         //edit response with msg id
-        bot.intrReply({intr, embed: new EmbedBase(bot, {
+        bot.intrReply({intr, embed: new EmbedBase({
             description: `✅ **Poll Published Succesfully** ([Click to view](${com_pol.msg.url}))`,
         }).Success(), content: '\u200b'});
     }

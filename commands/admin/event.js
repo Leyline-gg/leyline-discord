@@ -80,7 +80,7 @@ class event extends Command {
         //docs are ids of users that have claimed with 'claimed' prop = true
 
         //generate and send event preview
-        const event = new CommunityClaimEvent(bot, {
+        const event = new CommunityClaimEvent({
             title,
             description: text,
             duration,
@@ -95,7 +95,7 @@ class event extends Command {
         await event.publish({channel});
 
         //edit response with msg id
-        bot.intrReply({intr, embed: new EmbedBase(bot, {
+        bot.intrReply({intr, embed: new EmbedBase({
             description: `✅ **Event Published Succesfully** ([Click to view](${event.msg.url}))`,
         }).Success(), content: '\u200b'});
     }

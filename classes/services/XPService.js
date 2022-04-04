@@ -159,14 +159,14 @@ export class XPService {
             id != role_id && member.roles.cache.has(id) && member.roles.remove(id, `User Reached Level ${level.number}`);
         
         if(member.roles.cache.has(role_id)) 
-            return bot.logDiscord({embed: new EmbedBase(bot, {
+            return bot.logDiscord({embed: new EmbedBase({
                 fields: [{
                     name: '❌ Reward Not Distributed',
                     value: `I tried to give ${bot.formatUser(member.user)} the <@&${role_id}> role for reaching level ${level.number}, but they already had it`
                 }]
             }).Error()});
         return member.roles.add(role_id, `User Reached Level ${level.number}`)
-            .then(m => bot.logDiscord({embed: new EmbedBase(bot, {
+            .then(m => bot.logDiscord({embed: new EmbedBase({
                 fields: [{
                     name: 'Reward Distributed',
                     value: `I gave ${bot.formatUser(m.user)} the <@&${role_id}> role for reaching level ${level.number}`
@@ -174,7 +174,7 @@ export class XPService {
             })}))
             .catch(e => {
                 bot.logger.error(e);
-                bot.logDiscord({embed: new EmbedBase(bot, {
+                bot.logDiscord({embed: new EmbedBase({
                     fields: [{
                         name: '❌ Reward Not Distributed',
                         value: `I tried to give ${bot.formatUser(member.user)} the <@&${role_id}> role for reaching level ${level.number}, but I encountered an error`
@@ -186,13 +186,13 @@ export class XPService {
     static async awardNFT({member, bot, level, rarity}) {
         //ensure account is connected
         if(!(await Firebase.isUserConnectedToLeyline(member.id))) {
-            bot.logDiscord({embed: new EmbedBase(bot, {
+            bot.logDiscord({embed: new EmbedBase({
                 fields: [{
                     name: '❌ Reward Not Distributed',
                     value: `I tried to give ${bot.formatUser(member.user)} a ${rarity.toLowerCase()} NFT for reaching level ${level.number}, but they have not connected their Leyline & Discord accounts`
                 }]
             }).Error()});
-            bot.sendDM({user: member.user, embed: new EmbedBase(bot, {
+            bot.sendDM({user: member.user, embed: new EmbedBase({
                 fields: [
                     {
                         name: `❌ You need to Connect Your Leyline & Discord accounts!`,
@@ -213,7 +213,7 @@ export class XPService {
             //Award NFT to LL user
             await Firebase.rewardNFT(lluser.uid, nft.id);
             //Message user
-            bot.sendDM({user: member.user, embed: new EmbedBase(bot, {
+            bot.sendDM({user: member.user, embed: new EmbedBase({
                 thumbnail: { url: nft.thumbnailUrl },
                 fields: [
                     {
@@ -223,7 +223,7 @@ export class XPService {
                 ],	
             })});
             //Generate embed, Log success
-            const reward_embed = new EmbedBase(bot, {
+            const reward_embed = new EmbedBase({
                 thumbnail: { url: nft.thumbnailUrl },
                 title: 'NFT Awarded',
                 fields: [
@@ -256,7 +256,7 @@ export class XPService {
         } catch(err) {
             bot.logger.error(`Error awarding NFT with id ${nft.id} to LL user ${lluser.uid} for leveling up`);
             bot.logger.error(err);
-            bot.logDiscord({embed: new EmbedBase(bot, {
+            bot.logDiscord({embed: new EmbedBase({
                 thumbnail: { url: nft.thumbnailUrl },
                 title: 'NFT __NOT__ Awarded',
                 description: `**Error**: ${err}`,

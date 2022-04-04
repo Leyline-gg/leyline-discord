@@ -12,7 +12,7 @@ class ping extends Command {
 
     async run({intr}) {
         //TODO: implement Leyline API/Firebase API latency (choose a user-friendly label)
-        const response = await bot.intrReply({intr, embed: new EmbedBase(bot, {
+        const response = await bot.intrReply({intr, embed: new EmbedBase({
             description: 'Pinging...',
         }), fetchReply: true,});
 
@@ -22,7 +22,7 @@ class ping extends Command {
             /*leyline: new Date()*/
         };
 
-        bot.intrReply({intr, embed: new EmbedBase(bot, {
+        bot.intrReply({intr, embed: new EmbedBase({
             fields: [{
                 name: `It took ${latency.self}ms to respond`,
                 value: `Discord API Latency is ${latency.discord}ms`,

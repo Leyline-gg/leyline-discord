@@ -26,7 +26,7 @@ export default class extends DiscordEvent {
             await command.run({intr, opts: intr.options});
         } catch (err) {
             bot.logger.error(`Error with cmd ${intr.commandName}: ${err}`);
-            bot.intrReply({intr, embed: new EmbedBase(bot, {
+            bot.intrReply({intr, embed: new EmbedBase({
                 description: `❌ **I ran into an error while trying to run that command**`,
             }).Error()});
         }
