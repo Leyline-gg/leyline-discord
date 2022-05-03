@@ -1,6 +1,5 @@
 //A local cache that stays in sync with Firestore configuration but can be queried synchronously
 import admin from 'firebase-admin';
-import fs from 'fs/promises';
 
 export class CloudConfig {
     static PATH = 'discord/bot';

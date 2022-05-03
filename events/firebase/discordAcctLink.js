@@ -1,3 +1,4 @@
+import bot from '../../bot';
 import { FirebaseEvent, EmbedBase } from '../../classes';
 
 class DiscordAcctLink extends FirebaseEvent {

@@ -1,5 +1,6 @@
 import { MessageEmbed, Util } from 'discord.js';
 import truncate from 'truncate';
+import bot from '../../bot';
 
 //base Embed object, customized for Leyline
 export class EmbedBase extends MessageEmbed {

@@ -1,3 +1,4 @@
+import bot from '../../bot';
 import * as Firebase from '../../api';
 import { EmbedBase, XPService, ReactionCollectorBase, CloudConfig } from '..';
 

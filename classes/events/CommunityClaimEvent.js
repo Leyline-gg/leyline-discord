@@ -1,3 +1,4 @@
+import bot from '../../bot';
 import { Collection } from 'discord.js';
 import { EmbedBase, LeylineUser } from '..';
 import * as Firebase from '../../api';

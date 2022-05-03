@@ -1,3 +1,4 @@
+import bot from '../../../bot';
 import { DiscordEvent, EmbedBase, ReactionCollector } from '../../../classes';
 import * as Firebase from '../../../api';
 

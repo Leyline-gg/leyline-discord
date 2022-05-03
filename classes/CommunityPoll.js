@@ -1,3 +1,4 @@
+import bot from '../bot';
 import { Collection } from 'discord.js';
 import truncate from 'truncate';
 import * as Firebase from '../api';

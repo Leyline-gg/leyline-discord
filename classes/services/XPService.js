@@ -1,7 +1,7 @@
 import admin from 'firebase-admin';
-import * as Firebase from '../../api';
 import { EmbedBase, LeylineUser } from '..';
-import xplevels from '../../xplevels.js'
+import * as Firebase from '../../api';
+import xplevels from '../../xplevels.js';
 
 export class XPService {
     static LEVELS = xplevels.LEVELS;

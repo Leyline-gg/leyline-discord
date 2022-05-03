@@ -1,3 +1,4 @@
+import bot from '../../bot';
 import { Command, EmbedBase, LeylineUser, } from '../../classes';
 import * as Firebase from '../../api';
 import { partition } from 'lodash-es';

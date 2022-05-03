@@ -1,3 +1,4 @@
+import bot from '../../bot';
 import { Command, EmbedBase, CommunityPoll, } from '../../classes';;
 
 class poll extends Command {

@@ -1,3 +1,4 @@
+import bot from '../../../bot';
 import { JusticeCommand, SentenceService, EmbedBase } from '../../../classes';
 
 class kick extends JusticeCommand {

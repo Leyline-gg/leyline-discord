@@ -1,3 +1,4 @@
+import bot from '../../../bot';
 import { DiscordEvent } from "../../../classes";
 
 export default class extends DiscordEvent {

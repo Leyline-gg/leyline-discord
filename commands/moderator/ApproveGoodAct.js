@@ -1,3 +1,4 @@
+import bot from '../../bot';
 import { Command, EmbedBase, ReactionCollector } from '../../classes';
 import * as Firebase from '../../api';
 

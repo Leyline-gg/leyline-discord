@@ -1,5 +1,5 @@
+import { CloudConfig, EmbedBase, ImageService } from '../';
 import * as Firebase from '../../api';
-import { EmbedBase, CloudConfig, ImageService } from '../';
 import bot from '../../bot';
 
 export class ReactionCollectorBase {

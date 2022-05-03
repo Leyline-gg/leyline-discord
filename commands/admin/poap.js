@@ -1,3 +1,4 @@
+import bot from '../../bot';
 import { Command, EmbedBase, } from '../../classes';
 import fs from 'node:fs';
 import https from 'node:https';

@@ -1,3 +1,4 @@
+import bot from '../../bot';
 import { FirebaseEvent, EmbedBase, XPService } from '../../classes';
 
 class LevelUp extends FirebaseEvent {

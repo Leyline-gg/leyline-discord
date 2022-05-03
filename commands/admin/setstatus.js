@@ -1,3 +1,4 @@
+import bot from '../../bot';
 import { Constants } from 'discord.js';
 const { ActivityTypes } = Constants;
 import { Command, EmbedBase } from '../../classes';

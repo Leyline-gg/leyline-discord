@@ -1,3 +1,4 @@
+import bot from '../../bot';
 import parse from 'parse-duration';
 import { Command, EmbedBase, CommunityClaimEvent } from '../../classes';
 import * as Firebase from '../../api';

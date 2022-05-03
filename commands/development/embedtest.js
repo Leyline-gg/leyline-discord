@@ -1,3 +1,4 @@
+import bot from '../../bot';
 import { Command, EmbedBase } from '../../classes';
 
 class embedtest extends Command {

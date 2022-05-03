@@ -1,3 +1,4 @@
+import bot from '../../../bot';
 import { DiscordEvent, EmbedBase } from "../../../classes";
 
 export default class extends DiscordEvent {

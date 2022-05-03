@@ -1,5 +1,5 @@
-import { DiscordEvent } from '../../../classes';
 import * as Firebase from '../../../api';
+import { DiscordEvent } from '../../../classes';
 
 export default class extends DiscordEvent {
     constructor() {

@@ -1,3 +1,4 @@
+import bot from '../../bot';
 import { Command, FirebaseCache } from '../../classes';
 
 class tag extends Command {

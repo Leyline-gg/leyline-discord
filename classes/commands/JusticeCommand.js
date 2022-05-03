@@ -1,5 +1,6 @@
-import { Command, EmbedBase } from "..";
 import parse from 'parse-duration';
+import { Command, EmbedBase } from "..";
+import bot from '../../bot';
 
 export class JusticeCommand extends Command {
     constructor({

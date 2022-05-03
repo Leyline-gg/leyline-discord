@@ -1,3 +1,4 @@
+import bot from '../../bot';
 import { Command, EmbedBase, XPService } from '../../classes';
 
 class level extends Command {
