@@ -21,7 +21,7 @@ export class EmbedBase extends MessageEmbed {
             color,
             title,
             url,
-            author,
+            author: author ?? {},
             description,
             thumbnail,
             fields,
@@ -42,7 +42,7 @@ export class EmbedBase extends MessageEmbed {
         return (this.title?.length || 0) + 
             (this.description?.length || 0) + 
             (this.footer.text?.length || 0) + 
-            (this.author.name?.length || 0) + 
+            (this.author?.name?.length || 0) + 
             this.fields.reduce((acc, f) => acc + f.name.length + f.value.length, 0);
     }
 

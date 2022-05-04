@@ -1,6 +1,6 @@
 import bot from '../../bot';
 import * as Firebase from '../../api';
-import { EmbedBase, XPService, ReactionCollectorBase, CloudConfig } from '..';
+import { XPService, ReactionCollectorBase, CloudConfig } from '..';
 
 export class KindWordsReactionCollector extends ReactionCollectorBase {
 	//override parent properties
