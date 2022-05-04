@@ -1,6 +1,6 @@
 import { Client, Collection, Emoji, Intents } from 'discord.js';
+import { CloudConfig, ConfirmInteraction, EmbedBase, Logger } from './classes';
 import config from './config.js';
-import { ConfirmInteraction, EmbedBase, Logger, CloudConfig } from './classes';
 
 // Custom bot class, based off the discord.js Client (bot)
 // Designed as a singleton
@@ -12,7 +12,6 @@ class LeylineBot extends Client {
     constructor(options) {
         super(options);
 
-        // Custom properties for our bot
         this.CURRENT_VERSION    = process.env.npm_package_version || '0.0.0-unknown';
         this.logger             = Logger;
         this.config             = config[process.env.NODE_ENV || 'development'];

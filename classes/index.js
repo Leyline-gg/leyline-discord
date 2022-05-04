@@ -1,6 +1,6 @@
+export * from './Logger';
 export * from './CommunityPoll';
 export * from './LeylineUser';
-export * from './Logger';
 export * from './FirebaseCache';
 export * from './collectors/ReactionCollectorBase';
 export * from './collectors/GoodActsReactionCollector';
