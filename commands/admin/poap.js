@@ -1,11 +1,12 @@
+import bot from '../../bot';
 import { Command, EmbedBase, } from '../../classes';
 import fs from 'node:fs';
 import https from 'node:https';
 import { partition } from 'lodash-es';
 
 class poap extends Command {
-    constructor(bot) {
-        super(bot, {
+    constructor() {
+        super({
             name: 'poap',
             description: 'POAP event actions',
             options: [
@@ -78,8 +79,7 @@ class poap extends Command {
     }
 
     awardPOAP({user, code}) {
-        const { bot } = this;
-        return bot.sendDM({user, embed: new EmbedBase(bot, {
+        return bot.sendDM({user, embed: new EmbedBase({
             //thumbnail: { url: nft.thumbnailUrl },
             fields: [
                 {
@@ -95,7 +95,7 @@ class poap extends Command {
 
     subcommands = {
         load: ({intr}) => {
-            const { bot, download, loadLatestCodes } = this;
+            const { download, loadLatestCodes } = this;
             const msgFilter = async function (msg) {
                 if(msg.channel.id !== intr.channelId ||
                     msg.author.id !== intr.user.id ||
@@ -117,7 +117,7 @@ class poap extends Command {
                 //respond to user
                 bot.intrUpdate({
                     intr, 
-                    embed: new EmbedBase(bot, {
+                    embed: new EmbedBase({
                         description: `✅ **I have successfully loaded ${codes.length} POAP codes and they are ready to be dropped**`,
                     }).Success(),
                 });
@@ -125,7 +125,7 @@ class poap extends Command {
 
             bot.intrReply({
                 intr, 
-                embed: new EmbedBase(bot, {
+                embed: new EmbedBase({
                     description: 'Please upload the text file containing the POAP codes',
                 }),
             });
@@ -142,7 +142,7 @@ class poap extends Command {
             }, 20000);
         },
         drop: async ({intr, opts}) => {
-            const { bot, loadLatestCodes } = this;
+            const { loadLatestCodes } = this;
             
             const codes = await loadLatestCodes();
             const ch = opts.getChannel('channel');
@@ -180,7 +180,7 @@ class poap extends Command {
                 if(member?.connected === false) return bot.config.emoji.unconnected;
                 return '❓';
             };
-            const embed = new EmbedBase(bot, {
+            const embed = new EmbedBase({
                 description: `**${awarded.length} out of ${eligible.length} POAPs** were awarded`,
                 //thumbnail: { url: nft.thumbnailUrl },
                 fields: [

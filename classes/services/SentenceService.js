@@ -53,7 +53,7 @@ export class SentenceService {
      */
     static async logSentence({bot, user, mod, sentence_type: type, expires=null, reason=null, timestamp=Date.now()} = {}) {
         const { SENTENCE_TYPES } = this;
-        const embed = new EmbedBase(bot, {
+        const embed = new EmbedBase({
             title: 'Justice Served',
             fields: [
                 {
@@ -357,7 +357,7 @@ export class SentenceService {
      * @returns {EmbedBase} embed with sentence history
      */
     static generateHistoryEmbed({bot, user, history_docs, mod=false}) {
-        const embed = new EmbedBase(bot, {
+        const embed = new EmbedBase({
 			title: mod
 				? `Sentences Issued by ${user.tag} (${user.id})`
 				: `Sentence History for ${user.tag} (${user.id})`,
@@ -406,7 +406,7 @@ export class SentenceService {
         });
 
         //generate embed to modify it later
-        const embed = new EmbedBase(bot, {
+        const embed = new EmbedBase({
             title: 'Sentence Expired',
             fields: [
                 {
@@ -479,7 +479,7 @@ export class SentenceService {
         ) || await bot.users.fetch(uid);
 
         //log removal
-        await bot.logDiscord({embed: new EmbedBase(bot, {
+        await bot.logDiscord({embed: new EmbedBase({
             title: 'Sentence Expired',
             fields: [
                 {

@@ -1,9 +1,10 @@
+import bot from '../../bot';
 import { Command, EmbedBase, LeylineUser, XPService } from '../../classes';
 import * as Firebase from '../../api';
 
 class profile extends Command {
-    constructor(bot) {
-        super(bot, {
+    constructor() {
+        super({
             name: 'profile',
             description: 'View your Leyline profile or the profile of another user',
             options: [
@@ -20,7 +21,6 @@ class profile extends Command {
     }
 
     async run({intr, opts}) {
-        const { bot } = this;
         // Functions
         /**
          * @returns {Promise<LeylineUser>}
@@ -44,7 +44,7 @@ class profile extends Command {
             if(target_user.id === bot.user.id) return bot.intrReply({intr, content: 'My Leyline profile is beyond your capacity of comprehension'});
 
             const user = await getLeylineInfo(target_user.id);
-            bot.intrReply({intr, embed: new EmbedBase(bot, {
+            bot.intrReply({intr, embed: new EmbedBase({
                 //title: 'Leyline Profile',
                 url: user.profile_url,
                 author: {
@@ -132,7 +132,7 @@ class profile extends Command {
             if(!!err.code) 
                 switch(err.code) {
                     case 2: //user tried to view their own LL profile; it was not found
-                        bot.intrReply({intr, embed: new EmbedBase(bot, {
+                        bot.intrReply({intr, embed: new EmbedBase({
                             fields: [
                                 {
                                     name: `❌ You need to Connect Your Leyline & Discord accounts!`,
@@ -142,13 +142,13 @@ class profile extends Command {
                         }).Error()});
                         break;
                     case 3:
-                        bot.intrReply({intr, embed: new EmbedBase(bot, {
+                        bot.intrReply({intr, embed: new EmbedBase({
                             description: `❌ **That user has not connected their Leyline & Discord accounts**`,
                         }).Error()});
                         break;
                         
                     default:
-                        bot.intrReply({intr, embed: new EmbedBase(bot, {
+                        bot.intrReply({intr, embed: new EmbedBase({
                             description: `❌ **Error trying to run that command**`,
                         }).Error()});
                         break;

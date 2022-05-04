@@ -1,8 +1,9 @@
+import bot from '../../bot';
 import { Command, EmbedBase } from '../../classes';
 
 class embedtest extends Command {
-    constructor(bot) {
-        super(bot, {
+    constructor() {
+        super({
             name: 'embedtest',
             description: 'Used for development embed testing',
             category: 'development',
@@ -10,9 +11,8 @@ class embedtest extends Command {
     }
 
     async run({intr, opts}) {
-        const { bot } = this;
         let expires = false;
-        bot.intrReply({intr, embed: new EmbedBase(bot, {
+        bot.intrReply({intr, embed: new EmbedBase({
             title: 'Justice Served',
             fields: [
                 {

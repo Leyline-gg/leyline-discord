@@ -1,5 +1,5 @@
 export class Command {
-    constructor(bot, {
+    constructor({
         name = null,
         description = '',   //cannot be empty for chat commands
         options = [],
@@ -8,7 +8,6 @@ export class Command {
         type = 'CHAT_INPUT',
         ...other
     }) {
-        this.bot = bot;
         this.name = name;
         this.description = description;
         this.options = options;

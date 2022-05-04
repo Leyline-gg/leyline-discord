@@ -1,5 +1,6 @@
+import bot from '../../bot';
 import * as Firebase from '../../api';
-import { EmbedBase, XPService, ReactionCollectorBase, CloudConfig } from '..';
+import { XPService, ReactionCollectorBase, CloudConfig } from '..';
 
 export class KindWordsReactionCollector extends ReactionCollectorBase {
 	//override parent properties
@@ -7,16 +8,16 @@ export class KindWordsReactionCollector extends ReactionCollectorBase {
 	get APPROVAL_GP() { return CloudConfig.get('ReactionCollector').KindWords.APPROVAL_GP; }
 	get MOD_EMOJIS() { 
 		return CloudConfig.get('ReactionCollector').KindWords.MOD_EMOJIS
-			.map(this.bot.constructEmoji)
+			.map(bot.constructEmoji)
 			.sort((a, b) => (
 				{position: Number.MAX_VALUE, ...a}.position -
 				{position: Number.MAX_VALUE, ...b}.position
 			));
 	}
-	constructor(bot, {
+	constructor({
 		msg,
 	}) {
-		super(bot, {
+		super({
 			type: 'KIND_WORDS',
 			msg,
 		});
@@ -31,7 +32,7 @@ export class KindWordsReactionCollector extends ReactionCollectorBase {
 
     // Callback specific to this Collector class
 	async approveSubmission({user}) {
-		const { bot, msg } = this;
+		const { msg } = this;
 		try {
 			await Firebase.approveCollector({collector: this, user});
 

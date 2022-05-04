@@ -1,8 +1,9 @@
-import { Command, EmbedBase } from "..";
 import parse from 'parse-duration';
+import { Command, EmbedBase } from "..";
+import bot from '../../bot';
 
 export class JusticeCommand extends Command {
-    constructor(bot, {
+    constructor({
         name,
         description,
         sentence_type,   //uppercase string, see SENTENCE_TYPES
@@ -12,7 +13,7 @@ export class JusticeCommand extends Command {
             reason=true,
         } = {},
     } = {}) {
-        super(bot, {
+        super({
             name,
             description,
             options: [
@@ -60,11 +61,11 @@ export class JusticeCommand extends Command {
     }
 
     getModConfirmation({intr, user, reason}) {
-        const { bot, sentence_type } = this;
+        const { sentence_type } = this;
         return bot.intrConfirm({
             intr,
             ephemeral: true,
-            embed: new EmbedBase(bot, {
+            embed: new EmbedBase({
                 description: `
                     ⚠ **Are you sure you want to ${sentence_type} ${bot.formatUser(user)} for \`${reason ?? 'No reason given'}\`?**
 
@@ -76,9 +77,9 @@ export class JusticeCommand extends Command {
     }
 
     checkEasterEgg({user, intr}) {
-        const { bot, sentence_type } = this;
+        const { sentence_type } = this;
         return (sentence_type !== 'HISTORY' && user.id === '139120967208271872')
-            ? bot.intrReply({intr, embed: new EmbedBase(bot, {
+            ? bot.intrReply({intr, embed: new EmbedBase({
                 title: 'Nice try!',
                 image: {
                     url: 'https://i.imgur.com/kAVql0f.jpg',

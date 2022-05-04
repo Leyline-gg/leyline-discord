@@ -1,6 +1,6 @@
+export * from './Logger';
 export * from './CommunityPoll';
 export * from './LeylineUser';
-export * from './Logger';
 export * from './FirebaseCache';
 export * from './collectors/ReactionCollectorBase';
 export * from './collectors/GoodActsReactionCollector';
@@ -17,4 +17,3 @@ export * from './services/XPService';
 export * from './services/SentenceService';
 export * from './services/ImageService'
 export * from './CloudConfig';
-export * from './LeylineBot';

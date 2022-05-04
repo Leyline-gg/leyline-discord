@@ -1,8 +1,9 @@
+import bot from '../../bot';
 import { FirebaseEvent, EmbedBase, XPService } from '../../classes';
 
 class LevelUp extends FirebaseEvent {
-    constructor(bot) {
-        super(bot, {
+    constructor() {
+        super({
             name: 'LevelUp',
             description: 'Perform actions when a user levels up',
             collection: XPService.COLLECTION_PATH,
@@ -20,9 +21,9 @@ class LevelUp extends FirebaseEvent {
     }
 
     async generateLevelUpMsg({uid, level} = {}) {
-        return new EmbedBase(this.bot, {
+        return new EmbedBase({
             title: '⬆  User Leveled Up',
-            description: `${this.bot.formatUser(await this.bot.users.fetch(uid))} reached level **${level.number}**!\nWay to change the game & Leylight the way!`,
+            description: `${bot.formatUser(await bot.users.fetch(uid))} reached level **${level.number}**!\nWay to change the game & Leylight the way!`,
         });
     }
 
@@ -31,7 +32,6 @@ class LevelUp extends FirebaseEvent {
      * @param {FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>} doc 
      */
     async onAdd(doc) {
-        const { bot } = this;
         const uid = doc.data().uid;
         if(!uid) return bot.logger.error(`${this.name} onAdd() could not find a uid for doc ${doc.ref.path}`);
         const xp = await XPService.getUserXP(uid);
@@ -47,7 +47,7 @@ class LevelUp extends FirebaseEvent {
 
         const member = await bot.leyline_guild.members.fetch(uid);
         if(!member) 
-            return bot.logDiscord({ embed: new EmbedBase(bot, {
+            return bot.logDiscord({ embed: new EmbedBase({
                 fields: [{
                     name: '⬆ User Level Up',
                     value: `Discord user <@${doc.data().uid}> just leveled up, but I could not find them in the server`

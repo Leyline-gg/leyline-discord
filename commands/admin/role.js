@@ -1,8 +1,9 @@
+import bot from '../../bot';
 import { Command, EmbedBase } from '../../classes';
 
 class role extends Command {
-    constructor(bot) {
-        super(bot, {
+    constructor() {
+        super({
             name: 'role',
             description: 'Add or remove roles from a Discord user',
             options: [
@@ -51,31 +52,28 @@ class role extends Command {
 
     subcommands = {
         add: ({intr, mem, role}) => {
-            const { bot } = this;
             mem.roles.add(role, `Requested by ${intr.user.tag}`)
-                .then(() => bot.intrReply({intr, embed: new EmbedBase(bot, {
+                .then(() => bot.intrReply({intr, embed: new EmbedBase({
                     description: `✅ **The ${role.toString()} role has been added to ${mem.toString()}**`,
                 }).Success()}))
-                .catch(err => bot.intrReply({intr, embed: new EmbedBase(bot, {
+                .catch(err => bot.intrReply({intr, embed: new EmbedBase({
                     description: `❌ **Error: ${err}**`,
                 }).Error()}));
         },
         remove: ({intr, mem, role}) => {
-            const { bot } = this;
             mem.roles.remove(role, `Requested by ${intr.user.tag}`)
-                .then(() => bot.intrReply({intr, embed: new EmbedBase(bot, {
+                .then(() => bot.intrReply({intr, embed: new EmbedBase({
                     description: `✅ **The ${role.toString()} role has been removed from ${mem.toString()}**`,
                 }).Success()}))
-                .catch(err => bot.intrReply({intr, embed: new EmbedBase(bot, {
+                .catch(err => bot.intrReply({intr, embed: new EmbedBase({
                     description: `❌ **Error: ${err}**`,
                 }).Error()}));
         },
     };
 
     async run({intr, opts}) {
-        const { bot } = this;
         const mem = await bot.leyline_guild.members.fetch(opts.getUser('user'));
-        if(!mem) return bot.intrReply({intr, embed: new EmbedBase(bot, {
+        if(!mem) return bot.intrReply({intr, embed: new EmbedBase({
             description: `❌ **I couldn't find that user**`,
         }).Error()});
         

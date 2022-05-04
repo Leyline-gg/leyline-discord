@@ -1,9 +1,10 @@
 import { MessageEmbed, Util } from 'discord.js';
 import truncate from 'truncate';
+import bot from '../../bot';
 
 //base Embed object, customized for Leyline
 export class EmbedBase extends MessageEmbed {
-    constructor(bot, {
+    constructor({
         color = 0x2EA2E0,
         title,
         url,
@@ -20,7 +21,7 @@ export class EmbedBase extends MessageEmbed {
             color,
             title,
             url,
-            author,
+            author: author ?? {},
             description,
             thumbnail,
             fields,
@@ -41,7 +42,7 @@ export class EmbedBase extends MessageEmbed {
         return (this.title?.length || 0) + 
             (this.description?.length || 0) + 
             (this.footer.text?.length || 0) + 
-            (this.author.name?.length || 0) + 
+            (this.author?.name?.length || 0) + 
             this.fields.reduce((acc, f) => acc + f.name.length + f.value.length, 0);
     }
 
@@ -72,7 +73,7 @@ export class EmbedBase extends MessageEmbed {
      */
     splitEmbed({bot, fields=this.fields, embeds=[], ...other} = {}) {
         if(!fields.length) return embeds;
-        const embed = new EmbedBase(bot, other);
+        const embed = new EmbedBase(other);
         embeds.push(embed);
         while(embed.char_count < 6000 && !!fields.length) {
             embed.fields.push(fields.shift());

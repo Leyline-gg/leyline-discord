@@ -1,9 +1,10 @@
-import { Client, Collection, Emoji } from "discord.js";
-import config from '../config.js';
-import { ConfirmInteraction, EmbedBase, Logger, CloudConfig } from ".";
+import { Client, Collection, Emoji, Intents } from 'discord.js';
+import { CloudConfig, ConfirmInteraction, EmbedBase, Logger } from './classes';
+import config from './config.js';
 
 // Custom bot class, based off the discord.js Client (bot)
-export class LeylineBot extends Client {
+// Designed as a singleton
+class LeylineBot extends Client {
     //getter for all Config methods that call Config.get()
     get connection_tutorial() { return CloudConfig.get('connection_tutorial'); }
     get xp_doc() { return CloudConfig.get('xp_doc'); }
@@ -11,7 +12,6 @@ export class LeylineBot extends Client {
     constructor(options) {
         super(options);
 
-        // Custom properties for our bot
         this.CURRENT_VERSION    = process.env.npm_package_version || '0.0.0-unknown';
         this.logger             = Logger;
         this.config             = config[process.env.NODE_ENV || 'development'];
@@ -268,3 +268,19 @@ export class LeylineBot extends Client {
         }), other);
     }
 }
+
+export default new LeylineBot({ 
+    restTimeOffset: 0, /*allegedly this helps with API delays*/
+    intents: [
+        Intents.FLAGS.GUILDS,
+        Intents.FLAGS.GUILD_MEMBERS,
+        Intents.FLAGS.GUILD_MESSAGES,
+        Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
+        Intents.FLAGS.GUILD_VOICE_STATES,
+        Intents.FLAGS.DIRECT_MESSAGES,
+    ],
+    allowedMentions: {
+        parse: ['users', 'roles'],
+        repliedUser: true,
+    },
+});

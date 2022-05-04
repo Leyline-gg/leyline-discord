@@ -1,8 +1,8 @@
-import fs from 'fs';
-import https from 'https';
 import visionClient from '@google-cloud/vision';
-import { parse } from 'node-html-parser';
+import fs from 'fs';
 import { decode } from 'html-entities';
+import https from 'https';
+import { parse } from 'node-html-parser';
 const vision = new visionClient.ImageAnnotatorClient();
 
 export class ImageService {

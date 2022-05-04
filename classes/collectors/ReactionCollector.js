@@ -9,16 +9,15 @@ export class ReactionCollector {
 
     /**
      * 
-     * @param {LeylineBot} bot 
      * @param {Object} args Destructured arguments 
      * @param {ReactionCollectorBase} args.type The type of collector, see `this.Collectors`
      * @returns {ReactionCollectorBase}
      */
-    constructor(bot, {
+    constructor({
         type,
         ...rest
     }) {
-        return new type(bot, rest);
+        return new type(rest);
     }
 }
 

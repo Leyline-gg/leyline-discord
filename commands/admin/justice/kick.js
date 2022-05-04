@@ -1,8 +1,9 @@
+import bot from '../../../bot';
 import { JusticeCommand, SentenceService, EmbedBase } from '../../../classes';
 
 class kick extends JusticeCommand {
-    constructor(bot) {
-        super(bot, {
+    constructor() {
+        super({
             name: 'kick',
             sentence_type: SentenceService.SENTENCE_TYPES.KICK,
             description: 'Remove a Discord user from the server',
@@ -14,7 +15,7 @@ class kick extends JusticeCommand {
 
     //Override parent
     async executeSentence({intr, user, reason}) {
-        const { bot, sentence_type } = this;
+        const { sentence_type } = this;
         //issue sentence
         await SentenceService.kickUser({
             bot,
@@ -30,13 +31,13 @@ class kick extends JusticeCommand {
             sentence_type,
             reason,
         });
-        return bot.intrReply({intr, embed: new EmbedBase(bot, {
+        return bot.intrReply({intr, embed: new EmbedBase({
             description: `⚖ **Sentence Successfully Issued**`,
         }).Sentence(), ephemeral: true});
     }
 
     async run({intr, opts}) {
-        const { bot, sentence_type } = this;
+        const { sentence_type } = this;
         const { SENTENCE_TYPES } = SentenceService;
 
         const { user, reason } = super.parseInput(opts);
@@ -47,7 +48,7 @@ class kick extends JusticeCommand {
                 return bot.intrReply({
                     intr,
                     ephemeral: true,
-                    embed: new EmbedBase(bot, {
+                    embed: new EmbedBase({
                         description: `❌ **Sentence canceled**`,
                     }).Error(),
                 });

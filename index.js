@@ -3,12 +3,13 @@
 if (process.version.slice(1).split(".")[0] < 16)
     throw new Error("Node 16.6.0 or higher is required.");
   
-import { Intents, Message } from 'discord.js';
+import { Message } from 'discord.js';
 import admin from 'firebase-admin';
 import klaw from 'klaw';
 import path from 'path';
 import * as Firebase from './api';
-import { LeylineBot, EmbedBase, CommunityPoll, ReactionCollector, SentenceService, CloudConfig, CommunityClaimEvent } from './classes';
+import { EmbedBase, CommunityPoll, ReactionCollector, SentenceService, CloudConfig, CommunityClaimEvent } from './classes';
+import bot from './bot';
 //formally, dotenv shouldn't be used in prod, but because staging and prod share a VM, it's an option I elected to go with for convenience
 import { config as dotenv_config } from 'dotenv';
 dotenv_config();
@@ -56,23 +57,6 @@ Message.prototype.disableComponents = function () {
             comp.setDisabled();
     return this.edit({components: this.components});
 };
-
-// Globally instantiate our bot; prepare to login later
-const bot = new LeylineBot({ 
-    restTimeOffset: 0, /*allegedly this helps with API delays*/
-    intents: [
-        Intents.FLAGS.GUILDS,
-        Intents.FLAGS.GUILD_MEMBERS,
-        Intents.FLAGS.GUILD_MESSAGES,
-        Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
-        Intents.FLAGS.GUILD_VOICE_STATES,
-        Intents.FLAGS.DIRECT_MESSAGES,
-    ],
-    allowedMentions: {
-        parse: ['users', 'roles'],
-        repliedUser: true,
-    },
-});
 
 // Initialization process
 const init = async function () {
@@ -157,7 +141,7 @@ const init = async function () {
     bot.login(process.env.BOT_TOKEN).then(() => {
         bot.logger.debug(`Bot succesfully initialized. Environment: ${process.env.NODE_ENV}. Version: ${bot.CURRENT_VERSION}`);
         process.env.NODE_ENV !== 'development' &&   //send message in log channel when staging/prod bot is online
-            bot.logDiscord({embed: new EmbedBase(bot, {
+            bot.logDiscord({embed: new EmbedBase({
                 description: `\`${process.env.NODE_ENV}\` environment online, running version ${bot.CURRENT_VERSION}`,
             }).Success()});
         bot.logger.log('Beginning post-initializtion sequence...');
@@ -200,7 +184,7 @@ const postInit = async function () {
             try {
                 const ch = await bot.channels.fetch(doc.data().channel, true, true);
                 const msg = await ch.messages.fetch(doc.id, true, true);
-                const collector = await new ReactionCollector(bot, {
+                const collector = await new ReactionCollector({
                     type: ReactionCollector.Collectors[doc.data().type],
                     msg,
                 }).loadMessageCache(doc);
@@ -230,7 +214,7 @@ const postInit = async function () {
                 const msg = await ch.messages.fetch(doc.id, true, true);
                 const embed = msg.embeds[0];
                 if(!embed) throw new Error('No embeds found on the fetched message');
-                await new CommunityPoll(bot, {
+                await new CommunityPoll({
                     embed,
                     author: await bot.users.fetch(doc.data().created_by),
                     question: embed.title, 
@@ -284,7 +268,7 @@ const postInit = async function () {
                 const msg = await ch.messages.fetch(doc.id, true, true);
                 const embed = msg.embeds[0];
                 if(!embed) throw new Error('No embeds found on the fetched message');
-                await new CommunityClaimEvent(bot, {
+                await new CommunityClaimEvent({
                     embed,
                     author: await bot.users.fetch(doc.data().created_by),
                     title: embed.title, 

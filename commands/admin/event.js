@@ -1,10 +1,11 @@
+import bot from '../../bot';
 import parse from 'parse-duration';
 import { Command, EmbedBase, CommunityClaimEvent } from '../../classes';
 import * as Firebase from '../../api';
 
 class event extends Command {
-    constructor(bot) {
-        super(bot, {
+    constructor() {
+        super({
             name: 'event',
             description: 'Create a Community Claim Event',
             options: [
@@ -69,7 +70,6 @@ class event extends Command {
     }
 
     async run({intr, opts}) {
-        const { bot } = this;
 
         const { title, channel, nft, duration, text, expires } = await this.parseInput(opts);
 
@@ -81,7 +81,7 @@ class event extends Command {
         //docs are ids of users that have claimed with 'claimed' prop = true
 
         //generate and send event preview
-        const event = new CommunityClaimEvent(bot, {
+        const event = new CommunityClaimEvent({
             title,
             description: text,
             duration,
@@ -96,7 +96,7 @@ class event extends Command {
         await event.publish({channel});
 
         //edit response with msg id
-        bot.intrReply({intr, embed: new EmbedBase(bot, {
+        bot.intrReply({intr, embed: new EmbedBase({
             description: `✅ **Event Published Succesfully** ([Click to view](${event.msg.url}))`,
         }).Success(), content: '\u200b'});
     }
