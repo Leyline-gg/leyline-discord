@@ -30,6 +30,7 @@
 		"node-html-parser": "^5.1.0",
 		"node-schedule": "^2.0.0",
 		"parse-duration": "^1.0.0",
+		"serialize-error": "^10.0.0",
 		"truncate": "^2.1.0"
 	}
 }
