@@ -20,7 +20,7 @@ export class CronEvent {
 		Object.assign(this, bot.config.events[this.name]);
     }
 
-    run(data) {
+    run() {
         throw new Error(`DiscordEvent ${this.name} doesn't provide a run method.`);
     }
 }
