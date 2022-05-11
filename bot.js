@@ -144,6 +144,32 @@ class LeylineBot extends Client {
         });
     }
 
+    /**
+     * Sends a discord message on the bot's behalf to a private staff channel
+     * @param {Object} args
+     * @param {EmbedBase} args.embed Singular embed object to be sent in message
+     * @returns {Promise<Message>} Promise which resolves to the sent message
+     */
+     async logStaff({embed, ...options}) {
+        return (await this.channels.fetch(this.config.channels.staff)).send({
+            embeds: [embed],
+            ...options,
+        });
+    }
+
+    /**
+     * Sends a discord message on the bot's behalf to a public announcement channel
+     * @param {Object} args
+     * @param {EmbedBase} args.embed Singular embed object to be sent in message
+     * @returns {Promise<Message>} Promise which resolves to the sent message
+     */
+     async sendAnnouncement({embed, ...options}) {
+        return (await this.channels.fetch(this.config.channels.announcements)).send({
+            embeds: [embed],
+            ...options,
+        });
+    }
+
     sendDisabledDmMessage(user) {
         this.msgBotChannel({
             content: user.toString(),
@@ -280,7 +306,7 @@ export default new LeylineBot({
         Intents.FLAGS.DIRECT_MESSAGES,
     ],
     allowedMentions: {
-        parse: ['users', 'roles'],
+        parse: ['users', 'roles', 'everyone'],
         repliedUser: true,
     },
 });

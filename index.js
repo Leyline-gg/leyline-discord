@@ -12,6 +12,7 @@ import { EmbedBase, CommunityPoll, ReactionCollector, SentenceService, CloudConf
 import bot from './bot';
 //formally, dotenv shouldn't be used in prod, but because staging and prod share a VM, it's an option I elected to go with for convenience
 import { config as dotenv_config } from 'dotenv';
+import { scheduleJob } from 'node-schedule';
 dotenv_config();
 
 // Modify Discord.js classes to include custom methods
@@ -73,7 +74,7 @@ const init = async function () {
         if (!cmdFile.ext || cmdFile.ext !== '.js') continue;
         const cmdName = cmdFile.name.split('.')[0];
         try {
-            const cmd = new (await import('./' + path.relative(process.cwd(), `${cmdFile.dir}${path.sep}${cmdFile.name}${cmdFile.ext}`))).default(bot);
+            const cmd = new (await import('./' + path.relative(process.cwd(), `${cmdFile.dir}${path.sep}${cmdFile.name}${cmdFile.ext}`))).default();
             process.env.NODE_ENV === 'development' 
                 ? bot.commands.set(cmdName, cmd) 
                 : cmd.category !== 'development' &&
@@ -92,7 +93,7 @@ const init = async function () {
         if (!eventFile.ext || eventFile.ext !== '.js') continue;
         const eventName = eventFile.name.split('.')[0];
         try {
-            const event = new (await import('./' + path.relative(process.cwd(), `${eventFile.dir}${path.sep}${eventFile.name}${eventFile.ext}`))).default(bot);
+            const event = new (await import('./' + path.relative(process.cwd(), `${eventFile.dir}${path.sep}${eventFile.name}${eventFile.ext}`))).default();
             bot.events.set(eventName, event);
             bot.on(event.event_type, (...args) => event.run(...args));
             
@@ -101,14 +102,14 @@ const init = async function () {
             bot.logger.error(`Error loading Discord event ${eventFile.name}: ${error}`);
         }
     }
-    bot.logger.log(`Loaded ${bot.events.size} Discord events`)
+    bot.logger.log(`Loaded ${bot.events.size} Discord events`);
 
     //import firebase events
     for await (const item of klaw('./events/firebase')){
         const eventFile = path.parse(item.path);
         if (!eventFile.ext || eventFile.ext !== '.js') continue;
         try {
-            const firebase_event = new (await import('./' + path.relative(process.cwd(), `${eventFile.dir}${path.sep}${eventFile.name}${eventFile.ext}`))).default(bot);
+            const firebase_event = new (await import('./' + path.relative(process.cwd(), `${eventFile.dir}${path.sep}${eventFile.name}${eventFile.ext}`))).default();
             admin.firestore().collection(firebase_event.collection).onSnapshot((snapshot) => {
                 if(!bot.readyAt) return;    //ensure bot is initialized before event is fired
                 if(snapshot.empty) return;
@@ -136,6 +137,23 @@ const init = async function () {
         }
     }
     bot.logger.log(`Loaded ${bot.firebase_events.size} Firebase events`);
+
+    //import cron events
+    let cron_total = 0;
+    for await (const item of klaw('./events/cron')) {
+        const eventFile = path.parse(item.path);
+        if (!eventFile.ext || eventFile.ext !== '.js') continue;
+        try {
+            const event = new (await import('./' + path.relative(process.cwd(), `${eventFile.dir}${path.sep}${eventFile.name}${eventFile.ext}`))).default();
+            scheduleJob(event.schedule, () => event.run());
+            cron_total++;
+            
+            //delete require.cache[require.resolve(`${eventFile.dir}${path.sep}${eventFile.name}${eventFile.ext}`)];
+        } catch(error) {
+            bot.logger.error(`Error loading cron event ${eventFile.name}: ${error}`);
+        }
+    }
+    bot.logger.log(`Loaded ${cron_total} cron events`);
 
     bot.logger.log('Connecting to Discord...');
     bot.login(process.env.BOT_TOKEN).then(() => {
