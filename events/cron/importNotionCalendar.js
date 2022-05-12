@@ -47,9 +47,11 @@ export default class extends CronEvent {
                 const [name, scheduledStartTime, channel, desc_header_idx] = [
                     event.properties.Name.title[0].plain_text,
                     event.properties.Date.date.start,
-                    await bot.leyline_guild.channels.fetch(event.properties['Discord Channel'].select.name.split('#')[1]),
+                    (await bot.leyline_guild.channels.fetch()).find(c => c.name.includes(event.properties['Discord Channel'].select.name)),
                     blocks.results.findIndex(b => b[b.type].rich_text[0]?.plain_text?.toLowerCase()?.includes('description')) + 1,
                 ];
+
+                if(!channel) throw new Error(`Event ${event.id} passed "${event.properties['Discord Channel'].select.name}" as an invalid voice channel`);
 
                 let description = desc_header_idx > 0 
                     ? blocks.results[desc_header_idx][blocks.results[desc_header_idx].type].rich_text[0].plain_text
@@ -94,20 +96,21 @@ export default class extends CronEvent {
 
 
         //send a message with created events in announcements
-        bot.sendAnnouncement({
-            content: `@everyone`,
-            embed: new EmbedBase({
-                title: `📅  This Week's Events`,
-                fields: scheduled_events.map(e => ({
-                    name: e.name,
-                    value: `
-                        ${bot.formatTimestamp(e.scheduledStartTimestamp, 'F')}
-                        *${e?.description ?? ''}*
-                        [More info](${e.url})
-                    `,
-                    inline: false,
-                })),
-            }),
-        });
+        !!scheduled_events.length && 
+            bot.sendAnnouncement({
+                content: `@everyone`,
+                embed: new EmbedBase({
+                    title: `📅  This Week's Events`,
+                    fields: scheduled_events.map(e => ({
+                        name: e.name,
+                        value: `
+                            ${bot.formatTimestamp(e.scheduledStartTimestamp, 'F')}
+                            *${e?.description ?? ''}*
+                            [More info](${e.url})
+                        `,
+                        inline: false,
+                    })),
+                }),
+            });
     }
 }
