@@ -1,8 +1,9 @@
+import bot from '../../bot';
 import { Command, EmbedBase } from '../../classes';
 
 class restart extends Command {
-    constructor(bot) {
-        super(bot, {
+    constructor() {
+        super({
             name: 'restart',
             description: 'Restarts the bot',
             category: 'admin',
@@ -10,23 +11,22 @@ class restart extends Command {
     }
 
     async run({intr, opts}) {
-        const { bot } = this;
         if(process.env.NODE_ENV === 'development')
-            return bot.intrReply({intr, embed: new EmbedBase(bot, {
+            return bot.intrReply({intr, embed: new EmbedBase({
                 description: '❌ **That command does not work in the `dev` environment**',
             }).Error()});
 
         // Get user confirmation first
-        const confirm = await bot.intrConfirm({intr, embed: new EmbedBase(bot, {
+        const confirm = await bot.intrConfirm({intr, embed: new EmbedBase({
             description: '⚠ **This will immediately disconnect & attempt to reconnect the bot, are you sure you want to proceed?**'
         }).Warn()});
 
-        if(!confirm) return bot.intrReply({intr, embed: new EmbedBase(bot, {
+        if(!confirm) return bot.intrReply({intr, embed: new EmbedBase({
             description: `❌ **Restart canceled**`,
         }).Error()}); 
 
         // Proceed with restart
-        await bot.intrReply({intr, embed: new EmbedBase(bot, {
+        await bot.intrReply({intr, embed: new EmbedBase({
             description: `🔄 **Restarting...**`,
         }).Warn()}); 
         bot.logger.warn(`Restart command issued by ${intr.user.tag}`);
@@ -34,7 +34,7 @@ class restart extends Command {
         bot.destroy();
         process.kill(process.pid, 'SIGINT');
 
-        bot.intrReply({intr, embed: new EmbedBase(bot, {
+        bot.intrReply({intr, embed: new EmbedBase({
             description: `❌ **Restart unsuccessful**`,
         }).Error()}); 
     }

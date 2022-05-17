@@ -1,13 +1,13 @@
+import bot from '../../bot';
 /**
  * Custom class for implementing Discord events. The `run()` method will be called whenever the event `name` is fired
  */
 export class DiscordEvent {
-    constructor(bot, {
+    constructor({
         name        = null,
         description = null,
         event_type  = null,
     }) {
-        this.bot            = bot;
         this.name           = name;
         this.description    = description;
         this.event_type     = event_type;

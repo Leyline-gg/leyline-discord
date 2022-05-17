@@ -3,14 +3,16 @@
 if (process.version.slice(1).split(".")[0] < 16)
     throw new Error("Node 16.6.0 or higher is required.");
   
-import { Intents, Message } from 'discord.js';
+import { Message } from 'discord.js';
 import admin from 'firebase-admin';
 import klaw from 'klaw';
 import path from 'path';
 import * as Firebase from './api';
-import { LeylineBot, EmbedBase, CommunityPoll, ReactionCollector, SentenceService, CloudConfig, CommunityClaimEvent } from './classes';
+import { EmbedBase, CommunityPoll, ReactionCollector, SentenceService, CloudConfig, CommunityClaimEvent } from './classes';
+import bot from './bot';
 //formally, dotenv shouldn't be used in prod, but because staging and prod share a VM, it's an option I elected to go with for convenience
 import { config as dotenv_config } from 'dotenv';
+import { scheduleJob } from 'node-schedule';
 dotenv_config();
 
 // Modify Discord.js classes to include custom methods
@@ -57,23 +59,6 @@ Message.prototype.disableComponents = function () {
     return this.edit({components: this.components});
 };
 
-// Globally instantiate our bot; prepare to login later
-const bot = new LeylineBot({ 
-    restTimeOffset: 0, /*allegedly this helps with API delays*/
-    intents: [
-        Intents.FLAGS.GUILDS,
-        Intents.FLAGS.GUILD_MEMBERS,
-        Intents.FLAGS.GUILD_MESSAGES,
-        Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
-        Intents.FLAGS.GUILD_VOICE_STATES,
-        Intents.FLAGS.DIRECT_MESSAGES,
-    ],
-    allowedMentions: {
-        parse: ['users', 'roles'],
-        repliedUser: true,
-    },
-});
-
 // Initialization process
 const init = async function () {
     //initialize firebase
@@ -89,7 +74,7 @@ const init = async function () {
         if (!cmdFile.ext || cmdFile.ext !== '.js') continue;
         const cmdName = cmdFile.name.split('.')[0];
         try {
-            const cmd = new (await import('./' + path.relative(process.cwd(), `${cmdFile.dir}${path.sep}${cmdFile.name}${cmdFile.ext}`))).default(bot);
+            const cmd = new (await import('./' + path.relative(process.cwd(), `${cmdFile.dir}${path.sep}${cmdFile.name}${cmdFile.ext}`))).default();
             process.env.NODE_ENV === 'development' 
                 ? bot.commands.set(cmdName, cmd) 
                 : cmd.category !== 'development' &&
@@ -108,7 +93,7 @@ const init = async function () {
         if (!eventFile.ext || eventFile.ext !== '.js') continue;
         const eventName = eventFile.name.split('.')[0];
         try {
-            const event = new (await import('./' + path.relative(process.cwd(), `${eventFile.dir}${path.sep}${eventFile.name}${eventFile.ext}`))).default(bot);
+            const event = new (await import('./' + path.relative(process.cwd(), `${eventFile.dir}${path.sep}${eventFile.name}${eventFile.ext}`))).default();
             bot.events.set(eventName, event);
             bot.on(event.event_type, (...args) => event.run(...args));
             
@@ -117,14 +102,14 @@ const init = async function () {
             bot.logger.error(`Error loading Discord event ${eventFile.name}: ${error}`);
         }
     }
-    bot.logger.log(`Loaded ${bot.events.size} Discord events`)
+    bot.logger.log(`Loaded ${bot.events.size} Discord events`);
 
     //import firebase events
     for await (const item of klaw('./events/firebase')){
         const eventFile = path.parse(item.path);
         if (!eventFile.ext || eventFile.ext !== '.js') continue;
         try {
-            const firebase_event = new (await import('./' + path.relative(process.cwd(), `${eventFile.dir}${path.sep}${eventFile.name}${eventFile.ext}`))).default(bot);
+            const firebase_event = new (await import('./' + path.relative(process.cwd(), `${eventFile.dir}${path.sep}${eventFile.name}${eventFile.ext}`))).default();
             admin.firestore().collection(firebase_event.collection).onSnapshot((snapshot) => {
                 if(!bot.readyAt) return;    //ensure bot is initialized before event is fired
                 if(snapshot.empty) return;
@@ -153,11 +138,28 @@ const init = async function () {
     }
     bot.logger.log(`Loaded ${bot.firebase_events.size} Firebase events`);
 
+    //import cron events
+    let cron_total = 0;
+    for await (const item of klaw('./events/cron')) {
+        const eventFile = path.parse(item.path);
+        if (!eventFile.ext || eventFile.ext !== '.js') continue;
+        try {
+            const event = new (await import('./' + path.relative(process.cwd(), `${eventFile.dir}${path.sep}${eventFile.name}${eventFile.ext}`))).default();
+            scheduleJob(event.schedule, () => event.run());
+            cron_total++;
+            
+            //delete require.cache[require.resolve(`${eventFile.dir}${path.sep}${eventFile.name}${eventFile.ext}`)];
+        } catch(error) {
+            bot.logger.error(`Error loading cron event ${eventFile.name}: ${error}`);
+        }
+    }
+    bot.logger.log(`Loaded ${cron_total} cron events`);
+
     bot.logger.log('Connecting to Discord...');
     bot.login(process.env.BOT_TOKEN).then(() => {
         bot.logger.debug(`Bot succesfully initialized. Environment: ${process.env.NODE_ENV}. Version: ${bot.CURRENT_VERSION}`);
         process.env.NODE_ENV !== 'development' &&   //send message in log channel when staging/prod bot is online
-            bot.logDiscord({embed: new EmbedBase(bot, {
+            bot.logDiscord({embed: new EmbedBase({
                 description: `\`${process.env.NODE_ENV}\` environment online, running version ${bot.CURRENT_VERSION}`,
             }).Success()});
         bot.logger.log('Beginning post-initializtion sequence...');
@@ -200,7 +202,7 @@ const postInit = async function () {
             try {
                 const ch = await bot.channels.fetch(doc.data().channel, true, true);
                 const msg = await ch.messages.fetch(doc.id, true, true);
-                const collector = await new ReactionCollector(bot, {
+                const collector = await new ReactionCollector({
                     type: ReactionCollector.Collectors[doc.data().type],
                     msg,
                 }).loadMessageCache(doc);
@@ -230,7 +232,7 @@ const postInit = async function () {
                 const msg = await ch.messages.fetch(doc.id, true, true);
                 const embed = msg.embeds[0];
                 if(!embed) throw new Error('No embeds found on the fetched message');
-                await new CommunityPoll(bot, {
+                await new CommunityPoll({
                     embed,
                     author: await bot.users.fetch(doc.data().created_by),
                     question: embed.title, 
@@ -284,7 +286,7 @@ const postInit = async function () {
                 const msg = await ch.messages.fetch(doc.id, true, true);
                 const embed = msg.embeds[0];
                 if(!embed) throw new Error('No embeds found on the fetched message');
-                await new CommunityClaimEvent(bot, {
+                await new CommunityClaimEvent({
                     embed,
                     author: await bot.users.fetch(doc.data().created_by),
                     title: embed.title, 

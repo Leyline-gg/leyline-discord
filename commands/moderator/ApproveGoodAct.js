@@ -1,9 +1,10 @@
+import bot from '../../bot';
 import { Command, EmbedBase, ReactionCollector } from '../../classes';
 import * as Firebase from '../../api';
 
 class ApproveGoodAct extends Command {
-    constructor(bot) {
-        super(bot, {
+    constructor() {
+        super({
             name: 'Approve Good Act',
             category: 'moderator',
             type: 'MESSAGE',
@@ -11,7 +12,6 @@ class ApproveGoodAct extends Command {
     }
 
     async run({intr, msg}) {
-        const { bot } = this;
 
         //Input Validations
         const cloud_collector = await Firebase.fetchCollector(msg.id);
@@ -37,21 +37,21 @@ class ApproveGoodAct extends Command {
         //Send confirmation prompt
         if (!(await bot.intrConfirm({
             intr,
-            embed: new EmbedBase(bot, {
+            embed: new EmbedBase({
                 description: `⚠ **Are you sure you want to approve this Good Act?\nIt will permanently be on this user's Proof of Good ledger.**`,
             }),
             ephemeral: true,
         })))
 			return bot.intrReply({
 				intr,
-				embed: new EmbedBase(bot, {
+				embed: new EmbedBase({
 					description: `❌ **Approval canceled**`,
 				}).Error(),
                 ephemeral: true,
 			});
 
         //instantiate collector to get mod_emojis
-        const collector = new ReactionCollector(bot, { type: ReactionCollector.Collectors.GOOD_ACTS, msg });
+        const collector = new ReactionCollector({ type: ReactionCollector.Collectors.GOOD_ACTS, msg });
         const response_intr = await (await bot.intrReply({
             intr,
             content: `Select an approval category`,
@@ -89,7 +89,7 @@ class ApproveGoodAct extends Command {
         collector.createThread();
         msg.react(emoji.toString());
 
-        return bot.intrReply({intr, embed: new EmbedBase(bot, {
+        return bot.intrReply({intr, embed: new EmbedBase({
             description: `✅ **Good Act Approved**`,
         }).Success(), content: '\u200b', components: [], ephemeral: true});
     }

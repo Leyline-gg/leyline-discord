@@ -1,3 +1,4 @@
+import bot from '../../bot';
 import * as Firebase from '../../api';
 import { EmbedBase, XPService, ReactionCollectorBase, CloudConfig, ImageService } from '..';
 
@@ -9,7 +10,7 @@ export class GoodActsReactionCollector extends ReactionCollectorBase {
 	get APPROVAL_GP() { return CloudConfig.get('ReactionCollector').GoodActs.APPROVAL_GP; }
 	get MOD_EMOJIS() { 
 		return CloudConfig.get('ReactionCollector').GoodActs.MOD_EMOJIS
-			.map(this.bot.constructEmoji)
+			.map(bot.constructEmoji)
 			.sort((a, b) => (
 				// this wonky syntax is because position is not a required prop
 				{position: Number.MAX_VALUE, ...a}.position -
@@ -20,10 +21,10 @@ export class GoodActsReactionCollector extends ReactionCollectorBase {
 	media_placeholder	//unfortunately, there is no easy way to extract the thumbnail from a video posted in discord
 		= 'https://cdn1.iconfinder.com/data/icons/growth-marketing/48/marketing_video_marketing-512.png';
 
-	constructor(bot, {
+	constructor({
 		msg,
 	}) {
-		super(bot, {
+		super({
 			type: 'GOOD_ACTS',
 			msg,
 		});
@@ -33,7 +34,7 @@ export class GoodActsReactionCollector extends ReactionCollectorBase {
 
 	// Callback specific to this Collector class
 	async reactionReceived({reaction, user}) {
-		const { bot, msg } = this;
+		const { msg } = this;
 
 		//check if user who reacted is msg author
 		if(user.id === msg.author.id) return;
@@ -53,7 +54,7 @@ export class GoodActsReactionCollector extends ReactionCollectorBase {
 	}
 
 	async approveSubmission({user, approval_emoji}) {
-		const { bot, msg } = this;
+		const { msg } = this;
 		try {
 			//store the activity type for GP award text both locally and in the cloud
 			msg._activityType = this.MOD_EMOJIS.find(e => e.toString() === approval_emoji.toString())?.keyword || 'Good Act';
@@ -71,7 +72,7 @@ export class GoodActsReactionCollector extends ReactionCollectorBase {
 			bot.sendReply({
 				msg,
 				content: `<@&${CTA_ROLE}> 🚨 **NEW APPROVED ${this.media_type.toUpperCase()}!!** 🚨`,
-				embed: new EmbedBase(bot, {
+				embed: new EmbedBase({
 					description: `A new ${this.media_type} was approved! Click [here](${msg.url} 'view message') to view the message.\nBe sure to react within 24 hours to get your GP!`,
 					thumbnail: { url: this.media_type === 'photo' ? this.attachment.url : this.media_placeholder },
 				}),

@@ -1,8 +1,9 @@
+import bot from '../../bot';
 import { Command, FirebaseCache } from '../../classes';
 
 class tag extends Command {
-    constructor(bot) {
-        super(bot, {
+    constructor() {
+        super({
             name: 'tag',
             description: 'Quickly send a pre-typed response using a reference keyword',
             category: 'general',
@@ -29,7 +30,7 @@ class tag extends Command {
     }
 
     async run({intr, opts}) {
-        const { bot, TAGS } = this;
+        const { TAGS } = this;
         await TAGS.awaitReady();   //ensure tags have been loaded
 
         const tagname = opts.getString('tagname');

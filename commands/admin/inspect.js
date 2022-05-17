@@ -1,9 +1,10 @@
+import bot from '../../bot';
 import { Command, EmbedBase } from '../../classes';
 import * as Firebase from '../../api';
 
 class inspect extends Command {
-    constructor(bot) {
-        super(bot, {
+    constructor() {
+        super({
             name: 'inspect',
             description: 'Conveniently view information about a Discord user that would otherwise be hard to find',
             options: [
@@ -19,14 +20,13 @@ class inspect extends Command {
     }
 
     async run({intr, opts}) {
-        const { bot } = this;
 
         const user = opts.getUser('user') || intr.user;
         const member = await bot.leyline_guild.members.fetch(user);
         const llid = await Firebase.getLeylineUID(user.id);
         const lldoc = !!llid && await Firebase.getLeylineDoc(llid);
 
-        bot.intrReply({intr, embed: new EmbedBase(bot, {
+        bot.intrReply({intr, embed: new EmbedBase({
             author: {
                 name: user.tag,
                 icon_url: user.avatarURL(),

@@ -1,8 +1,9 @@
+import bot from '../../../bot';
 import { JusticeCommand, SentenceService, EmbedBase } from '../../../classes';
 
 class mute extends JusticeCommand {
-    constructor(bot) {
-        super(bot, {
+    constructor() {
+        super({
             name: 'mute',
             sentence_type: SentenceService.SENTENCE_TYPES.MUTE,
             description: 'Issue a server mute to a Discord user',
@@ -11,7 +12,7 @@ class mute extends JusticeCommand {
 
     //Override parent
     async executeSentence({intr, user, expires, reason}) {
-        const { bot, sentence_type } = this;
+        const { sentence_type } = this;
         //issue sentence
         await SentenceService.muteUser({
             bot,
@@ -29,13 +30,13 @@ class mute extends JusticeCommand {
             expires,
             reason,
         });
-        return bot.intrReply({intr, embed: new EmbedBase(bot, {
+        return bot.intrReply({intr, embed: new EmbedBase({
             description: `⚖ **Sentence Successfully Issued**`,
         }).Sentence(), ephemeral: true});
     }
 
     async run({intr, opts}) {
-        const { bot, sentence_type } = this;
+        const { sentence_type } = this;
         const { SENTENCE_TYPES } = SentenceService;
 
         const { user, reason, expires } = super.parseInput(opts);
@@ -46,7 +47,7 @@ class mute extends JusticeCommand {
                 return bot.intrReply({
                     intr,
                     ephemeral: true,
-                    embed: new EmbedBase(bot, {
+                    embed: new EmbedBase({
                         description: `❌ **Sentence canceled**`,
                     }).Error(),
                 });

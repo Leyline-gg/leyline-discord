@@ -1,8 +1,9 @@
+import bot from '../../../bot';
 import { DiscordEvent } from "../../../classes";
 
 export default class extends DiscordEvent {
-    constructor(bot) {
-        super(bot, {
+    constructor() {
+        super({
             name: 'autocomplete',
             description: 'Receive and respond to command autocomplete events',
             event_type: 'interactionCreate',
@@ -10,7 +11,6 @@ export default class extends DiscordEvent {
     }
     
     async run(intr) {
-        const { bot } = this;
 
         if(!intr.isAutocomplete()) return;
         // Ignore commands sent by other bots or sent in DM

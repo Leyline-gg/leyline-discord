@@ -1,8 +1,9 @@
+import bot from '../../bot';
 import { Command, EmbedBase } from '../../classes';
 
 class ping extends Command {
-    constructor(bot) {
-        super(bot, {
+    constructor() {
+        super({
             name: 'ping',
             description: 'Get the latentcy of the bot and its connected APIs',
             category: 'general',
@@ -10,9 +11,8 @@ class ping extends Command {
     }
 
     async run({intr}) {
-        const { bot } = this;
         //TODO: implement Leyline API/Firebase API latency (choose a user-friendly label)
-        const response = await bot.intrReply({intr, embed: new EmbedBase(bot, {
+        const response = await bot.intrReply({intr, embed: new EmbedBase({
             description: 'Pinging...',
         }), fetchReply: true,});
 
@@ -22,7 +22,7 @@ class ping extends Command {
             /*leyline: new Date()*/
         };
 
-        bot.intrReply({intr, embed: new EmbedBase(bot, {
+        bot.intrReply({intr, embed: new EmbedBase({
             fields: [{
                 name: `It took ${latency.self}ms to respond`,
                 value: `Discord API Latency is ${latency.discord}ms`,

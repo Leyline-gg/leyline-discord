@@ -1,3 +1,4 @@
+import bot from '../../bot';
 import { Collection } from 'discord.js';
 import { EmbedBase, LeylineUser } from '..';
 import * as Firebase from '../../api';
@@ -7,7 +8,7 @@ import * as Firebase from '../../api';
  * Code structure based heavily off of `CommunityPoll`
  */
 export class CommunityClaimEvent {
-    constructor(bot, {
+    constructor({
         id = '',
         title = '',
         description = '',
@@ -16,14 +17,13 @@ export class CommunityClaimEvent {
         author = null,
         embed = null,
     }) {
-        this.bot = bot;
         this.id = id.replace(' ', '-');
         this.title = title.trim(),
         this.description = description.trim();
         this.duration = duration;
         this.nft = nft;
         this.author = bot.users.resolve(author);
-        this.embed = new EmbedBase(this.bot, !!embed ? {
+        this.embed = new EmbedBase(!!embed ? {
             ...embed.toJSON(),
             footer: `Organized by ${this.author.tag}`,
         } : {
@@ -50,9 +50,8 @@ export class CommunityClaimEvent {
     }
 
     end() {
-        const { bot } = this;
         //log event expiration
-        bot.logDiscord({embed: new EmbedBase(bot, {
+        bot.logDiscord({embed: new EmbedBase({
             fields: [{
                 name: 'Event Ended',
                 value: `The [event](${this.msg.url}) created by ${bot.formatUser(this.author)} with the title \`${this.title}\` just ended`,
@@ -112,12 +111,11 @@ export class CommunityClaimEvent {
      * @returns {Promise<boolean>} `true` if NFT was awarded and logs succesfully issued, `false` otherwise
      */
      async #awardNFT({intr, nft=this.nft, user, lluser} = {}) {
-        const { bot } = this;
         try {
             //Award NFT to LL user
             await Firebase.rewardNFT(lluser.uid, nft.id);
 
-            const reward_embed = new EmbedBase(bot, {
+            const reward_embed = new EmbedBase({
                 thumbnail: { url: nft.cloudinaryImageUrl },
                 title: 'NFT Awarded',
                 fields: [
@@ -145,7 +143,7 @@ export class CommunityClaimEvent {
         } catch(err) {
             bot.logger.error(`Error awarding NFT with id ${nft.id} to LL user ${lluser.uid}`);
             bot.logger.error(err);
-            bot.logDiscord({embed: new EmbedBase(bot, {
+            bot.logDiscord({embed: new EmbedBase({
                 thumbnail: { url: nft.cloudinaryImageUrl },
                 title: 'NFT __NOT__ Awarded',
                 description: `**Error**: ${err}`,
@@ -169,7 +167,7 @@ export class CommunityClaimEvent {
                     { name: '\u200b', value: '\u200b', inline: true },
                 ],
             }).Error()}).then(m => //chained so we can include the URL of the private log msg
-                bot.intrReply({intr, embed: new EmbedBase(bot, {
+                bot.intrReply({intr, embed: new EmbedBase({
                     description: `❌ **I ran into an error, please check the log [message](${m.url}) for more information**`,
                 }).Error(), ephemeral: true}));
             return false;
@@ -184,8 +182,7 @@ export class CommunityClaimEvent {
      * @returns {Promise<true>} Promise that resolves to true after message has been sent (not delivered) 
      */
      async #messageUser({user, nft=this.nft} = {}) {
-        const { bot } = this;
-        bot.sendDM({user, embed: new EmbedBase(bot, {
+        bot.sendDM({user, embed: new EmbedBase({
             thumbnail: { url: nft.cloudinaryImageUrl },
             fields: [
                 {
@@ -208,7 +205,6 @@ export class CommunityClaimEvent {
     }
 
     createCollector(msg=this.msg) {
-        const { bot } = this;
         this.msg ||= msg;
         this.id ||= msg.id;
 
@@ -243,7 +239,7 @@ export class CommunityClaimEvent {
                 await this.#messageUser({user});
 
             //log claim
-            bot.logDiscord({embed: new EmbedBase(bot, {
+            bot.logDiscord({embed: new EmbedBase({
                 fields: [{
                     name: 'User Claimed NFT',
                     value: `${bot.formatUser(user)} claimed the NFT for the \`${this.title}\` event`,
@@ -252,7 +248,7 @@ export class CommunityClaimEvent {
 
             return bot.intrReply({
                 intr,
-                embed: new EmbedBase(bot, {
+                embed: new EmbedBase({
                     description: `✅ **NFT Claimed Successfully**`,
                 }).Success(),
                 ephemeral: true,
@@ -279,7 +275,6 @@ export class CommunityClaimEvent {
      * @returns {Promise<Message>} the event `Message` that was sent
      */
     async publish({channel}) {
-        const { bot } = this;
         //send and store message
         const msg = await bot.channels.resolve(channel).send({
             embeds: [this.embed],
@@ -310,7 +305,7 @@ export class CommunityClaimEvent {
         this.createCollector(msg);
 
         //log event creation
-        bot.logDiscord({embed: new EmbedBase(bot, {
+        bot.logDiscord({embed: new EmbedBase({
             fields: [{
                 name: 'Event Started',
                 value: `${bot.formatUser(this.author)} started a new [event](${this.msg.url}) called \`${this.title}\`, set to expire on ${bot.formatTimestamp(Date.now() + this.duration, 'F')}`,

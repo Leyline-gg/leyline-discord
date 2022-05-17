@@ -1,8 +1,9 @@
+import bot from '../../../bot';
 import { JusticeCommand, SentenceService, EmbedBase } from '../../../classes';
 
 class history extends JusticeCommand {
-    constructor(bot) {
-        super(bot, {
+    constructor() {
+        super({
             name: 'history',
             sentence_type: 'HISTORY',
             description: 'View the entire recorded sentence history for a Discord user',
@@ -15,7 +16,6 @@ class history extends JusticeCommand {
 
     //Override parent
     async executeSentence({intr, user}) {
-        const { bot } = this;
         const mod = bot.checkMod(user.id);  //we use this twice below
         return bot.intrReply({
             intr, 
@@ -32,7 +32,7 @@ class history extends JusticeCommand {
     }
 
     async run({intr, opts}) {
-        const { bot, sentence_type } = this;
+        const { sentence_type } = this;
         const { SENTENCE_TYPES } = SentenceService;
 
         const { user } = super.parseInput(opts);
@@ -43,7 +43,7 @@ class history extends JusticeCommand {
                 return bot.intrReply({
                     intr,
                     ephemeral: true,
-                    embed: new EmbedBase(bot, {
+                    embed: new EmbedBase({
                         description: `❌ **Sentence canceled**`,
                     }).Error(),
                 });

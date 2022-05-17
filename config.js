@@ -83,6 +83,8 @@ export default {
                 submission_log: '903056355311644732',   //private submission log
                 ama_vc: '794283967460147221',
                 polls: '790063418898907166',
+                staff: '751938945364787360',    //staff-only channel
+                announcements: '751938743065378907',
             },
             events: {
                 goodActs: {
@@ -169,6 +171,8 @@ export default {
 				submission_log: '903055896173764659', //private submission log
 				ama_vc: '869993145499287604',
 				polls: '877229054456107069',
+                staff: '973691346319736843',    //staff-only channel
+                announcements: '973691873178832967',
 			},
 			events: {
 				goodActs: {

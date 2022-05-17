@@ -1,10 +1,11 @@
+import bot from '../../bot';
 import { Constants } from 'discord.js';
 const { ActivityTypes } = Constants;
 import { Command, EmbedBase } from '../../classes';
 
 class setstatus extends Command {
-    constructor(bot) {
-        super(bot, {
+    constructor() {
+        super({
             name: 'setstatus',
             description: 'Set the Discord status of the bot',
             options: [
@@ -34,7 +35,6 @@ class setstatus extends Command {
     }
 
     run({intr, opts}) {
-        const { bot } = this;
         const status_name = opts.getString('text');
 
         bot.user.setPresence({activities:[
@@ -44,7 +44,7 @@ class setstatus extends Command {
             }] : []), 
         ]});
 
-        bot.intrReply({intr, embed: new EmbedBase(bot, {
+        bot.intrReply({intr, embed: new EmbedBase({
             description: `✅ **Status updated**`,
         }).Success()});
     }
