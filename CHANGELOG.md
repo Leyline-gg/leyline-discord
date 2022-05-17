@@ -1,3 +1,15 @@
+# [3.0.0](https://github.com/Leyline-gg/leyline-discord/releases/tag/v3.0.0) (2022-05-16)
+
+## Dev Notes
+A major release that features a significant internal refactor and a small number of behind-the-scenes changes.
+
+## New Features
+- Weekly event automation
+    - Once a week, all events from the internal Leyline calendar on Notion will be automatically imported to Discord and announced in the server announcements channel
+- Improved logging
+    - Bot logs are now stored in local files to improve the developer experience
+- Internal software changes
+
 # [2.9.1](https://github.com/Leyline-gg/leyline-discord/releases/tag/v2.9.1) (2022-03-23)
 
 ## Dev Notes
