@@ -2,8 +2,6 @@ import bot from '../../bot';
 import * as Firebase from '../../api';
 import { EmbedBase, XPService, ReactionCollectorBase, CloudConfig, ImageService } from '..';
 
-const CTA_ROLE = '853414453206188063'; //role to ping when photo is approved
-
 export class GoodActsReactionCollector extends ReactionCollectorBase {
 	//override parent properties
 	get REACTION_GP() { return CloudConfig.get('ReactionCollector').GoodActs.REACTION_GP; }
@@ -71,7 +69,7 @@ export class GoodActsReactionCollector extends ReactionCollectorBase {
 			//send msg in channel
 			bot.sendReply({
 				msg,
-				content: `<@&${CTA_ROLE}> 🚨 **NEW APPROVED ${this.media_type.toUpperCase()}!!** 🚨`,
+				content: `<@&${bot.config.roles.good_acts}> 🚨 **NEW APPROVED ${this.media_type.toUpperCase()}!!** 🚨`,
 				embed: new EmbedBase({
 					description: `A new ${this.media_type} was approved! Click [here](${msg.url} 'view message') to view the message.\nBe sure to react within 24 hours to get your GP!`,
 					thumbnail: { url: this.media_type === 'photo' ? this.attachment.url : this.media_placeholder },

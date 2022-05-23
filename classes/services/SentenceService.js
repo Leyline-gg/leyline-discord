@@ -192,7 +192,7 @@ export class SentenceService {
      * @returns {Promise<boolean>} Resolves to true if successfully executed
      */
     static async muteUser({bot, user, mod, expires=null, reason=null} = {}) {
-        const MUTED_ROLE = bot.config.muted_role;
+        const MUTED_ROLE = bot.config.roles.muted;
         const type = this.SENTENCE_TYPES.MUTE;
 
         const member = await bot.leyline_guild.members.fetch({
@@ -396,7 +396,7 @@ export class SentenceService {
      * @returns {Promise<boolean>} Resolves to true if successfully executed
      */
      static async unmuteUser({bot, id, uid, issued_by, reason=null}= {}) {
-        const MUTED_ROLE = bot.config.muted_role;
+        const MUTED_ROLE = bot.config.roles.muted;
         const issuer = await bot.users.fetch(issued_by);
 
         //resolve target
