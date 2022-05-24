@@ -35,13 +35,13 @@ class LeylineBot extends Client {
      * Send a single embed in the `channel` of the `msg` argument
      * @param {Object} args
      * @param {Message} args.msg Discord.js `Message` object, target channel is taken from this
-     * @param {EmbedBase} args.embed Singular embed object to be sent in channel
+     * @param {EmbedBase} [args.embed] Singular embed object to be sent in channel
      * @returns {Promise<Message>}
      */
-    sendEmbed({msg, embed, ...options}) {
+    sendEmbed({msg, embed=null, ...options}) {
         if(!msg.channel) throw new Error(`No channel property found on the msg object: ${msg}`);
         return msg.channel.send({msg, 
-            embeds: [embed],
+            embeds: !!embed ? [embed] : [],
             ...options,
         });
     }
@@ -50,12 +50,12 @@ class LeylineBot extends Client {
      * Send an inline reply to the `msg` that mentions the author
      * @param {Object} args
      * @param {Message} args.msg Discord.js `Message` object, target author is taken from this
-     * @param {EmbedBase} args.embed Singular embed object to be sent as response
+     * @param {EmbedBase} [args.embed] Singular embed object to be sent as response
      * @returns {Promise<Message>}
      */
-    sendReply({msg, embed, ...options}) {
+    sendReply({msg, embed=null, ...options}) {
         return msg.reply({
-            embeds: [embed],
+            embeds: !!embed ? [embed] : [],
             failIfNotExists: false,
             ...options,
         });
@@ -65,13 +65,13 @@ class LeylineBot extends Client {
      * Send a direct message to the target user, catches error if user has closed DMs
      * @param {Object} args
      * @param {User} args.user Discord.js `User` object; recipient of msg
-     * @param {EmbedBase} args.embed Singular embed object to be sent as response
+     * @param {EmbedBase} [args.embed] Singular embed object to be sent as response
      * @param {boolean} [args.send_disabled_msg] Whether or not to send a public message prompting the user to enable messages from server members
      * @returns {Promise<Message>}
      */
-    sendDM({user, embed, send_disabled_msg=true, ...options} = {}) {
+    sendDM({user, embed=null, send_disabled_msg=true, ...options} = {}) {
         return user.send({
-            embeds: [embed],
+            embeds: !!embed ? [embed] : [],
             ...options,
         }).catch((e) => {
             send_disabled_msg && this.sendDisabledDmMessage(user);
@@ -82,12 +82,12 @@ class LeylineBot extends Client {
     /**
      * Sends a discord message on the bot's behalf to a private log channel
      * @param {Object} args
-     * @param {EmbedBase} args.embed Singular embed object to be sent in message 
+     * @param {EmbedBase} [args.embed] Singular embed object to be sent in message 
      * @returns {Promise<Message>} Promise which resolves to the sent message
      */
-    async logDiscord({embed, ...options}) {
+    async logDiscord({embed=null, ...options}) {
         return (await this.channels.fetch(this.config.channels.private_log)).send({
-            embeds: [embed],
+            embeds: !!embed ? [embed] : [],
             ...options,
         });
     }
@@ -95,12 +95,12 @@ class LeylineBot extends Client {
     /**
      * Sends a discord message on the bot's behalf to a public log channel
      * @param {Object} args
-     * @param {EmbedBase} args.embed Singular embed object to be sent in message
+     * @param {EmbedBase} [args.embed] Singular embed object to be sent in message
      * @returns {Promise<Message>} Promise which resolves to the sent message
      */
-    async msgBotChannel({embed, ...options}) {
+    async msgBotChannel({embed=null, ...options}) {
         return (await this.channels.fetch(this.config.channels.public_log)).send({
-            embeds: [embed],
+            embeds: !!embed ? [embed] : [],
             ...options,
         });
     }
@@ -108,12 +108,12 @@ class LeylineBot extends Client {
     /**
      * Sends a discord message on the bot's behalf to a public log channel, specific for rewards
      * @param {Object} args
-     * @param {EmbedBase} args.embed Singular embed object to be sent in message
+     * @param {EmbedBase} [args.embed] Singular embed object to be sent in message
      * @returns {Promise<Message>} Promise which resolves to the sent message
      */
-    async logReward({embed, ...options}) {
+    async logReward({embed=null, ...options}) {
         return (await this.channels.fetch(this.config.channels.reward_log)).send({
-            embeds: [embed],
+            embeds: !!embed ? [embed] : [],
             ...options,
         });
     }
@@ -121,12 +121,12 @@ class LeylineBot extends Client {
     /**
      * Sends a discord message on the bot's behalf to a public log channel, specific for sentences
      * @param {Object} args
-     * @param {EmbedBase} args.embed Singular embed object to be sent in message
+     * @param {EmbedBase} [args.embed] Singular embed object to be sent in message
      * @returns {Promise<Message>} Promise which resolves to the sent message
      */
-     async logSentence({embed, ...options}) {
+    async logSentence({embed=null, ...options}) {
         return (await this.channels.fetch(this.config.channels.mod_log)).send({
-            embeds: [embed],
+            embeds: !!embed ? [embed] : [],
             ...options,
         });
     }
@@ -134,12 +134,12 @@ class LeylineBot extends Client {
     /**
      * Sends a discord message on the bot's behalf to a private log channel, specific for submissions
      * @param {Object} args
-     * @param {EmbedBase} args.embed Singular embed object to be sent in message
+     * @param {EmbedBase} [args.embed] Singular embed object to be sent in message
      * @returns {Promise<Message>} Promise which resolves to the sent message
      */
-    async logSubmission({embed, ...options}) {
+    async logSubmission({embed=null, ...options}) {
         return (await this.channels.fetch(this.config.channels.submission_log)).send({
-            embeds: [embed],
+            embeds: !!embed ? [embed] : [],
             ...options,
         });
     }
@@ -147,12 +147,12 @@ class LeylineBot extends Client {
     /**
      * Sends a discord message on the bot's behalf to a private staff channel
      * @param {Object} args
-     * @param {EmbedBase} args.embed Singular embed object to be sent in message
+     * @param {EmbedBase} [args.embed] Singular embed object to be sent in message
      * @returns {Promise<Message>} Promise which resolves to the sent message
      */
-     async logStaff({embed, ...options}) {
+    async logStaff({embed=null, ...options}) {
         return (await this.channels.fetch(this.config.channels.staff)).send({
-            embeds: [embed],
+            embeds: !!embed ? [embed] : [],
             ...options,
         });
     }
@@ -160,12 +160,12 @@ class LeylineBot extends Client {
     /**
      * Sends a discord message on the bot's behalf to a public announcement channel
      * @param {Object} args
-     * @param {EmbedBase} args.embed Singular embed object to be sent in message
+     * @param {EmbedBase} [args.embed] Singular embed object to be sent in message
      * @returns {Promise<Message>} Promise which resolves to the sent message
      */
-     async sendAnnouncement({embed, ...options}) {
+    async sendAnnouncement({embed=null, ...options}) {
         return (await this.channels.fetch(this.config.channels.announcements)).send({
-            embeds: [embed],
+            embeds: !!embed ? [embed] : [],
             ...options,
         });
     }
