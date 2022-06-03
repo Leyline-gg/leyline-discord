@@ -1,3 +1,12 @@
+# [3.1.0](https://github.com/Leyline-gg/leyline-discord/releases/tag/v3.1.0) (2022-06-03)
+
+## Dev Notes
+A minor release to assist the community team with event announcements
+
+## New Features
+- Automated event announcements
+    - Two hours prior to an event, an automated announcement will be sent in #announcements by the bot, notifying those with the Event Announcements selfrole
+
 # [3.0.0](https://github.com/Leyline-gg/leyline-discord/releases/tag/v3.0.0) (2022-05-16)
 
 ## Dev Notes

@@ -111,8 +111,13 @@ export default {
             self_roles: [
                 '853414453206188063',   //do good alerts
                 '874704370103615559',   //Bot Updates
+                '957052350588125185',   //Event Announcements
             ],
-            muted_role: '896538689734324224',
+            roles: {
+                muted: '896538689734324224',
+                good_acts: '853414453206188063',
+                event_announcements: '957052350588125185',
+            },
         };
     },
     get development() {
@@ -194,7 +199,10 @@ export default {
 				'858144532318519326', //Leyline Staff
 			],
 			self_roles: ['873234204706631720', '865629785015320608'],
-			muted_role: '894741083186139156',
+			roles: { 
+                muted: '894741083186139156',
+                event_announcements: '978445045206229012',
+            },
 		};
     },
     get staging() {

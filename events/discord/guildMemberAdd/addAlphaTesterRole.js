@@ -15,4 +15,4 @@ export default class extends DiscordEvent {
             member.roles.add(this.alpha_role, 'Joined server after linking Leyline & Discord accounts');
         return;
     }
-};
+}
