@@ -30,7 +30,7 @@
 		"moment": "^2.29.3",
 		"node-html-parser": "^5.3.3",
 		"node-schedule": "^2.1.0",
-		"parse-duration": "^1.0.0",
+		"parse-duration": "^1.0.2",
 		"serialize-error": "^10.0.0",
 		"truncate": "^2.1.0"
 	}
