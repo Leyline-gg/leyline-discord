@@ -25,7 +25,7 @@
 		"dotenv": "^10.0.0",
 		"firebase-admin": "^10.2.0",
 		"html-entities": "^2.3.2",
-		"klaw": "^3.0.0",
+		"klaw": "^4.0.1",
 		"lodash-es": "^4.17.21",
 		"moment": "^2.29.3",
 		"node-html-parser": "^5.3.3",
