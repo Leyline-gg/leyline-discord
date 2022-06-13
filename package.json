@@ -24,7 +24,7 @@
 		"discord.js": "^13.8.0",
 		"dotenv": "^16.0.1",
 		"firebase-admin": "^10.3.0",
-		"html-entities": "^2.3.2",
+		"html-entities": "^2.3.3",
 		"klaw": "^4.0.1",
 		"lodash-es": "^4.17.21",
 		"moment": "^2.29.3",
