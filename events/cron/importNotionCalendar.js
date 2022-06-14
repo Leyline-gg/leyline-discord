@@ -48,7 +48,7 @@ export default class extends CronEvent {
                     event.properties.Name.title[0].plain_text,
                     event.properties.Date.date.start,
                     (await bot.leyline_guild.channels.fetch()).find(c => c.name.includes(event.properties['Discord Channel'].select.name)),
-                    blocks.results.findIndex(b => b[b.type].rich_text[0]?.plain_text?.toLowerCase()?.includes('description')) + 1,
+                    blocks.results.findIndex(b => b?.[b.type]?.rich_text?.[0]?.plain_text?.toLowerCase()?.includes('description')) + 1,
                 ];
 
                 if(!channel) throw new Error(`Event ${event.id} passed "${event.properties['Discord Channel'].select.name}" as an invalid voice channel`);
@@ -103,11 +103,9 @@ export default class extends CronEvent {
                     title: `📅  This Week's Events`,
                     fields: scheduled_events.map(e => ({
                         name: e.name,
-                        value: `
-                            ${bot.formatTimestamp(e.scheduledStartTimestamp, 'F')}
-                            *${e?.description ?? ''}*
-                            [More info](${e.url})
-                        `,
+                        value: `${bot.formatTimestamp(e.scheduledStartTimestamp, 'F')} \
+                                ${!!e?.description ? `\n*${e.description}*` : ''}
+                                [More info](${e.url})`,
                         inline: false,
                     })),
                 }),
