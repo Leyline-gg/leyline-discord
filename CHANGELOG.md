@@ -1,3 +1,12 @@
+# [3.1.1](https://github.com/Leyline-gg/leyline-discord/releases/tag/v3.1.1) (2022-06-13)
+
+## Dev Notes
+Bugfixes for the previously released automated event announcement feature
+
+## Bug Fixes
+- Events failing to import if the description was missing on Notion
+- Weekly event announcement message formatting issues
+
 # [3.1.0](https://github.com/Leyline-gg/leyline-discord/releases/tag/v3.1.0) (2022-06-03)
 
 ## Dev Notes
