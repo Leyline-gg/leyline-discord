@@ -32,6 +32,6 @@
 		"node-schedule": "^2.1.0",
 		"parse-duration": "^1.0.2",
 		"serialize-error": "^11.0.0",
-		"truncate": "^2.1.0"
+		"truncate": "^3.0.0"
 	}
 }
