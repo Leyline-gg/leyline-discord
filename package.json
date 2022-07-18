@@ -16,7 +16,7 @@
 	"author": "Leyline",
 	"license": "ISC",
 	"dependencies": {
-		"@google-cloud/pubsub": "^3.0.1",
+		"@google-cloud/pubsub": "^3.1.0",
 		"@google-cloud/vision": "^2.4.2",
 		"@notionhq/client": "^1.0.4",
 		"chalk": "^4.1.2",
